@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <style>
     :root { --bg: #070b14; --panel: #0e1525; --line: #1e2a44; --text: #e8eefc; --muted: #8e9bba; --orange: #ff9a3c; --cyan: #38d9f5; --green: #34d399; --red: #fb7185; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,6 +24,10 @@
     .toggle { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
     .toggle button { padding: 8px 16px; border: 0; border-radius: 9px; background: none; color: var(--muted); font-weight: 600; }
     .toggle button.on { background: var(--cyan); color: #04121a; }
+    .tool { padding: 8px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font-weight: 600; }
+    .tool:hover { border-color: var(--cyan); }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--panel); border: 1px solid var(--cyan); padding: 12px 18px; border-radius: 12px; transition: transform .3s; }
+    .toast.show { transform: translate(-50%, 0); }
     .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
     .card h3 { font-size: 14px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
@@ -65,14 +70,19 @@
   <div class="wrap">
     <div class="top">
       <div><h1>Migración a la nube · Distribuidora Norte</h1><p class="muted">De servidores físicos a una arquitectura en contenedores con alta disponibilidad</p></div>
-      <div class="toggle" role="tablist"><button id="b-onprem">Antes (on-premise)</button><button id="b-cloud" class="on">Después (cloud)</button></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="toggle" role="tablist"><button id="b-onprem">Antes (on-premise)</button><button id="b-cloud" class="on">Después (cloud)</button></div>
+        <div class="toggle"><button id="c-usd" class="on">USD</button><button id="c-pen">S/</button></div>
+        <button class="tool" id="share">🔗 Copiar enlace</button>
+        <button class="tool" id="report">⬇ Reporte PDF</button>
+      </div>
     </div>
 
     <div class="grid">
       <div class="card kpi s3"><h3>Costo mensual</h3><b id="k-cost">—</b><small id="k-cost-d"></small></div>
       <div class="card kpi s3"><h3>Disponibilidad</h3><b id="k-up">—</b><small id="k-up-d"></small></div>
       <div class="card kpi s3"><h3>Tiempo de despliegue</h3><b id="k-dep">—</b><small id="k-dep-d"></small></div>
-      <div class="card kpi s3"><h3>Latencia p95</h3><b id="k-lat" class="mono">—</b><small class="muted">en vivo</small></div>
+      <div class="card kpi s3"><h3>Latencia p95</h3><b id="k-lat" class="mono">—</b><small class="muted" id="k-lat-d">midiendo…</small></div>
 
       <div class="card s8">
         <h3>Arquitectura</h3>
@@ -113,10 +123,11 @@
         <div class="saving"><span class="muted">Ahorro anual estimado</span><br><b id="save" class="mono">—</b> <span id="save-pct" class="muted"></span></div>
       </div>
 
-      <div class="card s6"><h3>Costo mensual proyectado (USD)</h3><div class="chart-box"><canvas id="c-cost"></canvas></div></div>
-      <div class="card s12"><h3>Latencia en tiempo real (ms)</h3><div class="chart-box" style="height:160px"><canvas id="c-lat"></canvas></div></div>
+      <div class="card s6"><h3>Costo mensual proyectado</h3><div class="chart-box"><canvas id="c-cost"></canvas></div></div>
+      <div class="card s12"><h3 id="lat-title">Latencia real: tu navegador → servidor en Vercel (ms)</h3><div class="chart-box" style="height:160px"><canvas id="c-lat"></canvas></div></div>
     </div>
   </div>
+  <div class="toast" id="toast"></div>
 
   <script>
     const $ = (id) => document.getElementById(id);
@@ -131,14 +142,16 @@
       const cloud = srv * 140 + tb * 23 + hrs * 25 * 0.4 + 60;
       return { onprem, cloud };
     }
-    const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    const RATE = 3.75; // tipo de cambio referencial USD → PEN
+    let cur = "USD";
+    const usd = (n) => (cur === "USD" ? "$" + Math.round(n).toLocaleString("en-US") : "S/ " + Math.round(n * RATE).toLocaleString("es-PE"));
     const costChart = new Chart($("c-cost"), {
       type: "line",
       data: { labels: ["Mes 1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], datasets: [
         { label: "On-premise", data: [], borderColor: "#fb7185", backgroundColor: "rgba(251,113,133,.08)", fill: true, tension: .35, pointRadius: 0 },
         { label: "Cloud", data: [], borderColor: "#38d9f5", backgroundColor: "rgba(56,217,245,.1)", fill: true, tension: .35, pointRadius: 0 },
       ] },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { ticks: { callback: (v) => "$" + v } } } },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { ticks: { callback: (v) => usd(v) } } } },
     });
     function update() {
       const c = costs(), yearly = (c.onprem - c.cloud) * 12;
@@ -156,7 +169,35 @@
       $("k-dep").textContent = m ? "8 min" : "1 día";
       $("k-dep-d").innerHTML = m ? `<span class="up">CI/CD automático</span>` : `<span class="down">manual, fuera de horario</span>`;
     }
-    ["srv", "tb", "hrs"].forEach((id) => ($(id).oninput = update));
+    ["srv", "tb", "hrs"].forEach((id) => ($(id).oninput = () => { update(); history.replaceState(null, "", "#" + ["srv", "tb", "hrs"].map((k) => `${k}=${$(k).value}`).join("&")); }));
+    // Valores compartidos por enlace (#srv=4&tb=6&hrs=20)
+    new URLSearchParams(location.hash.slice(1)).forEach((v, k) => { if (["srv", "tb", "hrs"].includes(k) && $(k)) $(k).value = Math.max($(k).min, Math.min($(k).max, +v || 0)); });
+    let tt; const toast = (m) => { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2200); };
+    const setCur = (c) => { cur = c; $("c-usd").classList.toggle("on", c === "USD"); $("c-pen").classList.toggle("on", c === "PEN"); costChart.options.scales.y.ticks.callback = (v) => usd(v); update(); };
+    $("c-usd").onclick = () => setCur("USD"); $("c-pen").onclick = () => setCur("PEN");
+    $("share").onclick = async () => {
+      const url = location.href.split("#")[0] + "#" + ["srv", "tb", "hrs"].map((k) => `${k}=${$(k).value}`).join("&");
+      try { await navigator.clipboard.writeText(url); toast("Enlace copiado: abre la calculadora con estos valores"); } catch { prompt("Copia este enlace:", url); }
+    };
+    $("report").onclick = () => {
+      const { jsPDF } = window.jspdf, doc = new jsPDF(), c = costs();
+      doc.setFillColor(7, 11, 20); doc.rect(0, 0, 210, 30, "F");
+      doc.setTextColor(56, 217, 245); doc.setFontSize(18); doc.text("Nimbus · Propuesta de migración", 14, 19);
+      doc.setTextColor(30); doc.setFontSize(11);
+      const lines = [
+        `Fecha: ${new Date().toLocaleDateString("es-PE")}`,
+        `Servidores: ${$("srv").value} · Almacenamiento: ${$("tb").value} TB · Soporte: ${$("hrs").value} h/mes`,
+        "", `Costo mensual actual (on-premise): ${usd(c.onprem)}`, `Costo mensual estimado en la nube: ${usd(c.cloud)}`,
+        `Ahorro anual estimado: ${usd((c.onprem - c.cloud) * 12)} (${Math.round((1 - c.cloud / c.onprem) * 100)}% menos)`,
+        "", "Disponibilidad: 97.2% → 99.95% · Despliegues: 1 día → 8 minutos",
+        `Latencia p95 medida al servidor actual: ${$("k-lat").textContent}`,
+      ];
+      lines.forEach((l, i) => doc.text(l, 14, 44 + i * 7));
+      doc.addImage(costChart.toBase64Image("image/png", 1), "PNG", 14, 120, 182, 80);
+      doc.setFontSize(9); doc.setTextColor(120);
+      doc.text("Estimación referencial generada en la demo de Wilk Works. Los costos reales dependen del proveedor y del uso.", 14, 212);
+      doc.save("propuesta-migracion.pdf");
+    };
 
     function setMode(m) {
       mode = m;
@@ -180,18 +221,29 @@
     setInterval(() => { done = (done + 1) % (STEPS.length + 1); renderSteps(); }, 1600);
 
     // Latencia simulada en vivo
-    const N = 60, lat = Array.from({ length: N }, () => 40 + Math.random() * 15);
+    const N = 60, lat = [];
     const latChart = new Chart($("c-lat"), {
       type: "line",
       data: { labels: Array(N).fill(""), datasets: [{ data: lat, borderColor: "#34d399", borderWidth: 2, tension: .3, pointRadius: 0, fill: true, backgroundColor: "rgba(52,211,153,.08)" }] },
-      options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, max: 400 } } },
+      options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, suggestedMax: 400 } } },
     });
-    setInterval(() => {
-      const base = mode === "cloud" ? 42 : 180, jitter = mode === "cloud" ? 18 : 140;
-      lat.push(base + Math.random() * jitter); lat.shift();
+    async function ping() {
+      const t0 = performance.now();
+      try { await fetch(location.pathname + "?ping=" + Date.now(), { method: "HEAD", cache: "no-store" }); return performance.now() - t0; } catch { return null; }
+    }
+    let busy = false;
+    setInterval(async () => {
+      if (busy) return; busy = true;
+      let v;
+      if (mode === "cloud") { v = await ping(); $("k-lat-d").textContent = v == null ? "sin conexión" : "medido desde tu navegador"; $("lat-title").textContent = "Latencia real: tu navegador → servidor en Vercel (ms)"; }
+      else { v = 180 + Math.random() * 140; $("k-lat-d").textContent = "simulado (servidor físico)"; $("lat-title").textContent = "Latencia simulada del servidor físico anterior (ms)"; }
+      busy = false;
+      if (v == null) return;
+      lat.push(v);
       latChart.data.datasets[0].borderColor = mode === "cloud" ? "#34d399" : "#fb7185";
       latChart.update();
-      $("k-lat").textContent = Math.round([...lat].sort((a, b) => a - b)[Math.floor(N * 0.95)]) + " ms";
+      while (lat.length > N) lat.shift();
+      $("k-lat").textContent = Math.round([...lat].sort((a, b) => a - b)[Math.floor(lat.length * 0.95)] || 0) + " ms";
     }, 500);
     setMode("cloud");
   </script>

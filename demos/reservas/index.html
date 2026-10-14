@@ -2,71 +2,103 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Vitalis · App de reservas (demo)</title>
-  <meta name="description" content="Demo de app móvil de reservas con recordatorios por WhatsApp. Hecho por Wilk Works.">
+  <meta name="description" content="Demo de app de reservas instalable: calendario, recordatorios por WhatsApp, QR y calendario. Hecho por Wilk Works.">
+  <meta name="theme-color" content="#1f7aec">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    :root { --bg: #eef3f8; --ink: #11243a; --muted: #6b7c90; --card: #fff; --line: #e1e8f0; --brand: #1f7aec; --brand-soft: #e6f0ff; --mint: #19b38a; }
+    :root { --bg: #eef3f8; --ink: #11243a; --muted: #5f7086; --card: #fff; --line: #e1e8f0; --brand: #1f7aec; --brand-soft: #e6f0ff; --mint: #19b38a; --red: #e5484d; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font: 15px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; background: radial-gradient(circle at 20% 10%, #dbe9ff, transparent 40%), radial-gradient(circle at 80% 90%, #d5f5ea, transparent 40%), var(--bg); color: var(--ink); min-height: 100vh; }
     button { font: inherit; cursor: pointer; }
+    a { color: inherit; }
     .demo-bar { background: var(--ink); color: #cfe0f5; font-size: 13px; text-align: center; padding: 8px 16px; }
     .demo-bar a { color: #8fc0ff; }
-    .stage { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; padding: 36px 24px; min-height: calc(100vh - 36px); }
-    .side { max-width: 320px; justify-self: end; }
+    .stage { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; padding: 32px 24px; min-height: calc(100vh - 36px); }
+    .side { max-width: 330px; justify-self: end; }
     .side h1 { font-size: 34px; line-height: 1.15; margin-bottom: 12px; }
     .side p, .side li { color: var(--muted); }
     .side ul { margin-top: 16px; padding-left: 18px; display: grid; gap: 6px; }
-    .phone { width: 375px; height: 760px; border-radius: 44px; background: #0d1b2a; padding: 12px; box-shadow: 0 40px 80px -30px rgba(17, 36, 58, .55); }
+    .side .install { margin-top: 20px; }
+    .phone { width: 380px; height: 780px; border-radius: 44px; background: #0d1b2a; padding: 12px; box-shadow: 0 40px 80px -30px rgba(17, 36, 58, .55); }
     .screen { position: relative; width: 100%; height: 100%; border-radius: 34px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
     .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; border-radius: 14px; background: #0d1b2a; z-index: 3; }
     .bar { padding: 46px 20px 14px; background: var(--card); }
     .bar small { color: var(--muted); }
     .bar h2 { font-size: 22px; }
-    .content { flex: 1; overflow: auto; padding: 16px 18px 90px; }
-    .steps { display: flex; gap: 6px; margin: 12px 0 0; }
+    .steps { display: flex; gap: 6px; margin-top: 12px; }
     .steps i { flex: 1; height: 4px; border-radius: 2px; background: var(--line); transition: background .3s; }
     .steps i.on { background: var(--brand); }
+    .content { flex: 1; overflow: auto; padding: 16px 16px 150px; }
+    .content:has(.again) { padding-bottom: 84px; }
     h3 { font-size: 15px; margin: 6px 0 10px; }
-    .svc { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid transparent; background: var(--card); margin-bottom: 10px; transition: border-color .2s, transform .15s; }
+    .svc { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid transparent; background: var(--card); margin-bottom: 10px; transition: border-color .2s, transform .15s; color: var(--ink); }
     .svc:active { transform: scale(.98); }
     .svc.on { border-color: var(--brand); }
-    .svc .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-soft); display: grid; place-items: center; font-size: 22px; }
+    .svc .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-soft); display: grid; place-items: center; font-size: 22px; flex: none; }
     .svc small { color: var(--muted); display: block; }
     .svc b.price { margin-left: auto; }
-    .days { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; }
-    .day { flex: none; width: 58px; padding: 10px 0; border-radius: 14px; border: 0; background: var(--card); text-align: center; }
-    .day small { display: block; color: var(--muted); font-size: 12px; }
-    .day b { font-size: 18px; }
-    .day.on { background: var(--brand); color: #fff; }
-    .day.on small { color: #d6e7ff; }
+    .cal { display: flex; justify-content: center; margin-bottom: 12px; }
+    .flatpickr-calendar.inline { box-shadow: none; border-radius: 16px; width: 100%; max-width: 330px; }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--brand); border-color: var(--brand); }
+    .flatpickr-day.today { border-color: var(--brand); }
     .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .slot { padding: 10px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 600; }
+    .slot { padding: 10px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 600; color: var(--ink); }
     .slot.on { background: var(--brand); border-color: var(--brand); color: #fff; }
     .slot:disabled { opacity: .35; text-decoration: line-through; cursor: not-allowed; }
     label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
     input { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); font: inherit; background: var(--card); }
     .summary { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 14px; display: grid; gap: 6px; }
-    .summary div { display: flex; justify-content: space-between; }
+    .summary div { display: flex; justify-content: space-between; gap: 10px; }
     .summary span { color: var(--muted); }
-    .cta { position: absolute; left: 18px; right: 18px; bottom: 18px; padding: 15px; border-radius: 16px; border: 0; background: var(--brand); color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 10px 24px -10px rgba(31, 122, 236, .7); transition: opacity .2s; }
+    .cta { position: absolute; left: 16px; right: 16px; bottom: 78px; padding: 15px; border-radius: 16px; border: 0; background: var(--brand); color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 10px 24px -10px rgba(31, 122, 236, .7); transition: opacity .2s; }
     .cta:disabled { opacity: .4; box-shadow: none; cursor: not-allowed; }
-    .ok { text-align: center; padding-top: 20px; }
-    .ok .check { width: 84px; height: 84px; border-radius: 50%; margin: 0 auto 14px; background: var(--mint); color: #fff; display: grid; place-items: center; font-size: 42px; animation: pop .5s cubic-bezier(.2, 1.6, .4, 1); }
+    .cta.again { position: static; width: 100%; margin-top: 14px; }
+    .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border-top: 1px solid var(--line); }
+    .tabs button { border: 0; background: none; color: var(--muted); font-weight: 600; font-size: 13px; display: grid; place-items: center; gap: 0; }
+    .tabs button.on { color: var(--brand); }
+    .tabs b { font-size: 20px; line-height: 1; }
+    .ok { text-align: center; padding-top: 6px; }
+    .ok .check { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 10px; background: var(--mint); color: #fff; display: grid; place-items: center; font-size: 36px; animation: pop .5s cubic-bezier(.2, 1.6, .4, 1); }
     @keyframes pop { from { transform: scale(0); } }
-    .wa { margin: 18px 0 0; text-align: left; background: #e5ddd5; border-radius: 16px; padding: 14px; }
-    .wa .msg { background: #fff; border-radius: 10px 10px 10px 2px; padding: 10px 12px; font-size: 14px; max-width: 92%; box-shadow: 0 1px 1px rgba(0, 0, 0, .08); opacity: 0; transform: translateY(8px); animation: in .4s .9s forwards; }
-    .wa .msg + .msg { margin-top: 8px; animation-delay: 1.8s; }
-    .wa small { display: block; text-align: right; color: #8696a0; font-size: 11px; }
-    @keyframes in { to { opacity: 1; transform: none; } }
-    .appt { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: center; }
-    .appt .ic { font-size: 22px; }
+    .qr { display: grid; place-items: center; background: #fff; border-radius: 16px; padding: 14px; margin: 12px 0; }
+    .qr small { color: var(--muted); margin-top: 8px; font-family: monospace; }
+    .acts { display: grid; gap: 8px; margin-top: 4px; }
+    .act { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-weight: 600; text-decoration: none; color: var(--ink); }
+    .act.wa { background: #1fa855; border-color: #1fa855; color: #fff; }
+    .wa-prev { margin-top: 14px; text-align: left; background: #e5ddd5; border-radius: 16px; padding: 12px; }
+    .wa-prev .msg { background: #fff; border-radius: 10px 10px 10px 2px; padding: 10px 12px; font-size: 14px; box-shadow: 0 1px 1px rgba(0, 0, 0, .08); }
+    .wa-prev small { display: block; text-align: right; color: #667781; font-size: 11px; }
+    .appt { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+    .appt .head { display: flex; gap: 12px; align-items: center; }
+    .appt .ic { font-size: 24px; }
     .appt small { color: var(--muted); display: block; }
+    .appt .row { display: flex; gap: 8px; margin-top: 10px; }
+    .appt .row button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: none; font-weight: 600; font-size: 13px; color: var(--ink); }
+    .appt .row .cancel { color: var(--red); }
+    .appt.past { opacity: .6; }
+    .empty { text-align: center; color: var(--muted); padding: 40px 10px; }
     .link { border: 0; background: none; color: var(--brand); font-weight: 600; }
-    @media (max-width: 900px) { .stage { grid-template-columns: 1fr; padding: 0; gap: 0; } .side { display: none; } .phone { width: 100%; height: calc(100vh - 36px); border-radius: 0; padding: 0; box-shadow: none; } .screen { border-radius: 0; } .notch { display: none; } }
+    .err { color: var(--red); font-size: 12px; font-weight: 500; }
+    @media (max-width: 900px) {
+      .stage { grid-template-columns: 1fr; padding: 0; gap: 0; }
+      .side { display: none; }
+      .phone { width: 100%; height: calc(100dvh - 36px); border-radius: 0; padding: 0; box-shadow: none; }
+      .screen { border-radius: 0; }
+      .notch { display: none; }
+      .bar { padding-top: 18px; }
+    }
+    @media (display-mode: standalone) { .demo-bar { display: none; } .phone { height: 100dvh; } }
   </style>
 </head>
 <body>
@@ -74,14 +106,21 @@
   <div class="stage">
     <div class="side">
       <h1>Reservas en 3 toques, recordatorios automáticos.</h1>
-      <p>App para un centro de salud: los pacientes eligen servicio, día y hora, y reciben confirmación y recordatorio por WhatsApp.</p>
-      <ul><li>Horarios ocupados bloqueados en tiempo real</li><li>Recordatorio 24 h antes</li><li>Historial de citas del paciente</li></ul>
+      <p>App para un centro de salud: el paciente elige servicio, día y hora, y recibe su cita con QR y recordatorio.</p>
+      <ul>
+        <li>Calendario real con domingos y horas ocupadas bloqueadas</li>
+        <li>QR de la cita para mostrar en recepción</li>
+        <li>Añadir a Google Calendar o al calendario del celular</li>
+        <li>Se instala en el celular como una app y funciona sin conexión</li>
+      </ul>
+      <button class="act install" id="install" hidden>📲 Instalar la app</button>
     </div>
     <div class="phone"><div class="screen">
       <div class="notch"></div>
       <div class="bar"><small id="hello">Hola 👋</small><h2 id="title">Reserva tu cita</h2><div class="steps" id="steps"><i></i><i></i><i></i></div></div>
       <div class="content" id="content"></div>
       <button class="cta" id="cta" disabled>Continuar</button>
+      <nav class="tabs"><button id="t-book" class="on"><b>＋</b>Reservar</button><button id="t-mine"><b>☰</b>Mis citas</button></nav>
     </div></div>
     <div></div>
   </div>
@@ -94,71 +133,144 @@
       { id: "psi", name: "Psicología", min: 50, price: 110, ic: "🧠" },
     ];
     const SLOTS = ["08:00", "08:45", "09:30", "10:15", "11:00", "11:45", "15:00", "15:45", "16:30", "17:15", "18:00", "18:45"];
+    const CLINIC = "Vitalis · Av. Ejemplo 123, Miraflores";
     const $ = (id) => document.getElementById(id);
-    const st = { step: 0, svc: null, day: 0, slot: null, name: "" };
-    let appts;
-    try { appts = JSON.parse(localStorage.getItem("vitalis")) || []; } catch { appts = []; }
-    const days = Array.from({ length: 10 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() + i + 1); return d; });
-    // horarios "ocupados" estables por día (pseudoaleatorio)
-    const busy = (di, si) => ((di * 7 + si * 13) % 5) === 0;
-    const fmt = (d, o) => d.toLocaleDateString("es-PE", o);
+    const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const fmt = (d, o) => new Date(d).toLocaleDateString("es-PE", o);
+    const load = () => { try { return JSON.parse(localStorage.getItem("vitalis-v2")) || []; } catch { return []; } };
+    let appts = load(), tab = "book";
+    const save = () => { try { localStorage.setItem("vitalis-v2", JSON.stringify(appts)); } catch {} };
+    const st = { step: 0, svc: null, date: null, slot: null, name: localStorage.getItem("vitalis-name") || "", phone: "" };
+    // horas "ocupadas" estables por fecha, más las que ya reservaste
+    const busy = (iso, slot, i) => { const n = [...iso].reduce((a, c) => a + c.charCodeAt(0), 0); return (n + i * 7) % 5 === 0 || appts.some((a) => a.date === iso && a.slot === slot && !a.cancelled); };
+    const svcOf = (id) => SERVICES.find((s) => s.id === id);
+    const startOf = (a) => new Date(`${a.date}T${a.slot}:00`);
 
     function render() {
-      document.querySelectorAll("#steps i").forEach((el, i) => el.classList.toggle("on", i <= st.step && st.step < 3));
-      $("steps").style.display = st.step === 3 ? "none" : "flex";
+      $("t-book").classList.toggle("on", tab === "book");
+      $("t-mine").classList.toggle("on", tab === "mine");
+      $("hello").textContent = st.name ? `Hola, ${st.name} 👋` : "Hola 👋";
       const c = $("content"), cta = $("cta");
+      if (tab === "mine") return renderMine(c, cta);
+      document.querySelectorAll("#steps i").forEach((el, i) => el.classList.toggle("on", i <= st.step));
+      $("steps").style.display = st.step === 3 ? "none" : "flex";
       cta.style.display = "block";
       if (st.step === 0) {
         $("title").textContent = "Reserva tu cita";
-        c.innerHTML = `<h3>1. Elige un servicio</h3>` + SERVICES.map((s) => `<button class="svc${st.svc === s.id ? " on" : ""}" data-svc="${s.id}"><span class="ic">${s.ic}</span><span><b>${s.name}</b><small>${s.min} min</small></span><b class="price">S/ ${s.price}</b></button>`).join("")
-          + (appts.length ? `<h3 style="margin-top:18px">Tus próximas citas</h3>` + appts.slice(0, 3).map((a) => `<div class="appt"><span class="ic">${a.ic}</span><div><b>${a.svc}</b><small>${a.when}</small></div></div>`).join("") : "");
+        c.innerHTML = `<h3>1. Elige un servicio</h3>` + SERVICES.map((s) => `<button class="svc${st.svc === s.id ? " on" : ""}" data-svc="${s.id}"><span class="ic">${s.ic}</span><span><b>${s.name}</b><small>${s.min} min</small></span><b class="price">S/ ${s.price}</b></button>`).join("");
         cta.disabled = !st.svc; cta.textContent = "Continuar";
       } else if (st.step === 1) {
         $("title").textContent = "Día y hora";
-        c.innerHTML = `<h3>2. ¿Cuándo te viene bien?</h3><div class="days">${days.map((d, i) => `<button class="day${st.day === i ? " on" : ""}" data-day="${i}"><small>${fmt(d, { weekday: "short" })}</small><b>${d.getDate()}</b></button>`).join("")}</div>
-          <h3>Horarios disponibles</h3><div class="slots">${SLOTS.map((s, i) => `<button class="slot${st.slot === s ? " on" : ""}" data-slot="${s}" ${busy(st.day, i) ? "disabled" : ""}>${s}</button>`).join("")}</div>
-          <p style="margin-top:14px"><button class="link" data-back>← Cambiar servicio</button></p>`;
-        cta.disabled = !st.slot; cta.textContent = "Continuar";
+        c.innerHTML = `<h3>2. Elige el día</h3><div class="cal"><div id="cal"></div></div><h3>Horarios ${st.date ? "del " + fmt(st.date + "T12:00", { weekday: "long", day: "numeric" }) : ""}</h3><div class="slots" id="slots"></div><p style="margin-top:14px"><button class="link" data-back>← Cambiar servicio</button></p>`;
+        const min = new Date(); min.setDate(min.getDate() + 1);
+        const max = new Date(); max.setDate(max.getDate() + 60);
+        flatpickr("#cal", {
+          inline: true, locale: "es", minDate: min, maxDate: max, defaultDate: st.date, dateFormat: "Y-m-d",
+          disable: [(d) => d.getDay() === 0],
+          onChange: (_, iso) => { st.date = iso; st.slot = null; render(); },
+        });
+        renderSlots();
+        cta.disabled = !(st.date && st.slot); cta.textContent = "Continuar";
       } else if (st.step === 2) {
-        const s = SERVICES.find((x) => x.id === st.svc);
+        const s = svcOf(st.svc);
         $("title").textContent = "Confirma tu cita";
         c.innerHTML = `<h3>3. Tus datos</h3>
-          <div class="summary"><div><span>Servicio</span><b>${s.ic} ${s.name}</b></div><div><span>Fecha</span><b>${fmt(days[st.day], { weekday: "long", day: "numeric", month: "long" })}</b></div><div><span>Hora</span><b>${st.slot}</b></div><div><span>Precio</span><b>S/ ${s.price}</b></div></div>
-          <label>Nombre<input id="name" value="${st.name}" placeholder="Tu nombre" autocomplete="given-name"></label>
-          <label>WhatsApp<input id="phone" inputmode="tel" placeholder="9XX XXX XXX" autocomplete="tel"></label>
+          <div class="summary"><div><span>Servicio</span><b>${s.ic} ${s.name}</b></div><div><span>Fecha</span><b>${fmt(st.date + "T12:00", { weekday: "long", day: "numeric", month: "long" })}</b></div><div><span>Hora</span><b>${st.slot}</b></div><div><span>Precio</span><b>S/ ${s.price}</b></div></div>
+          <label>Nombre<input id="name" value="${esc(st.name)}" placeholder="Tu nombre" autocomplete="given-name"></label>
+          <label>WhatsApp<input id="phone" value="${esc(st.phone)}" inputmode="tel" placeholder="987 654 321" autocomplete="tel"><span class="err" id="perr"></span></label>
           <p><button class="link" data-back>← Cambiar horario</button></p>`;
-        const check = () => (cta.disabled = !$("name").value.trim() || $("phone").value.replace(/\D/g, "").length < 9);
+        const check = () => {
+          const digits = $("phone").value.replace(/\D/g, "");
+          $("perr").textContent = digits && !/^9\d{8}$/.test(digits) ? "Escribe un celular peruano de 9 dígitos que empiece con 9" : "";
+          cta.disabled = !$("name").value.trim() || !/^9\d{8}$/.test(digits);
+        };
         $("name").oninput = $("phone").oninput = check; check();
         cta.textContent = "Confirmar reserva";
       } else {
-        const s = SERVICES.find((x) => x.id === st.svc), when = `${fmt(days[st.day], { weekday: "long", day: "numeric", month: "long" })} · ${st.slot}`;
-        $("title").textContent = "¡Listo!";
-        c.innerHTML = `<div class="ok"><div class="check">✓</div><h3 style="font-size:20px">Cita confirmada</h3><p style="color:var(--muted)">${s.ic} ${s.name}<br>${when}</p></div>
-          <div class="wa"><div class="msg">Hola ${st.name} 👋 Tu cita de <b>${s.name}</b> quedó confirmada para el ${when}.<small>ahora ✓✓</small></div><div class="msg">⏰ Te recordaremos 24 horas antes. Responde <b>1</b> para confirmar o <b>2</b> para reprogramar.<small>ahora ✓✓</small></div></div>`;
-        cta.textContent = "Reservar otra cita"; cta.disabled = false;
+        renderDone(c, appts[0]);
+        cta.style.display = "none";
       }
-      $("hello").textContent = st.name ? `Hola, ${st.name} 👋` : "Hola 👋";
+    }
+
+    function renderSlots() {
+      const box = $("slots");
+      if (!st.date) return (box.outerHTML = `<p class="empty" id="slots" style="padding:10px">Elige un día en el calendario.</p>`);
+      box.innerHTML = SLOTS.map((s, i) => `<button class="slot${st.slot === s ? " on" : ""}" data-slot="${s}" ${busy(st.date, s, i) ? "disabled" : ""}>${s}</button>`).join("");
+    }
+
+    // Enlaces reales: Google Calendar, archivo .ics y WhatsApp
+    const pad = (n) => String(n).padStart(2, "0");
+    const icsDate = (d) => `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}00Z`;
+    function calLinks(a) {
+      const s = svcOf(a.svc), start = startOf(a), end = new Date(start.getTime() + s.min * 60000);
+      const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(`${s.name} · Vitalis`)}&dates=${icsDate(start)}/${icsDate(end)}&details=${encodeURIComponent(`Código de cita: ${a.code}`)}&location=${encodeURIComponent(CLINIC)}`;
+      const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Vitalis demo//ES", "BEGIN:VEVENT", `UID:${a.code}@vitalis.demo`, `DTSTAMP:${icsDate(new Date())}`, `DTSTART:${icsDate(start)}`, `DTEND:${icsDate(end)}`, `SUMMARY:${s.name} · Vitalis`, `LOCATION:${CLINIC}`, `DESCRIPTION:Código de cita ${a.code}`, "BEGIN:VALARM", "TRIGGER:-PT24H", "ACTION:DISPLAY", "DESCRIPTION:Recordatorio de cita", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+      const msg = `Hola ${a.name}, tu cita de ${s.name} en Vitalis es el ${fmt(start, { weekday: "long", day: "numeric", month: "long" })} a las ${a.slot}. Código: ${a.code}.`;
+      return { gcal, ics: URL.createObjectURL(new Blob([ics], { type: "text/calendar" })), wa: `https://wa.me/51${a.phone}?text=${encodeURIComponent(msg)}`, msg };
+    }
+
+    function renderDone(c, a) {
+      const s = svcOf(a.svc), l = calLinks(a), when = `${fmt(startOf(a), { weekday: "long", day: "numeric", month: "long" })} · ${a.slot}`;
+      $("title").textContent = "¡Listo!";
+      c.innerHTML = `<div class="ok"><div class="check">✓</div><h3 style="font-size:19px">Cita confirmada</h3><p style="color:var(--muted)">${s.ic} ${s.name}<br>${when}</p></div>
+        <div class="qr"><div id="qr"></div><small>${a.code}</small></div>
+        <div class="acts">
+          <a class="act wa" href="${l.wa}" target="_blank" rel="noopener">💬 Enviarme el recordatorio por WhatsApp</a>
+          <a class="act" href="${l.gcal}" target="_blank" rel="noopener">📅 Añadir a Google Calendar</a>
+          <a class="act" href="${l.ics}" download="cita-${a.code}.ics">⬇ Descargar para el calendario del celular</a>
+        </div>
+        <div class="wa-prev"><div class="msg">${esc(l.msg)} ⏰ Te recordaremos 24 h antes.<small>vista previa ✓✓</small></div></div>
+        <button class="cta again" data-again>Reservar otra cita</button>`;
+      new QRCode($("qr"), { text: `VITALIS|${a.code}|${a.date} ${a.slot}|${s.name}|${a.name}`, width: 150, height: 150, colorDark: "#11243a", colorLight: "#ffffff" });
+    }
+
+    function renderMine(c, cta) {
+      $("title").textContent = "Mis citas";
+      $("steps").style.display = "none";
+      cta.style.display = "none";
+      const now = new Date(), list = appts.filter((a) => !a.cancelled).sort((x, y) => startOf(x) - startOf(y));
+      c.innerHTML = list.length
+        ? list.map((a) => { const s = svcOf(a.svc), past = startOf(a) < now; return `<div class="appt${past ? " past" : ""}"><div class="head"><span class="ic">${s.ic}</span><div><b>${s.name}</b><small>${fmt(startOf(a), { weekday: "short", day: "numeric", month: "short" })} · ${a.slot} · ${a.code}</small></div></div>
+            ${past ? "" : `<div class="row"><button data-view="${a.code}">Ver QR</button><button class="cancel" data-cancel="${a.code}">Cancelar</button></div>`}</div>`; }).join("")
+        : `<div class="empty">Todavía no tienes citas.<br><br><button class="link" data-go>Reservar ahora →</button></div>`;
     }
 
     $("content").onclick = (e) => {
       const t = e.target.closest("button"); if (!t) return;
       if (t.dataset.svc) st.svc = t.dataset.svc;
-      if (t.dataset.day) { st.day = +t.dataset.day; st.slot = null; }
-      if (t.dataset.slot) st.slot = t.dataset.slot;
+      if (t.dataset.slot) { st.slot = t.dataset.slot; document.querySelectorAll(".slot").forEach((b) => b.classList.toggle("on", b === t)); $("cta").disabled = false; return; }
       if ("back" in t.dataset) st.step--;
+      if ("go" in t.dataset) { tab = "book"; }
+      if ("again" in t.dataset) Object.assign(st, { step: 0, svc: null, date: null, slot: null });
+      if (t.dataset.cancel) {
+        if (!confirm("¿Cancelar esta cita?")) return;
+        appts.find((a) => a.code === t.dataset.cancel).cancelled = true; save();
+      }
+      if (t.dataset.view) { tab = "book"; st.step = 3; appts.unshift(appts.splice(appts.findIndex((a) => a.code === t.dataset.view), 1)[0]); }
       render();
     };
     $("cta").onclick = () => {
       if (st.step === 2) {
         st.name = $("name").value.trim().split(" ")[0];
-        const s = SERVICES.find((x) => x.id === st.svc);
-        appts.unshift({ svc: s.name, ic: s.ic, when: `${fmt(days[st.day], { weekday: "short", day: "numeric", month: "short" })} · ${st.slot}` });
-        try { localStorage.setItem("vitalis", JSON.stringify(appts)); } catch {}
+        st.phone = $("phone").value.replace(/\D/g, "");
+        try { localStorage.setItem("vitalis-name", st.name); } catch {}
+        const code = "VT-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+        appts.unshift({ code, svc: st.svc, date: st.date, slot: st.slot, name: st.name, phone: st.phone, created: Date.now() });
+        save();
       }
-      if (st.step === 3) Object.assign(st, { step: 0, svc: null, day: 0, slot: null });
+      if (st.step === 3) Object.assign(st, { step: 0, svc: null, date: null, slot: null });
       else st.step++;
       render();
     };
+    $("t-book").onclick = () => { tab = "book"; if (st.step === 3) st.step = 0; render(); };
+    $("t-mine").onclick = () => { tab = "mine"; render(); };
+
+    // PWA: instalable y disponible sin conexión
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+    let deferred;
+    addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; $("install").hidden = false; });
+    $("install").onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("install").hidden = true; };
+
     render();
   </script>
 </body>

@@ -4,11 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Stockly · Gestor de inventario (demo)</title>
-  <meta name="description" content="Demo de sistema de inventario multi-almacén con gráficos y alertas. Hecho por Wilk Works.">
+  <meta name="description" content="Demo de sistema de inventario multi-almacén: gráficos, alertas, escáner, etiquetas y exportación a Excel/PDF. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" defer></script>
   <style>
     :root { --bg: #0f1420; --panel: #161d2e; --line: #243049; --text: #e7ecf5; --muted: #93a0b8; --accent: #3dd6a3; --blue: #5b8cff; --warn: #f5b942; --danger: #ff6b6b; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,18 +22,23 @@
     .demo-bar { background: #0a0e17; color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
     .demo-bar a { color: var(--accent); }
     .app { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 36px); }
-    aside { background: var(--panel); border-right: 1px solid var(--line); padding: 22px 16px; }
+    aside { background: var(--panel); border-right: 1px solid var(--line); padding: 22px 16px; display: flex; flex-direction: column; }
     .logo { font-weight: 700; font-size: 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
     .logo i { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--blue)); }
     nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--muted); text-decoration: none; margin-bottom: 4px; }
     nav a.on, nav a:hover { background: rgba(61, 214, 163, .1); color: var(--text); }
+    .reset { margin-top: auto; background: none; border: 1px dashed var(--line); color: var(--muted); border-radius: 10px; padding: 9px; cursor: pointer; }
     main { padding: 24px 28px 48px; overflow: hidden; }
     .top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 22px; }
     h1 { font-size: 24px; }
     .muted { color: var(--muted); }
-    .btn { padding: 10px 16px; border-radius: 10px; border: 0; background: var(--accent); color: #062419; font-weight: 600; cursor: pointer; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { padding: 10px 14px; border-radius: 10px; border: 0; background: var(--accent); color: #062419; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+    .btn.ghost:hover { border-color: var(--accent); }
     select, input { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+    .view { display: none; }
+    .view.on { display: block; }
     .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
     .kpi small { color: var(--muted); }
@@ -36,30 +46,43 @@
     .kpi .delta { font-size: 13px; color: var(--accent); }
     .kpi .delta.bad { color: var(--danger); }
     .charts { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 18px; }
-    .charts h3, .tbl h3 { font-size: 15px; margin-bottom: 12px; }
+    .card h3 { font-size: 15px; margin-bottom: 12px; }
     .chart-box { position: relative; height: 240px; }
     .tbl-head { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--line); }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
     th { color: var(--muted); font-weight: 500; font-size: 13px; }
-    td.num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+    td.num, .mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
     .pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
     .ok { background: rgba(61, 214, 163, .12); color: var(--accent); }
     .low { background: rgba(245, 185, 66, .14); color: var(--warn); }
     .out { background: rgba(255, 107, 107, .14); color: var(--danger); }
     .adj { display: inline-flex; gap: 4px; }
-    .adj button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+    .adj button { min-width: 30px; height: 30px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
     .adj button:hover { border-color: var(--accent); }
-    tr.flash td { animation: flash 0.8s; }
-    @keyframes flash { from { background: rgba(61, 214, 163, .18); } }
-    dialog { margin: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--text); padding: 22px; width: min(420px, 92vw); }
-    dialog::backdrop { background: rgba(0, 0, 0, .55); }
+    .adj .del:hover { border-color: var(--danger); }
+    tr.flash td { animation: flash 1s; }
+    @keyframes flash { from { background: rgba(61, 214, 163, .22); } }
+    .scroll { overflow-x: auto; }
+    .in { color: var(--accent); } .outv { color: var(--danger); }
+    dialog { margin: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--text); padding: 22px; width: min(440px, 92vw); }
+    dialog::backdrop { background: rgba(0, 0, 0, .6); }
     dialog form { display: grid; gap: 12px; }
     dialog label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
     .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
-    .scroll { overflow-x: auto; }
+    #reader { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 220px; }
+    .label-card { background: #fff; color: #111; border-radius: 10px; padding: 14px; text-align: center; margin: 12px 0; }
+    .label-card b { display: block; font-size: 15px; }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--panel); border: 1px solid var(--accent); padding: 12px 18px; border-radius: 12px; transition: transform .3s; z-index: 20; }
+    .toast.show { transform: translate(-50%, 0); }
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: fixed; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+    }
+    #print-area { display: none; }
     @media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, 1fr); } .charts { grid-template-columns: 1fr; } }
-    @media (max-width: 760px) { .app { grid-template-columns: 1fr; } aside { display: none; } main { padding: 18px 16px 40px; } }
+    @media (max-width: 760px) { .app { grid-template-columns: 1fr; } aside { flex-direction: row; overflow-x: auto; padding: 10px; gap: 6px; } aside .logo, .reset { display: none; } nav { display: flex; gap: 4px; } nav a { margin: 0; white-space: nowrap; } main { padding: 18px 16px 40px; } }
   </style>
 </head>
 <body>
@@ -67,45 +90,91 @@
   <div class="app">
     <aside>
       <div class="logo"><i></i>Stockly</div>
-      <nav><a class="on" href="#">▦ Panel</a><a href="#">▤ Productos</a><a href="#">⇄ Movimientos</a><a href="#">⌂ Almacenes</a><a href="#">⚙ Ajustes</a></nav>
+      <nav id="nav">
+        <a href="#panel" data-view="panel">▦ Panel</a>
+        <a href="#productos" data-view="productos">▤ Productos</a>
+        <a href="#movimientos" data-view="movimientos">⇄ Movimientos</a>
+      </nav>
+      <button class="reset" id="reset">↺ Restaurar datos de ejemplo</button>
     </aside>
     <main>
       <div class="top">
-        <div><h1>Panel de inventario</h1><p class="muted">Control de stock multi-almacén en tiempo real</p></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div><h1 id="h1">Panel de inventario</h1><p class="muted">Control de stock multi-almacén en tiempo real</p></div>
+        <div class="actions">
           <select id="wh" aria-label="Almacén"><option value="all">Todos los almacenes</option><option>Lima</option><option>Arequipa</option><option>Trujillo</option></select>
+          <button class="btn ghost" id="scan">📷 Escanear</button>
           <button class="btn" id="new">+ Nuevo producto</button>
         </div>
       </div>
 
-      <section class="kpis" id="kpis"></section>
-
-      <section class="charts">
-        <div class="card"><h3>Movimientos de los últimos 14 días</h3><div class="chart-box"><canvas id="c-moves"></canvas></div></div>
-        <div class="card"><h3>Stock por categoría</h3><div class="chart-box"><canvas id="c-cats"></canvas></div></div>
+      <section class="view" id="v-panel">
+        <div class="kpis" id="kpis"></div>
+        <div class="charts">
+          <div class="card"><h3>Movimientos de los últimos 14 días</h3><div class="chart-box"><canvas id="c-moves"></canvas></div></div>
+          <div class="card"><h3>Stock por categoría</h3><div class="chart-box"><canvas id="c-cats"></canvas></div></div>
+        </div>
       </section>
 
-      <section class="card tbl">
-        <div class="tbl-head"><h3>Productos</h3><input id="q" type="search" placeholder="Buscar SKU o nombre…" aria-label="Buscar"></div>
-        <div class="scroll"><table>
-          <thead><tr><th>SKU</th><th>Producto</th><th>Almacén</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Ajustar</th></tr></thead>
-          <tbody id="rows"></tbody>
-        </table></div>
+      <section class="view" id="v-productos-wrap">
+        <div class="card">
+          <div class="tbl-head">
+            <h3>Productos</h3>
+            <div class="actions">
+              <input id="q" type="search" placeholder="Buscar SKU o nombre…" aria-label="Buscar">
+              <button class="btn ghost" id="xlsx">⬇ Excel</button>
+              <button class="btn ghost" id="pdf">⬇ PDF</button>
+              <label class="btn ghost" style="cursor:pointer">⬆ Importar<input id="imp" type="file" accept=".xlsx,.xls,.csv" hidden></label>
+              <button class="btn ghost" id="labels">🏷 Etiquetas</button>
+            </div>
+          </div>
+          <div class="scroll"><table>
+            <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Almacén</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table></div>
+        </div>
+      </section>
+
+      <section class="view" id="v-movimientos">
+        <div class="card">
+          <div class="tbl-head"><h3>Historial de movimientos</h3><span class="muted" id="mcount"></span></div>
+          <div class="scroll"><table>
+            <thead><tr><th>Fecha</th><th>SKU</th><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Stock final</th></tr></thead>
+            <tbody id="moves"></tbody>
+          </table></div>
+        </div>
       </section>
     </main>
   </div>
 
   <dialog id="dlg">
     <form method="dialog" id="f">
-      <h3>Nuevo producto</h3>
+      <h3 id="f-title">Nuevo producto</h3>
+      <input type="hidden" name="sku">
       <label>Nombre<input name="name" required></label>
       <label>Categoría<select name="cat"><option>Electrónica</option><option>Oficina</option><option>Limpieza</option><option>Alimentos</option></select></label>
       <label>Almacén<select name="wh"><option>Lima</option><option>Arequipa</option><option>Trujillo</option></select></label>
-      <label>Stock inicial<input name="stock" type="number" min="0" value="20" required></label>
+      <label>Stock<input name="stock" type="number" min="0" value="20" required></label>
       <label>Stock mínimo<input name="min" type="number" min="0" value="10" required></label>
       <div class="row"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Guardar</button></div>
     </form>
   </dialog>
+
+  <dialog id="scan-dlg">
+    <h3 style="margin-bottom:10px">Escanear código</h3>
+    <p class="muted" style="font-size:13px;margin-bottom:10px">Apunta la cámara al código de barras o QR de una etiqueta. Puedes imprimir etiquetas de prueba desde <b>Etiquetas</b>.</p>
+    <div id="reader"></div>
+    <p id="scan-msg" class="muted" style="margin-top:10px;font-size:13px"></p>
+    <div class="row"><button class="btn ghost" id="scan-close">Cerrar</button></div>
+  </dialog>
+
+  <dialog id="label-dlg">
+    <h3>Etiqueta</h3>
+    <div class="label-card"><b id="l-name"></b><svg id="l-bar"></svg></div>
+    <div class="row"><button class="btn ghost" id="l-close">Cerrar</button><button class="btn" id="l-print">Imprimir</button></div>
+  </dialog>
+
+  <div id="print-area"></div>
+  <div class="toast" id="toast"></div>
 
   <script>
     const SEED = [
@@ -116,26 +185,28 @@
       ["AL-031", "Agua 20L", "Alimentos", "Trujillo", 40, 15], ["EL-004", "Teclado mecánico", "Electrónica", "Trujillo", 22, 10],
     ].map(([sku, name, cat, wh, stock, min]) => ({ sku, name, cat, wh, stock, min }));
     const $ = (id) => document.getElementById(id);
-    let items;
-    try { items = JSON.parse(localStorage.getItem("stockly")) || SEED; } catch { items = SEED; }
-    const save = () => { try { localStorage.setItem("stockly", JSON.stringify(items)); } catch {} };
+    const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
+    let items = load("stockly", structuredClone(SEED)), log = load("stockly-log", []);
+    const save = () => { try { localStorage.setItem("stockly", JSON.stringify(items)); localStorage.setItem("stockly-log", JSON.stringify(log.slice(0, 300))); } catch {} };
     const status = (p) => (p.stock === 0 ? ["out", "Agotado"] : p.stock < p.min ? ["low", "Stock bajo"] : ["ok", "Normal"]);
     const visible = () => items.filter((p) => $("wh").value === "all" || p.wh === $("wh").value);
+    let tt; const toast = (m) => { const t = $("toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 2200); };
+    function record(p, type, qty) { log.unshift({ at: new Date().toISOString(), sku: p.sku, name: p.name, type, qty, stock: p.stock }); }
 
-    // Movimientos simulados (entradas/salidas) para el gráfico
-    const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 13 + i); return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" }); });
-    const rnd = (a, b) => Math.round(a + Math.random() * (b - a));
-    const ins = days.map(() => rnd(40, 120)), outs = days.map(() => rnd(30, 110));
-
-    Chart.defaults.color = "#93a0b8";
-    Chart.defaults.borderColor = "#243049";
-    Chart.defaults.font.family = "Inter";
+    // ---------- Gráficos ----------
+    const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 13 + i); return d; });
+    const label = (d) => d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" });
+    const base = (i) => 40 + ((i * 37) % 70); // datos de fondo estables para que el gráfico no salga vacío
+    function series() {
+      const ins = days.map((_, i) => base(i)), outs = days.map((_, i) => base(i + 5) - 8);
+      log.forEach((m) => { const i = days.findIndex((d) => d.toDateString() === new Date(m.at).toDateString()); if (i < 0) return; m.qty > 0 ? (ins[i] += m.qty) : (outs[i] -= m.qty); });
+      return { ins, outs };
+    }
+    Chart.defaults.color = "#93a0b8"; Chart.defaults.borderColor = "#243049"; Chart.defaults.font.family = "Inter";
     const moves = new Chart($("c-moves"), {
       type: "bar",
-      data: { labels: days, datasets: [
-        { label: "Entradas", data: ins, backgroundColor: "#3dd6a3", borderRadius: 6 },
-        { label: "Salidas", data: outs, backgroundColor: "#5b8cff", borderRadius: 6 },
-      ] },
+      data: { labels: days.map(label), datasets: [{ label: "Entradas", data: [], backgroundColor: "#3dd6a3", borderRadius: 6 }, { label: "Salidas", data: [], backgroundColor: "#5b8cff", borderRadius: 6 }] },
       options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { x: { grid: { display: false } } } },
     });
     const cats = new Chart($("c-cats"), {
@@ -144,45 +215,158 @@
       options: { maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom" } } },
     });
 
+    // ---------- Render ----------
     function render(flashSku) {
       const list = visible(), q = $("q").value.trim().toLowerCase();
       const total = list.reduce((s, p) => s + p.stock, 0), low = list.filter((p) => p.stock > 0 && p.stock < p.min).length, out = list.filter((p) => p.stock === 0).length;
       $("kpis").innerHTML = `
-        <div class="card kpi"><small>Unidades en stock</small><b>${total.toLocaleString("es-PE")}</b><span class="delta">▲ 4.2% vs semana pasada</span></div>
-        <div class="card kpi"><small>Productos</small><b>${list.length}</b><span class="delta">${new Set(list.map((p) => p.cat)).size} categorías</span></div>
+        <div class="card kpi"><small>Unidades en stock</small><b>${total.toLocaleString("es-PE")}</b><span class="delta">${list.length} productos</span></div>
+        <div class="card kpi"><small>Categorías</small><b>${new Set(list.map((p) => p.cat)).size}</b><span class="delta">${$("wh").value === "all" ? "3 almacenes" : $("wh").value}</span></div>
         <div class="card kpi"><small>Stock bajo</small><b>${low}</b><span class="delta ${low ? "bad" : ""}">${low ? "Requiere reposición" : "Todo en orden"}</span></div>
         <div class="card kpi"><small>Agotados</small><b>${out}</b><span class="delta ${out ? "bad" : ""}">${out ? "Pedir a proveedor" : "Sin quiebres"}</span></div>`;
       $("rows").innerHTML = list
         .filter((p) => (p.sku + p.name).toLowerCase().includes(q))
-        .map((p) => { const [c, t] = status(p); return `<tr data-sku="${p.sku}" class="${p.sku === flashSku ? "flash" : ""}"><td class="num">${p.sku}</td><td>${p.name}</td><td>${p.wh}</td><td class="num">${p.stock}</td><td class="num">${p.min}</td><td><span class="pill ${c}">${t}</span></td><td><span class="adj"><button data-d="-1" aria-label="Restar">−</button><button data-d="1" aria-label="Sumar">+</button><button data-d="10" aria-label="Sumar 10">+10</button></span></td></tr>`; })
-        .join("");
+        .map((p) => { const [c, t] = status(p); return `<tr data-sku="${esc(p.sku)}" class="${p.sku === flashSku ? "flash" : ""}"><td class="num">${esc(p.sku)}</td><td>${esc(p.name)}</td><td>${esc(p.cat)}</td><td>${esc(p.wh)}</td><td class="num">${p.stock}</td><td class="num">${p.min}</td><td><span class="pill ${c}">${t}</span></td>
+          <td><span class="adj"><button data-d="-1" title="Salida de 1">−</button><button data-d="1" title="Entrada de 1">+</button><button data-d="10" title="Entrada de 10">+10</button><button data-a="edit" title="Editar">✎</button><button data-a="label" title="Etiqueta">🏷</button><button data-a="del" class="del" title="Eliminar">🗑</button></span></td></tr>`; })
+        .join("") || `<tr><td colspan="8" class="muted">No hay productos con ese filtro.</td></tr>`;
       const byCat = {};
       list.forEach((p) => (byCat[p.cat] = (byCat[p.cat] || 0) + p.stock));
-      cats.data.labels = Object.keys(byCat);
-      cats.data.datasets[0].data = Object.values(byCat);
-      cats.update();
+      cats.data.labels = Object.keys(byCat); cats.data.datasets[0].data = Object.values(byCat); cats.update();
+      const s = series(); moves.data.datasets[0].data = s.ins; moves.data.datasets[1].data = s.outs; moves.update();
+      $("mcount").textContent = `${log.length} registros`;
+      $("moves").innerHTML = log.length
+        ? log.slice(0, 100).map((m) => `<tr><td class="mono">${new Date(m.at).toLocaleString("es-PE", { dateStyle: "short", timeStyle: "short" })}</td><td class="num">${esc(m.sku)}</td><td>${esc(m.name)}</td><td>${esc(m.type)}</td><td class="num ${m.qty >= 0 ? "in" : "outv"}">${m.qty > 0 ? "+" : ""}${m.qty}</td><td class="num">${m.stock}</td></tr>`).join("")
+        : `<tr><td colspan="6" class="muted">Aún no hay movimientos. Ajusta el stock de un producto y aparecerá aquí.</td></tr>`;
     }
 
+    // ---------- Vistas ----------
+    function show(view) {
+      document.querySelectorAll("#nav a").forEach((a) => a.classList.toggle("on", a.dataset.view === view));
+      $("v-panel").classList.toggle("on", view === "panel");
+      $("v-productos-wrap").classList.toggle("on", view === "panel" || view === "productos");
+      $("v-movimientos").classList.toggle("on", view === "movimientos");
+      $("h1").textContent = { panel: "Panel de inventario", productos: "Productos", movimientos: "Movimientos" }[view];
+    }
+    const route = () => { const v = location.hash.slice(1); show(["panel", "productos", "movimientos"].includes(v) ? v : "panel"); };
+    addEventListener("hashchange", route);
+
+    // ---------- Acciones de tabla ----------
     $("rows").onclick = (e) => {
-      const b = e.target.closest("[data-d]"); if (!b) return;
-      const sku = b.closest("tr").dataset.sku, p = items.find((x) => x.sku === sku), d = +b.dataset.d;
-      p.stock = Math.max(0, p.stock + d);
-      const i = days.length - 1;
-      d > 0 ? (ins[i] += d) : (outs[i] -= d);
-      moves.update();
-      save(); render(sku);
+      const b = e.target.closest("button"); if (!b) return;
+      const p = items.find((x) => x.sku === b.closest("tr").dataset.sku);
+      if (b.dataset.d) {
+        const d = +b.dataset.d;
+        if (p.stock + d < 0) return toast("No hay stock suficiente para esa salida");
+        p.stock += d; record(p, d > 0 ? "Entrada" : "Salida", d);
+      } else if (b.dataset.a === "edit") return openForm(p);
+      else if (b.dataset.a === "label") return openLabel(p);
+      else if (b.dataset.a === "del") {
+        if (!confirm(`¿Eliminar ${p.name}?`)) return;
+        items = items.filter((x) => x !== p); record(p, "Eliminado", -p.stock); toast(`${p.name} eliminado`);
+      }
+      save(); render(p.sku);
     };
     $("q").oninput = () => render();
     $("wh").onchange = () => render();
-    $("new").onclick = () => $("dlg").showModal();
+    $("reset").onclick = () => { if (!confirm("¿Restaurar los datos de ejemplo? Se borran tus cambios.")) return; items = structuredClone(SEED); log = []; save(); render(); toast("Datos restaurados"); };
+
+    // ---------- Crear / editar ----------
+    function openForm(p) {
+      const f = $("f"); f.reset();
+      $("f-title").textContent = p ? `Editar ${p.sku}` : "Nuevo producto";
+      f.sku.value = p ? p.sku : "";
+      if (p) { f.name.value = p.name; f.cat.value = p.cat; f.wh.value = p.wh; f.stock.value = p.stock; f.min.value = p.min; }
+      $("dlg").showModal();
+    }
+    $("new").onclick = () => openForm(null);
     $("f").addEventListener("submit", (e) => {
       if (e.submitter?.value !== "ok") return;
-      const f = new FormData(e.target), prefix = { Electrónica: "EL", Oficina: "OF", Limpieza: "LI", Alimentos: "AL" }[f.get("cat")];
-      const sku = `${prefix}-${String(Math.floor(100 + Math.random() * 900))}`;
-      items.unshift({ sku, name: f.get("name"), cat: f.get("cat"), wh: f.get("wh"), stock: +f.get("stock"), min: +f.get("min") });
-      save(); render(sku); e.target.reset();
+      const f = new FormData(e.target), sku = f.get("sku");
+      const data = { name: f.get("name").trim(), cat: f.get("cat"), wh: f.get("wh"), stock: +f.get("stock"), min: +f.get("min") };
+      let p;
+      if (sku) { p = items.find((x) => x.sku === sku); const diff = data.stock - p.stock; Object.assign(p, data); if (diff) record(p, "Ajuste", diff); }
+      else {
+        const prefix = { Electrónica: "EL", Oficina: "OF", Limpieza: "LI", Alimentos: "AL" }[data.cat];
+        let n = 100; while (items.some((x) => x.sku === `${prefix}-${n}`)) n++;
+        p = { sku: `${prefix}-${n}`, ...data }; items.unshift(p); record(p, "Alta", p.stock);
+      }
+      save(); render(p.sku); toast(sku ? "Producto actualizado" : `Creado ${p.sku}`);
     });
-    render();
+
+    // ---------- Exportar / importar (SheetJS + jsPDF) ----------
+    const rowsFor = () => visible().map((p) => ({ SKU: p.sku, Producto: p.name, Categoría: p.cat, Almacén: p.wh, Stock: p.stock, Mínimo: p.min, Estado: status(p)[1] }));
+    $("xlsx").onclick = () => {
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rowsFor()), "Inventario");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(log.map((m) => ({ Fecha: new Date(m.at).toLocaleString("es-PE"), SKU: m.sku, Producto: m.name, Tipo: m.type, Cantidad: m.qty, "Stock final": m.stock }))), "Movimientos");
+      XLSX.writeFile(wb, `inventario-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    };
+    $("pdf").onclick = () => {
+      const { jsPDF } = window.jspdf, doc = new jsPDF({ orientation: "landscape" });
+      doc.setFontSize(18); doc.text("Stockly · Reporte de inventario", 14, 18);
+      doc.setFontSize(10); doc.setTextColor(120); doc.text(`${$("wh").value === "all" ? "Todos los almacenes" : $("wh").value} · ${new Date().toLocaleString("es-PE")}`, 14, 25);
+      const r = rowsFor();
+      doc.autoTable({
+        startY: 32, head: [Object.keys(r[0] || { SKU: "" })], body: r.map(Object.values),
+        headStyles: { fillColor: [22, 29, 46] },
+        didParseCell: (d) => { if (d.section === "body" && d.column.index === 6) d.cell.styles.textColor = d.cell.raw === "Normal" ? [20, 150, 110] : d.cell.raw === "Agotado" ? [210, 60, 60] : [200, 140, 20]; },
+      });
+      doc.save("reporte-inventario.pdf");
+    };
+    $("imp").onchange = async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const wb = XLSX.read(await file.arrayBuffer());
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+      let added = 0, updated = 0;
+      rows.forEach((r) => {
+        const sku = String(r.SKU || r.sku || "").trim(), name = String(r.Producto || r.nombre || r.name || "").trim();
+        if (!sku || !name) return;
+        const data = { name, cat: r.Categoría || r.categoria || "Oficina", wh: r.Almacén || r.almacen || "Lima", stock: +r.Stock || +r.stock || 0, min: +r.Mínimo || +r.minimo || 0 };
+        const p = items.find((x) => x.sku === sku);
+        if (p) { Object.assign(p, data); updated++; } else { items.push({ sku, ...data }); added++; }
+      });
+      e.target.value = "";
+      save(); render(); toast(`Importado: ${added} nuevos, ${updated} actualizados`);
+    };
+
+    // ---------- Etiquetas con código de barras (JsBarcode) ----------
+    function openLabel(p) {
+      $("l-name").textContent = p.name;
+      JsBarcode("#l-bar", p.sku, { format: "CODE128", height: 60, fontSize: 16, margin: 6 });
+      $("l-print").onclick = () => printLabels([p]);
+      $("label-dlg").showModal();
+    }
+    $("l-close").onclick = () => $("label-dlg").close();
+    $("labels").onclick = () => printLabels(visible());
+    function printLabels(list) {
+      const area = $("print-area");
+      area.innerHTML = list.map((p, i) => `<div class="label-card"><b>${esc(p.name)}</b><svg id="pl-${i}"></svg></div>`).join("");
+      list.forEach((p, i) => JsBarcode(`#pl-${i}`, p.sku, { format: "CODE128", height: 50, fontSize: 14, margin: 4 }));
+      area.style.display = "grid"; window.print(); area.style.display = "none";
+    }
+
+    // ---------- Escáner con la cámara (html5-qrcode) ----------
+    let scanner;
+    $("scan").onclick = async () => {
+      $("scan-msg").textContent = "Iniciando cámara…";
+      $("scan-dlg").showModal();
+      try {
+        scanner = new Html5Qrcode("reader");
+        await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 260, height: 140 } }, (text) => {
+          const p = items.find((x) => x.sku.toLowerCase() === text.trim().toLowerCase());
+          if (!p) return ($("scan-msg").textContent = `Código leído: ${text} (no está en el inventario)`);
+          stopScan(); show("productos"); location.hash = "productos"; $("q").value = p.sku; render(p.sku); toast(`Encontrado: ${p.name} · stock ${p.stock}`);
+        });
+        $("scan-msg").textContent = "Buscando un código…";
+      } catch (err) {
+        $("scan-msg").textContent = "No se pudo usar la cámara. Revisa el permiso del navegador (la cámara solo funciona en HTTPS o localhost).";
+      }
+    };
+    async function stopScan() { try { await scanner?.stop(); scanner?.clear(); } catch {} $("scan-dlg").close(); }
+    $("scan-close").onclick = stopScan;
+    $("scan-dlg").addEventListener("cancel", stopScan);
+
+    route(); render();
   </script>
 </body>
 </html>
