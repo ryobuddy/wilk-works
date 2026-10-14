@@ -55,10 +55,10 @@ window.SITE = {
   // Proyectos demo (funcionan en /demos/). Reemplázalos o añade tus trabajos reales.
   // image: ruta a una captura real (ej. "img/tienda.png"). Si está vacía se dibuja una ilustración según mock: shop | inventory | mobile | cloud.
   projects: [
-    { title: "Tienda online Andina", tag: "E-commerce", text: "Catálogo, carrito y pagos con panel de pedidos.", stack: ["HTML", "JS", "Carrito"], url: "demos/tienda/", image: "", mock: "shop" },
-    { title: "Gestor de inventario", tag: "Sistema interno", text: "Control de stock multi-almacén con reportes en tiempo real.", stack: ["Chart.js", "Dashboard"], url: "demos/inventario/", image: "", mock: "inventory" },
-    { title: "App de reservas", tag: "Móvil", text: "Reservas y recordatorios por WhatsApp para un centro de salud.", stack: ["Mobile-first", "WhatsApp"], url: "demos/reservas/", image: "", mock: "mobile" },
-    { title: "Migración a la nube", tag: "Cloud", text: "Servidores físicos a AWS con 40% menos costo mensual.", stack: ["Cloud", "Chart.js"], url: "demos/cloud/", image: "", mock: "cloud" },
+    { title: "Tienda online Andina", tag: "E-commerce", text: "Catálogo, carrito y pagos con panel de pedidos.", stack: ["HTML", "JS", "Carrito"], url: "demos/tienda/", image: "img/tienda.webp", mock: "shop" },
+    { title: "Gestor de inventario", tag: "Sistema interno", text: "Control de stock multi-almacén con reportes en tiempo real.", stack: ["Chart.js", "Dashboard"], url: "demos/inventario/", image: "img/inventario.webp", mock: "inventory" },
+    { title: "App de reservas", tag: "Móvil", text: "Reservas y recordatorios por WhatsApp para un centro de salud.", stack: ["Mobile-first", "WhatsApp"], url: "demos/reservas/", image: "img/reservas.webp", mock: "mobile" },
+    { title: "Migración a la nube", tag: "Cloud", text: "Servidores físicos a AWS con 40% menos costo mensual.", stack: ["Cloud", "Chart.js"], url: "demos/cloud/", image: "img/cloud.webp", mock: "cloud" },
   ],
 
   // Perfiles verificables. Solo se muestran los que tengan url: pega tu enlace y aparece.
