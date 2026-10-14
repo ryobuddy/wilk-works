@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nimbus · Migración a la nube (demo)</title>
+  <meta name="description" content="Demo de panel de migración a la nube: arquitectura, costos y monitoreo. Hecho por Wilk Works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root { --bg: #070b14; --panel: #0e1525; --line: #1e2a44; --text: #e8eefc; --muted: #8e9bba; --orange: #ff9a3c; --cyan: #38d9f5; --green: #34d399; --red: #fb7185; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 15px/1.5 "Inter", system-ui, sans-serif; background: radial-gradient(ellipse at 70% -10%, rgba(56, 217, 245, .15), transparent 50%), var(--bg); color: var(--text); min-height: 100vh; }
+    button { font: inherit; cursor: pointer; }
+    .demo-bar { background: #04070d; color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+    .demo-bar a { color: var(--cyan); }
+    .wrap { width: min(1200px, 100% - 32px); margin-inline: auto; padding: 26px 0 50px; }
+    .top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 22px; }
+    h1 { font-size: 26px; }
+    .muted { color: var(--muted); }
+    .toggle { display: inline-flex; padding: 4px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+    .toggle button { padding: 8px 16px; border: 0; border-radius: 9px; background: none; color: var(--muted); font-weight: 600; }
+    .toggle button.on { background: var(--cyan); color: #04121a; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+    .card h3 { font-size: 14px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+    .s12 { grid-column: span 12; } .s8 { grid-column: span 8; } .s4 { grid-column: span 4; } .s6 { grid-column: span 6; } .s3 { grid-column: span 3; }
+    .kpi b { font-size: 28px; font-variant-numeric: tabular-nums; }
+    .kpi small { display: block; font-size: 13px; }
+    .up { color: var(--green); } .down { color: var(--red); }
+    /* Diagrama */
+    .diagram { position: relative; height: 260px; }
+    .diagram svg { width: 100%; height: 100%; }
+    .node rect { fill: #121c31; stroke: #2b3a5c; }
+    .node text { fill: var(--text); font: 600 12px Inter; }
+    .node .sub { fill: var(--muted); font: 500 10px "JetBrains Mono"; }
+    .edge { fill: none; stroke: #2b3a5c; stroke-width: 2; }
+    .live .edge { stroke: var(--cyan); stroke-dasharray: 6 8; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -28; } }
+    .onprem-only, .cloud-only { transition: opacity .5s; }
+    .mode-cloud .onprem-only, .mode-onprem .cloud-only { opacity: 0; pointer-events: none; }
+    /* Calculadora */
+    .calc label { display: grid; gap: 6px; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
+    .calc label span { display: flex; justify-content: space-between; color: var(--text); font-weight: 600; }
+    input[type=range] { width: 100%; accent-color: var(--cyan); }
+    .saving { padding: 14px; border-radius: 12px; background: rgba(52, 211, 153, .08); border: 1px solid rgba(52, 211, 153, .25); }
+    .saving b { font-size: 26px; color: var(--green); }
+    .chart-box { position: relative; height: 230px; }
+    .checklist li { list-style: none; display: flex; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .checklist li:last-child { border: 0; }
+    .checklist i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; font-style: normal; font-size: 12px; }
+    .checklist li.done i { background: var(--green); border-color: var(--green); color: #04130c; }
+    .checklist li.now i { border-color: var(--cyan); animation: pulse 1.4s infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(56, 217, 245, .15); } }
+    .bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 6px 0 14px; }
+    .bar div { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width .6s; }
+    .mono { font-family: "JetBrains Mono", monospace; }
+    @media (max-width: 960px) { .s8, .s4, .s6 { grid-column: span 12; } .s3 { grid-column: span 6; } }
+  </style>
+</head>
+<body class="mode-cloud">
+  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · cifras simuladas con fines ilustrativos</div>
+  <div class="wrap">
+    <div class="top">
+      <div><h1>Migración a la nube · Distribuidora Norte</h1><p class="muted">De servidores físicos a una arquitectura en contenedores con alta disponibilidad</p></div>
+      <div class="toggle" role="tablist"><button id="b-onprem">Antes (on-premise)</button><button id="b-cloud" class="on">Después (cloud)</button></div>
+    </div>
+
+    <div class="grid">
+      <div class="card kpi s3"><h3>Costo mensual</h3><b id="k-cost">—</b><small id="k-cost-d"></small></div>
+      <div class="card kpi s3"><h3>Disponibilidad</h3><b id="k-up">—</b><small id="k-up-d"></small></div>
+      <div class="card kpi s3"><h3>Tiempo de despliegue</h3><b id="k-dep">—</b><small id="k-dep-d"></small></div>
+      <div class="card kpi s3"><h3>Latencia p95</h3><b id="k-lat" class="mono">—</b><small class="muted">en vivo</small></div>
+
+      <div class="card s8">
+        <h3>Arquitectura</h3>
+        <div class="diagram" id="diagram">
+          <svg viewBox="0 0 760 260" aria-label="Diagrama de arquitectura">
+            <g class="onprem-only">
+              <path class="edge" d="M150 130 H300"/><path class="edge" d="M420 130 H560"/>
+              <g class="node" transform="translate(30 100)"><rect width="120" height="60" rx="10"/><text x="16" y="28">Usuarios</text><text class="sub" x="16" y="46">oficina + tiendas</text></g>
+              <g class="node" transform="translate(300 90)"><rect width="120" height="80" rx="10"/><text x="16" y="30">Servidor físico</text><text class="sub" x="16" y="50">app + BD juntos</text><text class="sub" x="16" y="66">sin respaldo</text></g>
+              <g class="node" transform="translate(560 100)"><rect width="150" height="60" rx="10"/><text x="16" y="28">Backup manual</text><text class="sub" x="16" y="46">disco USB semanal</text></g>
+            </g>
+            <g class="cloud-only live">
+              <path class="edge" d="M140 130 H220"/><path class="edge" d="M340 130 C 380 130, 380 60, 420 60"/><path class="edge" d="M340 130 H420"/><path class="edge" d="M340 130 C 380 130, 380 200, 420 200"/>
+              <path class="edge" d="M540 60 C 580 60, 580 130, 610 130"/><path class="edge" d="M540 130 H610"/><path class="edge" d="M540 200 C 580 200, 580 130, 610 130"/>
+              <g class="node" transform="translate(20 100)"><rect width="120" height="60" rx="10"/><text x="16" y="28">Usuarios</text><text class="sub" x="16" y="46">CDN global</text></g>
+              <g class="node" transform="translate(220 100)"><rect width="120" height="60" rx="10" style="stroke:#38d9f5"/><text x="16" y="28">Load balancer</text><text class="sub" x="16" y="46">HTTPS · WAF</text></g>
+              <g class="node" transform="translate(420 35)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 1</text><text class="sub" x="16" y="39">docker · az-a</text></g>
+              <g class="node" transform="translate(420 105)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 2</text><text class="sub" x="16" y="39">docker · az-b</text></g>
+              <g class="node" transform="translate(420 175)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 3</text><text class="sub" x="16" y="39">autoescalado</text></g>
+              <g class="node" transform="translate(610 95)"><rect width="130" height="70" rx="10" style="stroke:#ff9a3c"/><text x="16" y="28">Base de datos</text><text class="sub" x="16" y="46">réplica multi-AZ</text><text class="sub" x="16" y="60">backup diario</text></g>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="card s4">
+        <h3>Plan de migración</h3>
+        <div class="muted" style="font-size:13px">Progreso <b id="pct" style="color:var(--text)">0%</b></div>
+        <div class="bar"><div id="pbar" style="width:0"></div></div>
+        <ul class="checklist" id="steps"></ul>
+      </div>
+
+      <div class="card s6 calc">
+        <h3>Calculadora de ahorro</h3>
+        <label><span>Servidores <em id="v-srv" class="mono"></em></span><input id="srv" type="range" min="1" max="20" value="4"></label>
+        <label><span>Almacenamiento (TB) <em id="v-tb" class="mono"></em></span><input id="tb" type="range" min="1" max="50" value="6"></label>
+        <label><span>Horas de soporte/mes <em id="v-hrs" class="mono"></em></span><input id="hrs" type="range" min="0" max="80" value="20"></label>
+        <div class="saving"><span class="muted">Ahorro anual estimado</span><br><b id="save" class="mono">—</b> <span id="save-pct" class="muted"></span></div>
+      </div>
+
+      <div class="card s6"><h3>Costo mensual proyectado (USD)</h3><div class="chart-box"><canvas id="c-cost"></canvas></div></div>
+      <div class="card s12"><h3>Latencia en tiempo real (ms)</h3><div class="chart-box" style="height:160px"><canvas id="c-lat"></canvas></div></div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    Chart.defaults.color = "#8e9bba"; Chart.defaults.borderColor = "#1e2a44"; Chart.defaults.font.family = "Inter";
+    let mode = "cloud";
+
+    // Calculadora: modelo simple y transparente (costos referenciales)
+    function costs() {
+      const srv = +$("srv").value, tb = +$("tb").value, hrs = +$("hrs").value;
+      $("v-srv").textContent = srv; $("v-tb").textContent = tb; $("v-hrs").textContent = hrs;
+      const onprem = srv * 310 + tb * 45 + hrs * 25 + 180; // hardware amortizado, energía, mantenimiento, licencias
+      const cloud = srv * 140 + tb * 23 + hrs * 25 * 0.4 + 60;
+      return { onprem, cloud };
+    }
+    const usd = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    const costChart = new Chart($("c-cost"), {
+      type: "line",
+      data: { labels: ["Mes 1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], datasets: [
+        { label: "On-premise", data: [], borderColor: "#fb7185", backgroundColor: "rgba(251,113,133,.08)", fill: true, tension: .35, pointRadius: 0 },
+        { label: "Cloud", data: [], borderColor: "#38d9f5", backgroundColor: "rgba(56,217,245,.1)", fill: true, tension: .35, pointRadius: 0 },
+      ] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { ticks: { callback: (v) => "$" + v } } } },
+    });
+    function update() {
+      const c = costs(), yearly = (c.onprem - c.cloud) * 12;
+      $("save").textContent = usd(yearly);
+      $("save-pct").textContent = `(${Math.round((1 - c.cloud / c.onprem) * 100)}% menos)`;
+      // la nube incluye un mes de migración con costo doble
+      costChart.data.datasets[0].data = Array.from({ length: 12 }, (_, i) => Math.round(c.onprem * (1 + i * 0.01)));
+      costChart.data.datasets[1].data = Array.from({ length: 12 }, (_, i) => Math.round(i === 0 ? c.cloud + c.onprem * 0.6 : c.cloud));
+      costChart.update();
+      const m = mode === "cloud";
+      $("k-cost").textContent = usd(m ? c.cloud : c.onprem);
+      $("k-cost-d").innerHTML = m ? `<span class="up">▼ ${Math.round((1 - c.cloud / c.onprem) * 100)}% vs antes</span>` : `<span class="muted">base</span>`;
+      $("k-up").textContent = m ? "99.95%" : "97.2%";
+      $("k-up-d").innerHTML = m ? `<span class="up">≈ 22 min caída/mes</span>` : `<span class="down">≈ 20 h caída/mes</span>`;
+      $("k-dep").textContent = m ? "8 min" : "1 día";
+      $("k-dep-d").innerHTML = m ? `<span class="up">CI/CD automático</span>` : `<span class="down">manual, fuera de horario</span>`;
+    }
+    ["srv", "tb", "hrs"].forEach((id) => ($(id).oninput = update));
+
+    function setMode(m) {
+      mode = m;
+      document.body.className = "mode-" + m;
+      $("b-cloud").classList.toggle("on", m === "cloud");
+      $("b-onprem").classList.toggle("on", m === "onprem");
+      update();
+    }
+    $("b-cloud").onclick = () => setMode("cloud");
+    $("b-onprem").onclick = () => setMode("onprem");
+
+    // Plan de migración que avanza solo
+    const STEPS = ["Inventario de servidores y datos", "Contenerización de la aplicación", "Base de datos replicada", "Pruebas de carga", "Cambio de DNS sin cortes", "Monitoreo y alertas 24/7"];
+    let done = 0;
+    function renderSteps() {
+      $("steps").innerHTML = STEPS.map((s, i) => `<li class="${i < done ? "done" : i === done ? "now" : ""}"><i>${i < done ? "✓" : ""}</i>${s}</li>`).join("");
+      const p = Math.round((done / STEPS.length) * 100);
+      $("pct").textContent = p + "%"; $("pbar").style.width = p + "%";
+    }
+    renderSteps();
+    setInterval(() => { done = (done + 1) % (STEPS.length + 1); renderSteps(); }, 1600);
+
+    // Latencia simulada en vivo
+    const N = 60, lat = Array.from({ length: N }, () => 40 + Math.random() * 15);
+    const latChart = new Chart($("c-lat"), {
+      type: "line",
+      data: { labels: Array(N).fill(""), datasets: [{ data: lat, borderColor: "#34d399", borderWidth: 2, tension: .3, pointRadius: 0, fill: true, backgroundColor: "rgba(52,211,153,.08)" }] },
+      options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, max: 400 } } },
+    });
+    setInterval(() => {
+      const base = mode === "cloud" ? 42 : 180, jitter = mode === "cloud" ? 18 : 140;
+      lat.push(base + Math.random() * jitter); lat.shift();
+      latChart.data.datasets[0].borderColor = mode === "cloud" ? "#34d399" : "#fb7185";
+      latChart.update();
+      $("k-lat").textContent = Math.round([...lat].sort((a, b) => a - b)[Math.floor(N * 0.95)]) + " ms";
+    }, 500);
+    setMode("cloud");
+  </script>
+</body>
+</html>

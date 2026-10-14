@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wilk Works · Software y TI</title>
+  <meta name="description" content="Wilk Works: desarrollo de software a medida, apps, cloud y soporte TI para empresas.">
+  <meta name="theme-color" content="#0b0a14">
+  <meta property="og:title" content="Wilk Works · Software y TI">
+  <meta property="og:description" content="Desarrollo de software a medida, apps, cloud y soporte TI.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='1' stop-color='%235b8cff'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><text x='16' y='22' font-size='16' font-family='Arial' font-weight='700' fill='%23f5c542' text-anchor='middle'>W</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="fogfx" aria-hidden="true"></canvas>
+  <div class="codefloat" id="codefloat" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a href="#" class="logo"><span class="logo-mark" aria-hidden="true">W</span><span data-brand>Wilk Works</span></a>
+      <nav aria-label="Principal">
+        <a href="#servicios">Servicios</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#perfiles">Perfiles</a>
+        <a href="#contacto" class="btn btn-sm">Contáctanos</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="pill"><span class="dot"></span><span id="available"></span></p>
+        <h1><span id="headline"></span><br><span class="rotator"><span id="rotating"></span><span class="caret">|</span></span></h1>
+        <p class="lead" id="intro"></p>
+        <div class="hero-cta">
+          <a class="btn btn-glow" id="hero-whatsapp" target="_blank" rel="noopener">Escríbenos por WhatsApp <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#servicios">Ver servicios</a>
+        </div>
+      </div>
+
+      <div class="mind" aria-hidden="true">
+        <canvas id="mind"></canvas>
+        <span class="mind-label">// compile(intent) → <b id="mind-stage">source</b></span>
+      </div>
+    </section>
+
+    <section class="marquee" aria-label="Tecnologías">
+      <div class="marquee-track" id="tech"></div>
+    </section>
+
+    <section id="servicios" class="wrap section">
+      <p class="kicker">// 01 · servicios</p>
+      <h2>Lo que hacemos por tu empresa</h2>
+      <div class="bento" id="services"></div>
+    </section>
+
+    <section id="proceso" class="wrap section">
+      <p class="kicker">// 02 · proceso</p>
+      <h2>Cómo trabajamos</h2>
+      <div class="terminal">
+        <div class="term-bar"><i></i><i></i><i></i><span>wilkworks — zsh</span></div>
+        <pre class="term-body"><code id="term"></code><span class="caret">▋</span></pre>
+      </div>
+      <ol class="process" id="process"></ol>
+    </section>
+
+    <section id="proyectos" class="wrap section">
+      <p class="kicker">// 03 · proyectos</p>
+      <h2>Trabajos recientes</h2>
+      <div class="grid grid-2" id="projects"></div>
+    </section>
+
+    <section id="perfiles" class="wrap section">
+      <p class="kicker">// 04 · perfiles</p>
+      <h2>Perfiles verificables</h2>
+      <p class="section-sub">Nuestro historial, a la vista en plataformas públicas.</p>
+      <div class="profiles" id="profiles"></div>
+      <div id="certs-wrap" hidden>
+        <h3 class="sub-title">Certificaciones</h3>
+        <div class="grid grid-3" id="certs"></div>
+      </div>
+    </section>
+
+    <section id="contacto" class="wrap section">
+      <div class="contact card">
+        <div>
+          <p class="kicker">// 05 · contacto</p>
+          <h2>Hablemos de tu proyecto</h2>
+          <p class="section-sub">Cuéntanos qué necesitas y te respondemos en menos de 24 horas.</p>
+          <ul class="contact-list">
+            <li><span>WhatsApp</span><a id="c-whatsapp" target="_blank" rel="noopener"></a></li>
+            <li><span>Email</span><a id="c-email"></a></li>
+            <li><span>Ubicación</span><b id="c-location"></b></li>
+          </ul>
+        </div>
+        <form id="contact-form" class="form">
+          <label>Nombre<input name="name" required autocomplete="name"></label>
+          <label>Empresa<input name="company" autocomplete="organization"></label>
+          <label>¿Qué necesitas?<textarea name="message" rows="4" required></textarea></label>
+          <button class="btn btn-glow" type="submit">Enviar por WhatsApp <span aria-hidden="true">→</span></button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <span>© <span id="year"></span> <span data-brand>Wilk Works</span></span>
+    <em>El código es la magia de nuestro mundo.</em>
+    <a href="#">Volver arriba ↑</a>
+  </footer>
+
+  <a class="wa-float" id="wa-float" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><span class="si" style="--icon:url(https://cdn.jsdelivr.net/npm/simple-icons@11.14.0/icons/whatsapp.svg)"></span></a>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

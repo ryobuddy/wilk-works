@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stockly · Gestor de inventario (demo)</title>
+  <meta name="description" content="Demo de sistema de inventario multi-almacén con gráficos y alertas. Hecho por Wilk Works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root { --bg: #0f1420; --panel: #161d2e; --line: #243049; --text: #e7ecf5; --muted: #93a0b8; --accent: #3dd6a3; --blue: #5b8cff; --warn: #f5b942; --danger: #ff6b6b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 15px/1.5 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    button, input, select { font: inherit; }
+    .demo-bar { background: #0a0e17; color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
+    .demo-bar a { color: var(--accent); }
+    .app { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 36px); }
+    aside { background: var(--panel); border-right: 1px solid var(--line); padding: 22px 16px; }
+    .logo { font-weight: 700; font-size: 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .logo i { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--blue)); }
+    nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--muted); text-decoration: none; margin-bottom: 4px; }
+    nav a.on, nav a:hover { background: rgba(61, 214, 163, .1); color: var(--text); }
+    main { padding: 24px 28px 48px; overflow: hidden; }
+    .top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+    h1 { font-size: 24px; }
+    .muted { color: var(--muted); }
+    .btn { padding: 10px 16px; border-radius: 10px; border: 0; background: var(--accent); color: #062419; font-weight: 600; cursor: pointer; }
+    .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
+    select, input { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+    .kpi small { color: var(--muted); }
+    .kpi b { display: block; font-size: 26px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .kpi .delta { font-size: 13px; color: var(--accent); }
+    .kpi .delta.bad { color: var(--danger); }
+    .charts { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 18px; }
+    .charts h3, .tbl h3 { font-size: 15px; margin-bottom: 12px; }
+    .chart-box { position: relative; height: 240px; }
+    .tbl-head { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; font-size: 13px; }
+    td.num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+    .pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
+    .ok { background: rgba(61, 214, 163, .12); color: var(--accent); }
+    .low { background: rgba(245, 185, 66, .14); color: var(--warn); }
+    .out { background: rgba(255, 107, 107, .14); color: var(--danger); }
+    .adj { display: inline-flex; gap: 4px; }
+    .adj button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; }
+    .adj button:hover { border-color: var(--accent); }
+    tr.flash td { animation: flash 0.8s; }
+    @keyframes flash { from { background: rgba(61, 214, 163, .18); } }
+    dialog { margin: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--text); padding: 22px; width: min(420px, 92vw); }
+    dialog::backdrop { background: rgba(0, 0, 0, .55); }
+    dialog form { display: grid; gap: 12px; }
+    dialog label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    .row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+    .scroll { overflow-x: auto; }
+    @media (max-width: 980px) { .kpis { grid-template-columns: repeat(2, 1fr); } .charts { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .app { grid-template-columns: 1fr; } aside { display: none; } main { padding: 18px 16px 40px; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · datos ficticios, se guardan solo en tu navegador</div>
+  <div class="app">
+    <aside>
+      <div class="logo"><i></i>Stockly</div>
+      <nav><a class="on" href="#">▦ Panel</a><a href="#">▤ Productos</a><a href="#">⇄ Movimientos</a><a href="#">⌂ Almacenes</a><a href="#">⚙ Ajustes</a></nav>
+    </aside>
+    <main>
+      <div class="top">
+        <div><h1>Panel de inventario</h1><p class="muted">Control de stock multi-almacén en tiempo real</p></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <select id="wh" aria-label="Almacén"><option value="all">Todos los almacenes</option><option>Lima</option><option>Arequipa</option><option>Trujillo</option></select>
+          <button class="btn" id="new">+ Nuevo producto</button>
+        </div>
+      </div>
+
+      <section class="kpis" id="kpis"></section>
+
+      <section class="charts">
+        <div class="card"><h3>Movimientos de los últimos 14 días</h3><div class="chart-box"><canvas id="c-moves"></canvas></div></div>
+        <div class="card"><h3>Stock por categoría</h3><div class="chart-box"><canvas id="c-cats"></canvas></div></div>
+      </section>
+
+      <section class="card tbl">
+        <div class="tbl-head"><h3>Productos</h3><input id="q" type="search" placeholder="Buscar SKU o nombre…" aria-label="Buscar"></div>
+        <div class="scroll"><table>
+          <thead><tr><th>SKU</th><th>Producto</th><th>Almacén</th><th>Stock</th><th>Mínimo</th><th>Estado</th><th>Ajustar</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="dlg">
+    <form method="dialog" id="f">
+      <h3>Nuevo producto</h3>
+      <label>Nombre<input name="name" required></label>
+      <label>Categoría<select name="cat"><option>Electrónica</option><option>Oficina</option><option>Limpieza</option><option>Alimentos</option></select></label>
+      <label>Almacén<select name="wh"><option>Lima</option><option>Arequipa</option><option>Trujillo</option></select></label>
+      <label>Stock inicial<input name="stock" type="number" min="0" value="20" required></label>
+      <label>Stock mínimo<input name="min" type="number" min="0" value="10" required></label>
+      <div class="row"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Guardar</button></div>
+    </form>
+  </dialog>
+
+  <script>
+    const SEED = [
+      ["EL-001", "Laptop 14\"", "Electrónica", "Lima", 34, 10], ["EL-002", "Monitor 24\"", "Electrónica", "Arequipa", 8, 12],
+      ["EL-003", "Mouse inalámbrico", "Electrónica", "Lima", 120, 40], ["OF-010", "Resma A4", "Oficina", "Trujillo", 210, 80],
+      ["OF-011", "Silla ergonómica", "Oficina", "Lima", 0, 5], ["LI-020", "Alcohol gel 1L", "Limpieza", "Arequipa", 56, 30],
+      ["LI-021", "Detergente 5kg", "Limpieza", "Trujillo", 18, 20], ["AL-030", "Café 1kg", "Alimentos", "Lima", 75, 25],
+      ["AL-031", "Agua 20L", "Alimentos", "Trujillo", 40, 15], ["EL-004", "Teclado mecánico", "Electrónica", "Trujillo", 22, 10],
+    ].map(([sku, name, cat, wh, stock, min]) => ({ sku, name, cat, wh, stock, min }));
+    const $ = (id) => document.getElementById(id);
+    let items;
+    try { items = JSON.parse(localStorage.getItem("stockly")) || SEED; } catch { items = SEED; }
+    const save = () => { try { localStorage.setItem("stockly", JSON.stringify(items)); } catch {} };
+    const status = (p) => (p.stock === 0 ? ["out", "Agotado"] : p.stock < p.min ? ["low", "Stock bajo"] : ["ok", "Normal"]);
+    const visible = () => items.filter((p) => $("wh").value === "all" || p.wh === $("wh").value);
+
+    // Movimientos simulados (entradas/salidas) para el gráfico
+    const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 13 + i); return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short" }); });
+    const rnd = (a, b) => Math.round(a + Math.random() * (b - a));
+    const ins = days.map(() => rnd(40, 120)), outs = days.map(() => rnd(30, 110));
+
+    Chart.defaults.color = "#93a0b8";
+    Chart.defaults.borderColor = "#243049";
+    Chart.defaults.font.family = "Inter";
+    const moves = new Chart($("c-moves"), {
+      type: "bar",
+      data: { labels: days, datasets: [
+        { label: "Entradas", data: ins, backgroundColor: "#3dd6a3", borderRadius: 6 },
+        { label: "Salidas", data: outs, backgroundColor: "#5b8cff", borderRadius: 6 },
+      ] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { x: { grid: { display: false } } } },
+    });
+    const cats = new Chart($("c-cats"), {
+      type: "doughnut",
+      data: { labels: [], datasets: [{ data: [], backgroundColor: ["#3dd6a3", "#5b8cff", "#f5b942", "#c38bff"], borderWidth: 0 }] },
+      options: { maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom" } } },
+    });
+
+    function render(flashSku) {
+      const list = visible(), q = $("q").value.trim().toLowerCase();
+      const total = list.reduce((s, p) => s + p.stock, 0), low = list.filter((p) => p.stock > 0 && p.stock < p.min).length, out = list.filter((p) => p.stock === 0).length;
+      $("kpis").innerHTML = `
+        <div class="card kpi"><small>Unidades en stock</small><b>${total.toLocaleString("es-PE")}</b><span class="delta">▲ 4.2% vs semana pasada</span></div>
+        <div class="card kpi"><small>Productos</small><b>${list.length}</b><span class="delta">${new Set(list.map((p) => p.cat)).size} categorías</span></div>
+        <div class="card kpi"><small>Stock bajo</small><b>${low}</b><span class="delta ${low ? "bad" : ""}">${low ? "Requiere reposición" : "Todo en orden"}</span></div>
+        <div class="card kpi"><small>Agotados</small><b>${out}</b><span class="delta ${out ? "bad" : ""}">${out ? "Pedir a proveedor" : "Sin quiebres"}</span></div>`;
+      $("rows").innerHTML = list
+        .filter((p) => (p.sku + p.name).toLowerCase().includes(q))
+        .map((p) => { const [c, t] = status(p); return `<tr data-sku="${p.sku}" class="${p.sku === flashSku ? "flash" : ""}"><td class="num">${p.sku}</td><td>${p.name}</td><td>${p.wh}</td><td class="num">${p.stock}</td><td class="num">${p.min}</td><td><span class="pill ${c}">${t}</span></td><td><span class="adj"><button data-d="-1" aria-label="Restar">−</button><button data-d="1" aria-label="Sumar">+</button><button data-d="10" aria-label="Sumar 10">+10</button></span></td></tr>`; })
+        .join("");
+      const byCat = {};
+      list.forEach((p) => (byCat[p.cat] = (byCat[p.cat] || 0) + p.stock));
+      cats.data.labels = Object.keys(byCat);
+      cats.data.datasets[0].data = Object.values(byCat);
+      cats.update();
+    }
+
+    $("rows").onclick = (e) => {
+      const b = e.target.closest("[data-d]"); if (!b) return;
+      const sku = b.closest("tr").dataset.sku, p = items.find((x) => x.sku === sku), d = +b.dataset.d;
+      p.stock = Math.max(0, p.stock + d);
+      const i = days.length - 1;
+      d > 0 ? (ins[i] += d) : (outs[i] -= d);
+      moves.update();
+      save(); render(sku);
+    };
+    $("q").oninput = () => render();
+    $("wh").onchange = () => render();
+    $("new").onclick = () => $("dlg").showModal();
+    $("f").addEventListener("submit", (e) => {
+      if (e.submitter?.value !== "ok") return;
+      const f = new FormData(e.target), prefix = { Electrónica: "EL", Oficina: "OF", Limpieza: "LI", Alimentos: "AL" }[f.get("cat")];
+      const sku = `${prefix}-${String(Math.floor(100 + Math.random() * 900))}`;
+      items.unshift({ sku, name: f.get("name"), cat: f.get("cat"), wh: f.get("wh"), stock: +f.get("stock"), min: +f.get("min") });
+      save(); render(sku); e.target.reset();
+    });
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Andina · Tienda online (demo)</title>
+  <meta name="description" content="Demo de tienda online con catálogo, filtros, carrito y checkout. Hecho por Wilk Works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #faf6f0; --ink: #2b211b; --muted: #75655a; --card: #fff; --line: #eadfd3; --brand: #b4532a; --brand-2: #2f6b4f; --gold: #d9a23b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 16px/1.55 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    h1, h2, h3 { font-family: "Fraunces", Georgia, serif; line-height: 1.15; }
+    button { font: inherit; cursor: pointer; }
+    .wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
+    .demo-bar { background: #1c1612; color: #f3e9dc; font-size: 13px; text-align: center; padding: 8px 16px; }
+    .demo-bar a { color: var(--gold); }
+    header { position: sticky; top: 0; z-index: 5; background: rgba(250, 246, 240, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .head { display: flex; align-items: center; gap: 20px; height: 68px; }
+    .logo { font: 700 24px "Fraunces", serif; color: var(--brand); }
+    .search { flex: 1; max-width: 420px; margin-left: auto; padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font: inherit; }
+    .cart-btn { position: relative; padding: 10px 16px; border-radius: 999px; border: 0; background: var(--ink); color: #fff; font-weight: 600; }
+    .cart-btn b { position: absolute; top: -6px; right: -6px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--brand); font-size: 12px; display: grid; place-items: center; padding: 0 5px; transition: transform .2s; }
+    .cart-btn b.pop { transform: scale(1.35); }
+    .hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; align-items: center; padding: 48px 0 36px; }
+    .hero h1 { font-size: clamp(34px, 5vw, 56px); }
+    .hero p { color: var(--muted); margin: 14px 0 24px; max-width: 46ch; font-size: 18px; }
+    .hero-art { aspect-ratio: 4 / 3; border-radius: 24px; background: radial-gradient(circle at 30% 30%, #f2c58c, transparent 55%), radial-gradient(circle at 75% 70%, #9fc7a8, transparent 50%), #e9d6bf; display: grid; place-items: center; font-size: 110px; box-shadow: 0 30px 60px -30px rgba(43, 33, 27, .45); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; border: 0; background: var(--brand); color: #fff; font-weight: 600; transition: transform .15s, background .2s; }
+    .btn:hover { transform: translateY(-1px); background: #9b4421; }
+    .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 24px; }
+    .chip { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); font-weight: 500; }
+    .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .toolbar select { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); font: inherit; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; padding-bottom: 64px; }
+    .p { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+    .p:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -22px rgba(43, 33, 27, .45); }
+    .p .img { aspect-ratio: 1; display: grid; place-items: center; font-size: 78px; position: relative; }
+    .p .badge { position: absolute; top: 12px; left: 12px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--brand-2); color: #fff; }
+    .p .body { padding: 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .p small { color: var(--muted); }
+    .p .row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; }
+    .price { font-weight: 700; font-size: 18px; }
+    .add { padding: 9px 14px; border-radius: 10px; border: 0; background: var(--ink); color: #fff; font-weight: 600; }
+    .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; }
+    /* Carrito */
+    .scrim { position: fixed; inset: 0; background: rgba(28, 22, 18, .45); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 9; }
+    .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: #fff; z-index: 10; transform: translateX(100%); transition: transform .3s cubic-bezier(.2, .7, .2, 1); display: flex; flex-direction: column; }
+    .open .scrim { opacity: 1; pointer-events: auto; }
+    .open .drawer { transform: none; }
+    .drawer header { position: static; display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; background: #fff; }
+    .x { border: 0; background: none; font-size: 26px; line-height: 1; color: var(--muted); }
+    .items { flex: 1; overflow: auto; padding: 8px 20px; }
+    .item { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .item .thumb { width: 56px; height: 56px; border-radius: 12px; display: grid; place-items: center; font-size: 30px; }
+    .qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; margin-top: 4px; }
+    .qty button { width: 28px; height: 28px; border: 0; background: none; }
+    .qty span { min-width: 22px; text-align: center; font-weight: 600; }
+    .foot { padding: 18px 20px 22px; border-top: 1px solid var(--line); }
+    .sum { display: flex; justify-content: space-between; margin-bottom: 6px; color: var(--muted); }
+    .sum.total { color: var(--ink); font-weight: 700; font-size: 20px; margin: 10px 0 16px; }
+    .foot .btn { width: 100%; justify-content: center; }
+    form.checkout { display: grid; gap: 12px; padding: 8px 20px 20px; }
+    form.checkout label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; }
+    form.checkout input, form.checkout select { padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; }
+    .done { text-align: center; padding: 40px 24px; }
+    .done .big { font-size: 64px; }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; transition: transform .3s; z-index: 11; }
+    .toast.show { transform: translate(-50%, 0); }
+    footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
+    @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } .hero-art { font-size: 80px; } .search { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · productos y pagos ficticios</div>
+  <header>
+    <div class="wrap head">
+      <span class="logo">Andina</span>
+      <input class="search" id="q" type="search" placeholder="Buscar productos…" aria-label="Buscar productos">
+      <button class="cart-btn" id="open-cart">Carrito <b id="count">0</b></button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <h1>Hecho a mano en los Andes, enviado a tu puerta.</h1>
+        <p>Textiles de alpaca, café de altura y cerámica de comunidades artesanas. Envío gratis desde S/ 150.</p>
+        <a class="btn" href="#catalogo">Ver catálogo →</a>
+      </div>
+      <div class="hero-art" aria-hidden="true">🦙</div>
+    </section>
+
+    <section id="catalogo">
+      <div class="toolbar">
+        <div class="chips" id="chips"></div>
+        <select id="sort" aria-label="Ordenar">
+          <option value="pop">Más vendidos</option>
+          <option value="asc">Precio: menor a mayor</option>
+          <option value="desc">Precio: mayor a menor</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">© Andina (marca ficticia) · Demo de e-commerce por Wilk Works</div></footer>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" aria-label="Carrito">
+    <header><h3 id="drawer-title">Tu carrito</h3><button class="x" id="close" aria-label="Cerrar">×</button></header>
+    <div id="drawer-body"></div>
+  </aside>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const PRODUCTS = [
+      { id: 1, name: "Chompa de alpaca", cat: "Textiles", price: 189, icon: "🧶", bg: "#f1d9c4", badge: "Nuevo", pop: 9 },
+      { id: 2, name: "Café de altura 500 g", cat: "Café", price: 42, icon: "☕", bg: "#e6d3bf", badge: "Top", pop: 10 },
+      { id: 3, name: "Chocolate 70% cacao", cat: "Café", price: 18, icon: "🍫", bg: "#ead1c1", pop: 7 },
+      { id: 4, name: "Vasija de cerámica", cat: "Cerámica", price: 95, icon: "🏺", bg: "#efd7b8", pop: 5 },
+      { id: 5, name: "Manta tejida", cat: "Textiles", price: 230, icon: "🧣", bg: "#dbe6d6", pop: 6 },
+      { id: 6, name: "Taza artesanal", cat: "Cerámica", price: 35, icon: "🍵", bg: "#e3dccb", badge: "Oferta", pop: 8 },
+      { id: 7, name: "Gorro chullo", cat: "Textiles", price: 55, icon: "🧢", bg: "#f0dccd", pop: 4 },
+      { id: 8, name: "Miel de eucalipto", cat: "Café", price: 28, icon: "🍯", bg: "#f2e1b9", pop: 3 },
+    ];
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => "S/ " + n.toFixed(2);
+    const load = () => { try { return JSON.parse(localStorage.getItem("andina-cart")) || {}; } catch { return {}; } };
+    const save = () => { try { localStorage.setItem("andina-cart", JSON.stringify(cart)); } catch {} };
+    let cart = load(), cat = "Todos", view = "cart";
+
+    const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
+    $("chips").innerHTML = cats.map((c) => `<button class="chip${c === cat ? " on" : ""}" data-cat="${c}">${c}</button>`).join("");
+    $("chips").onclick = (e) => { const b = e.target.closest(".chip"); if (!b) return; cat = b.dataset.cat; document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === b)); renderGrid(); };
+    $("q").oninput = renderGrid;
+    $("sort").onchange = renderGrid;
+
+    function renderGrid() {
+      const q = $("q").value.trim().toLowerCase(), sort = $("sort").value;
+      let list = PRODUCTS.filter((p) => (cat === "Todos" || p.cat === cat) && p.name.toLowerCase().includes(q));
+      list.sort((a, b) => (sort === "asc" ? a.price - b.price : sort === "desc" ? b.price - a.price : b.pop - a.pop));
+      $("grid").innerHTML = list.length
+        ? list.map((p) => `<article class="p"><div class="img" style="background:${p.bg}">${p.badge ? `<span class="badge">${p.badge}</span>` : ""}<span aria-hidden="true">${p.icon}</span></div>
+            <div class="body"><small>${p.cat}</small><h3>${p.name}</h3><div class="row"><span class="price">${money(p.price)}</span><button class="add" data-id="${p.id}">Agregar</button></div></div></article>`).join("")
+        : `<p class="empty">No encontramos productos con esa búsqueda.</p>`;
+    }
+    $("grid").onclick = (e) => { const b = e.target.closest(".add"); if (!b) return; add(+b.dataset.id, 1); const p = PRODUCTS.find((x) => x.id === +b.dataset.id); toast(`${p.icon} ${p.name} agregado`); };
+
+    function add(id, n) { cart[id] = (cart[id] || 0) + n; if (cart[id] <= 0) delete cart[id]; save(); renderCart(); }
+    function totals() {
+      const sub = Object.entries(cart).reduce((s, [id, q]) => s + PRODUCTS.find((p) => p.id === +id).price * q, 0);
+      const ship = sub === 0 || sub >= 150 ? 0 : 15;
+      return { sub, ship, total: sub + ship, n: Object.values(cart).reduce((a, b) => a + b, 0) };
+    }
+    function renderCart() {
+      const t = totals(), c = $("count");
+      c.textContent = t.n; c.classList.add("pop"); setTimeout(() => c.classList.remove("pop"), 200);
+      const body = $("drawer-body");
+      if (view === "done") return;
+      if (view === "checkout") {
+        $("drawer-title").textContent = "Datos de envío";
+        body.innerHTML = `<form class="checkout" id="co">
+          <label>Nombre completo<input required name="name" autocomplete="name"></label>
+          <label>Dirección<input required name="addr" autocomplete="street-address"></label>
+          <label>Distrito<select name="dist"><option>Miraflores</option><option>San Isidro</option><option>Surco</option><option>Otro</option></select></label>
+          <label>Pago<select name="pay"><option>Tarjeta (simulado)</option><option>Yape / Plin (simulado)</option><option>Contra entrega</option></select></label>
+          <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div>
+          <button class="btn" type="submit">Confirmar pedido</button>
+          <button class="btn ghost" type="button" id="back">Volver al carrito</button></form>`;
+        $("back").onclick = () => { view = "cart"; renderCart(); };
+        $("co").onsubmit = (e) => {
+          e.preventDefault();
+          const order = "AND-" + Math.floor(100000 + Math.random() * 900000);
+          cart = {}; save(); view = "done"; $("count").textContent = 0;
+          $("drawer-title").textContent = "¡Pedido confirmado!";
+          body.innerHTML = `<div class="done"><div class="big">📦</div><h3>Gracias, ${e.target.name.value.split(" ")[0]}</h3><p style="color:var(--muted);margin:10px 0 20px">Tu pedido <b>${order}</b> llegará a ${e.target.dist.value} en 2–3 días hábiles.</p><button class="btn" id="again">Seguir comprando</button></div>`;
+          $("again").onclick = () => { view = "cart"; closeCart(); renderCart(); };
+        };
+        return;
+      }
+      $("drawer-title").textContent = "Tu carrito";
+      const rows = Object.entries(cart).map(([id, q]) => {
+        const p = PRODUCTS.find((x) => x.id === +id);
+        return `<div class="item"><div class="thumb" style="background:${p.bg}">${p.icon}</div><div><b>${p.name}</b><br><span class="qty"><button data-d="-1" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button data-d="1" data-id="${p.id}" aria-label="Agregar uno">+</button></span></div><b>${money(p.price * q)}</b></div>`;
+      }).join("");
+      body.innerHTML = rows
+        ? `<div class="items">${rows}</div><div class="foot"><div class="sum"><span>Subtotal</span><span>${money(t.sub)}</span></div><div class="sum"><span>Envío</span><span>${t.ship ? money(t.ship) : "Gratis"}</span></div>
+           ${t.sub < 150 ? `<small style="color:var(--brand-2)">Te faltan ${money(150 - t.sub)} para envío gratis</small>` : ""}
+           <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div><button class="btn" id="go">Ir a pagar →</button></div>`
+        : `<div class="done"><div class="big">🛒</div><p style="color:var(--muted)">Tu carrito está vacío.</p></div>`;
+      body.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => add(+b.dataset.id, +b.dataset.d)));
+      if ($("go")) $("go").onclick = () => { view = "checkout"; renderCart(); };
+    }
+    const openCart = () => document.body.classList.add("open");
+    const closeCart = () => { document.body.classList.remove("open"); if (view === "done") { view = "cart"; renderCart(); } };
+    $("open-cart").onclick = openCart; $("close").onclick = closeCart; $("scrim").onclick = closeCart;
+    addEventListener("keydown", (e) => e.key === "Escape" && closeCart());
+    let tt; function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 1800); }
+    renderGrid(); renderCart();
+  </script>
+</body>
+</html>
