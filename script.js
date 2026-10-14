@@ -55,8 +55,12 @@
   $("services").innerHTML = S.services
     .map(
       (s) => `<article class="card spot arcana${s.wide ? " wide" : ""}">
-        <div class="icon" aria-hidden="true">${esc(s.icon)}</div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p>
-        <ul class="examples" aria-label="Ejemplos">${(s.examples || []).map((e) => `<li>${esc(e)}</li>`).join("")}</ul></article>`
+        ${s.image ? `<div class="svc-img"><img src="${esc(s.image)}" alt="Ejemplo de ${esc(s.title.toLowerCase())}" loading="lazy"></div>` : ""}
+        <div class="svc-body">
+          <h3><span class="icon" aria-hidden="true">${esc(s.icon)}</span>${esc(s.title)}</h3>
+          <p>${esc(s.text)}</p>
+          <ul class="examples" aria-label="Ejemplos">${(s.examples || []).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>
+        </div></article>`
     )
     .join("");
 

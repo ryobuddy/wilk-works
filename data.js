@@ -43,14 +43,40 @@ window.SITE = {
     { name: "Figma", icon: "figma", color: "#F24E1E" },
   ],
 
+  // Servicios: image = escena de referencia en img/, wide = ocupa dos columnas.
   services: [
-    { icon: "</>", title: "Desarrollo web", text: "Sitios y aplicaciones web rápidas, accesibles y fáciles de administrar.", examples: ["Landing pages", "Tiendas online", "Portales de clientes"], wide: true },
-    { icon: "▣", title: "Apps móviles", text: "Aplicaciones para Android e iOS conectadas a tus sistemas.", examples: ["Reservas", "Delivery", "Fidelización"] },
-    { icon: "⚙", title: "Sistemas a medida", text: "ERP, inventarios, facturación y paneles internos hechos para tu operación.", examples: ["ERP", "Inventario", "Facturación"] },
-    { icon: "☁", title: "Cloud y DevOps", text: "Migración a la nube, despliegues automáticos, backups y monitoreo.", examples: ["AWS / Azure", "CI/CD", "Backups", "Monitoreo"], wide: true },
-    { icon: "⛨", title: "Soporte TI", text: "Redes, equipos, correo corporativo y mesa de ayuda para tu equipo.", examples: ["Redes", "Correo corporativo", "Mesa de ayuda"] },
-    { icon: "◆", title: "Consultoría", text: "Te ayudamos a elegir tecnología y a ordenar procesos antes de invertir.", examples: ["Auditoría", "Arquitectura", "Roadmap"] },
+    {
+      icon: "</>", title: "Desarrollo web", image: "img/svc-web.webp", wide: true,
+      text: "Tu web es lo primero que ve un cliente antes de escribirte. La hacemos para que cargue rápido en el celular, se entienda de un vistazo y que tú mismo puedas cambiar precios o fotos sin llamarnos.",
+      examples: ["Landing pages", "Tiendas online", "Portales de clientes"],
+    },
+    {
+      icon: "▣", title: "Apps móviles", image: "img/svc-app.webp",
+      text: "Si tus clientes reservan, piden o pagan por teléfono, una app les ahorra la llamada y a ti el cuaderno. Android e iOS, conectadas a lo que ya usas.",
+      examples: ["Reservas", "Delivery", "Fidelización"],
+    },
+    {
+      icon: "⚙", title: "Sistemas a medida", image: "img/svc-sys.webp",
+      text: "Para cuando el Excel ya no alcanza. Armamos el sistema según cómo trabaja tu equipo, no al revés, y no pagas módulos que nunca vas a abrir.",
+      examples: ["Inventario", "Ventas", "Facturación"],
+    },
+    {
+      icon: "☁", title: "Cloud y DevOps", image: "img/svc-cloud.webp", wide: true,
+      text: "Pasamos tus servidores a la nube sin detener la operación. Copias de seguridad todos los días, actualizaciones sin sustos y un aviso antes de que algo falle, no después.",
+      examples: ["AWS / Azure", "CI/CD", "Backups", "Monitoreo"],
+    },
+    {
+      icon: "⛨", title: "Soporte TI", image: "img/svc-ti.webp",
+      text: "La impresora que no imprime, el correo que rebota, el wifi que se cae a media reunión. Lo resolvemos en remoto o vamos a tu oficina.",
+      examples: ["Redes", "Correo corporativo", "Mesa de ayuda"],
+    },
+    {
+      icon: "◆", title: "Consultoría", image: "img/svc-plan.webp",
+      text: "Antes de gastar en tecnología, conversemos. Revisamos qué tienes, qué te falta y qué puede esperar. Te llevas un plan por escrito con prioridades y costos.",
+      examples: ["Diagnóstico", "Hoja de ruta", "Presupuesto"],
+    },
   ],
+
 
   // Proyectos demo (funcionan en /demos/). Reemplázalos o añade tus trabajos reales.
   // image: ruta a una captura real (ej. "img/tienda.png"). Si está vacía se dibuja una ilustración según mock: shop | inventory | mobile | cloud.

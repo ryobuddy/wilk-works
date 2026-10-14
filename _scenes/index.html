@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Escenas</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1200px; height: 700px; overflow: hidden; }
+  body { font: 15px/1.45 Inter, sans-serif; color: #e9e7f5; position: relative;
+    background: radial-gradient(ellipse at 15% 10%, rgba(139,92,246,.45), transparent 50%), radial-gradient(ellipse at 90% 95%, rgba(91,140,255,.35), transparent 50%), #0e0c1c; }
+  body::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(169,139,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(169,139,255,.08) 1px, transparent 1px); background-size: 48px 48px; }
+  .scene { position: absolute; inset: 0; display: none; }
+  .scene.on { display: block; }
+  iframe { border: 0; background: #fff; transform-origin: 0 0; }
+  /* Marcos */
+  .laptop { position: absolute; }
+  .laptop .lid { background: #1b1930; border: 2px solid #3b3566; border-radius: 18px 18px 0 0; padding: 14px; box-shadow: 0 40px 80px -30px #000; }
+  .laptop .screen { overflow: hidden; border-radius: 6px; position: relative; }
+  .laptop .base { height: 22px; margin: 0 -50px; background: linear-gradient(#3b3566, #221f3d); border-radius: 0 0 22px 22px; }
+  .phone { position: absolute; background: #12101f; border: 2px solid #3b3566; border-radius: 40px; padding: 12px; box-shadow: 0 40px 80px -25px #000; }
+  .phone .screen { overflow: hidden; border-radius: 30px; position: relative; }
+  .monitor .lid { border-radius: 16px; }
+  .stand { width: 140px; height: 70px; margin: 0 auto; background: linear-gradient(#2a2647, #1b1930); clip-path: polygon(30% 0, 70% 0, 85% 100%, 15% 100%); }
+  .browser { position: absolute; border-radius: 14px; overflow: hidden; border: 2px solid #3b3566; box-shadow: 0 50px 90px -30px #000; background: #0e1525; }
+  .browser .bar { height: 34px; display: flex; align-items: center; gap: 8px; padding: 0 14px; background: #1b1930; }
+  .browser .bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; } .browser .bar i:nth-child(2) { background: #febc2e; } .browser .bar i:nth-child(3) { background: #28c840; }
+  .chip { position: absolute; font: 600 14px Inter; padding: 10px 16px; border-radius: 12px; background: rgba(20,18,40,.9); border: 1px solid rgba(169,139,255,.35); box-shadow: 0 20px 40px -20px #000; display: flex; gap: 10px; align-items: center; }
+  .chip b { color: #f5c542; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #34d399; }
+  /* Soporte */
+  .panel { position: absolute; background: #151329; border: 1px solid rgba(169,139,255,.25); border-radius: 18px; padding: 22px; box-shadow: 0 40px 80px -30px #000; }
+  .panel h4 { font-size: 15px; color: #b9b2ff; font-weight: 600; margin-bottom: 14px; display: flex; justify-content: space-between; }
+  .ticket { display: grid; grid-template-columns: 36px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(169,139,255,.15); }
+  .ticket:last-child { border: 0; }
+  .ticket .ic { width: 36px; height: 36px; border-radius: 10px; background: rgba(139,92,246,.2); display: grid; place-items: center; font-size: 18px; }
+  .ticket small { color: #9b97b8; display: block; }
+  .st { font: 600 12px Inter; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .ok { background: rgba(52,211,153,.15); color: #34d399; } .run { background: rgba(245,197,66,.15); color: #f5c542; } .plan { background: rgba(91,140,255,.18); color: #8fa9ff; }
+  .big { font: 700 40px Inter; } .muted { color: #9b97b8; font-size: 13px; }
+  .bars { display: flex; align-items: flex-end; gap: 8px; height: 90px; margin-top: 14px; }
+  .bars i { flex: 1; border-radius: 4px 4px 0 0; background: linear-gradient(#8b5cf6, #5b8cff); }
+  .net { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .net div { padding: 12px; border-radius: 12px; background: rgba(255,255,255,.04); font-size: 13px; }
+  .net b { display: block; font-size: 16px; margin-top: 4px; }
+  /* Consultoría */
+  .board { position: absolute; left: 60px; top: 70px; right: 60px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .col { background: rgba(21,19,41,.92); border: 1px solid rgba(169,139,255,.25); border-radius: 18px; padding: 18px; min-height: 470px; }
+  .col h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #9b97b8; margin-bottom: 14px; display: flex; justify-content: space-between; }
+  .card { background: #1d1a38; border: 1px solid rgba(169,139,255,.2); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .card b { display: block; margin-bottom: 4px; }
+  .card small { color: #9b97b8; }
+  .tag { display: inline-block; margin-top: 8px; font: 600 11px Inter; padding: 3px 8px; border-radius: 999px; }
+  .t1 { background: rgba(52,211,153,.15); color: #34d399; } .t2 { background: rgba(245,197,66,.15); color: #f5c542; } .t3 { background: rgba(91,140,255,.18); color: #8fa9ff; }
+</style>
+</head>
+<body>
+  <!-- Desarrollo web: laptop + celular con la misma tienda -->
+  <div class="scene" id="web">
+    <div class="laptop" style="left:80px;top:70px">
+      <div class="lid"><div class="screen" style="width:760px;height:475px"><iframe src="/demos/tienda/" style="width:1280px;height:800px;transform:scale(.594)"></iframe></div></div>
+      <div class="base"></div>
+    </div>
+    <div class="phone" style="left:870px;top:150px"><div class="screen" style="width:230px;height:470px"><iframe src="/demos/tienda/" style="width:375px;height:766px;transform:scale(.613)"></iframe></div></div>
+    <div class="chip" style="left:760px;top:600px"><span class="dot"></span>Se adapta a celular, tablet y PC</div>
+  </div>
+
+  <!-- Apps: dos celulares con la app de reservas -->
+  <div class="scene" id="app">
+    <div class="phone" style="left:300px;top:60px;transform:rotate(-6deg)"><div class="screen" style="width:270px;height:560px"><iframe id="r1" src="/demos/reservas/" style="width:375px;height:778px;transform:scale(.72)"></iframe></div></div>
+    <div class="phone" style="left:640px;top:80px;transform:rotate(5deg)"><div class="screen" style="width:270px;height:560px"><iframe id="r2" src="/demos/reservas/" style="width:375px;height:778px;transform:scale(.72)"></iframe></div></div>
+    <div class="chip" style="left:90px;top:300px">📅 Reserva en <b>3 toques</b></div>
+    <div class="chip" style="left:900px;top:470px">💬 Recordatorio por WhatsApp</div>
+  </div>
+
+  <!-- Sistemas: monitor con el inventario -->
+  <div class="scene" id="sys">
+    <div class="laptop monitor" style="left:150px;top:40px">
+      <div class="lid"><div class="screen" style="width:870px;height:500px"><iframe src="/demos/inventario/" style="width:1440px;height:828px;transform:scale(.604)"></iframe></div></div>
+      <div class="stand"></div>
+    </div>
+    <div class="chip" style="left:70px;top:470px">⚠️ Alerta: <b>2 productos</b> con stock bajo</div>
+    <div class="chip" style="left:880px;top:90px"><span class="dot"></span>3 almacenes sincronizados</div>
+  </div>
+
+  <!-- Cloud: navegador en perspectiva -->
+  <div class="scene" id="cloud">
+    <div class="browser" style="left:110px;top:60px;width:980px;transform:perspective(1600px) rotateY(-10deg) rotateX(4deg)">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div style="width:980px;height:540px;overflow:hidden"><iframe src="/demos/cloud/" style="width:1360px;height:750px;transform:scale(.72)"></iframe></div>
+    </div>
+    <div class="chip" style="left:860px;top:560px">☁️ Backup diario <b>automático</b></div>
+  </div>
+
+  <!-- Soporte TI: mesa de ayuda -->
+  <div class="scene" id="ti">
+    <div class="panel" style="left:70px;top:70px;width:620px">
+      <h4>Mesa de ayuda · hoy <span class="muted">4 tickets</span></h4>
+      <div class="ticket"><span class="ic">🖨️</span><div><b>La impresora del 2.º piso no imprime</b><small>Contabilidad · resuelto en remoto</small></div><span class="st ok">Resuelto · 18 min</span></div>
+      <div class="ticket"><span class="ic">✉️</span><div><b>Correos de ventas rebotan</b><small>Registros del dominio mal configurados</small></div><span class="st run">En curso</span></div>
+      <div class="ticket"><span class="ic">📶</span><div><b>Wi-Fi se cae en la sala de reuniones</b><small>Visita técnica: cambio de access point</small></div><span class="st plan">Mañana 9:00</span></div>
+      <div class="ticket"><span class="ic">💻</span><div><b>Laptop nueva para Recepción</b><small>Instalación de programas y correo</small></div><span class="st ok">Entregada</span></div>
+    </div>
+    <div class="panel" style="left:730px;top:70px;width:400px">
+      <h4>Tiempo de respuesta</h4>
+      <div class="big">24 min</div><div class="muted">promedio este mes</div>
+      <div class="bars"><i style="height:60%"></i><i style="height:45%"></i><i style="height:70%"></i><i style="height:35%"></i><i style="height:50%"></i><i style="height:30%"></i><i style="height:40%"></i></div>
+    </div>
+    <div class="panel" style="left:730px;top:380px;width:400px">
+      <h4>Estado de la red</h4>
+      <div class="net"><div>Internet<b style="color:#34d399">OK</b></div><div>Servidor<b style="color:#34d399">OK</b></div><div>Backups<b style="color:#f5c542">02:00</b></div></div>
+    </div>
+  </div>
+
+  <!-- Consultoría: hoja de ruta -->
+  <div class="scene" id="plan">
+    <div class="board">
+      <div class="col"><h4>Ahora <span>3</span></h4>
+        <div class="card"><b>Pasar ventas de Excel a un sistema</b><small>Hoy se pierden pedidos entre hojas</small><br><span class="tag t1">Alto impacto</span></div>
+        <div class="card"><b>Backups automáticos</b><small>Un disco USB no es un plan</small><br><span class="tag t1">Urgente</span></div>
+        <div class="card"><b>Correo con dominio propio</b><small>ventas@tuempresa.com</small><br><span class="tag t3">Rápido</span></div>
+      </div>
+      <div class="col"><h4>Próximo trimestre <span>2</span></h4>
+        <div class="card"><b>Tienda online</b><small>Empezar con 20 productos y medir</small><br><span class="tag t2">Inversión media</span></div>
+        <div class="card"><b>Reportes semanales</b><small>Ventas y stock en un tablero</small><br><span class="tag t3">Bajo costo</span></div>
+      </div>
+      <div class="col"><h4>Puede esperar <span>2</span></h4>
+        <div class="card"><b>App móvil propia</b><small>Primero validar con la web</small><br><span class="tag t2">Revisar en 6 meses</span></div>
+        <div class="card"><b>Migrar todo a la nube</b><small>Cuando venza el servidor actual</small><br><span class="tag t3">2027</span></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const id = new URLSearchParams(location.search).get("s") || "web";
+  document.getElementById(id).classList.add("on");
+  // En la escena de apps, el segundo celular muestra la cita ya confirmada
+  if (id === "app") document.getElementById("r2").addEventListener("load", (e) => {
+    const d = e.target.contentDocument, c = (s) => d.querySelector(s).click();
+    c('[data-svc="den"]'); c("#cta"); c('[data-day="1"]'); c(".slot:not([disabled])"); c("#cta");
+    d.getElementById("name").value = "Lucía"; d.getElementById("phone").value = "987654321";
+    d.getElementById("phone").dispatchEvent(new Event("input")); c("#cta");
+  });
+  if (id === "app") document.getElementById("r1").addEventListener("load", (e) => {
+    e.target.contentDocument.querySelector('[data-svc="med"]').click();
+  });
+</script>
+</body>
+</html>

@@ -319,3 +319,25 @@ body::after {
 .project:hover .live { text-decoration: underline; }
 .shot img { object-position: top center; transition: transform 0.6s cubic-bezier(.2, .7, .2, 1); }
 .project:hover .shot img { transform: scale(1.04); }
+
+/* ---------- Servicios con imagen de referencia ---------- */
+.bento .card.arcana { padding: 0; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+.svc-img { aspect-ratio: 12 / 7; overflow: hidden; border-bottom: 1px solid var(--border); background: #0e0c1c; }
+.svc-img img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(.2, .7, .2, 1); }
+.arcana:hover .svc-img img { transform: scale(1.05); }
+.svc-body { padding: 22px 26px 26px; }
+.svc-body h3 { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.svc-body .icon { width: 38px; height: 38px; margin: 0; font-size: 14px; border-radius: 10px; flex: none; }
+.svc-body p { font-size: 15.5px; line-height: 1.65; }
+.bento .card.arcana.wide { display: grid; grid-template-columns: 1.2fr 1fr; }
+.arcana.wide .svc-img { aspect-ratio: auto; height: 100%; min-height: 300px; border-bottom: 0; border-right: 1px solid var(--border); }
+.arcana.wide .svc-body { align-self: center; }
+@media (max-width: 900px) {
+  .bento .card.arcana.wide { display: flex; }
+  .arcana.wide .svc-img { aspect-ratio: 12 / 7; min-height: 0; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+}
+/* Cuadrícula uniforme: todas las tarjetas con la escena completa arriba */
+.bento .wide, .bento .card.arcana.wide { grid-column: auto; display: flex; }
+.arcana.wide .svc-img { aspect-ratio: 12 / 7; min-height: 0; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+.arcana.wide .svc-body { align-self: auto; }
+@media (max-width: 1000px) and (min-width: 901px) { .bento { grid-template-columns: repeat(2, 1fr); } }
