@@ -1,6 +1,6 @@
 // Service worker: guarda la app para que abra sin conexión (red primero, caché de respaldo).
-const CACHE = "vitalis-v2";
-const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
+const CACHE = "vitalis-v3";
+const CORE = ["/demos/reservas/", "/demos/reservas/manifest.webmanifest", "/demos/reservas/icon-192.png", "/demos/reservas/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));

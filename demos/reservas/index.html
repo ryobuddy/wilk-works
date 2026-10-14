@@ -6,9 +6,9 @@
   <title>Vitalis · App de reservas (demo)</title>
   <meta name="description" content="Demo de app de reservas instalable: calendario, recordatorios por WhatsApp, QR y calendario. Hecho por Wilk Works.">
   <meta name="theme-color" content="#1f7aec">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="/demos/reservas/manifest.webmanifest">
+  <link rel="icon" href="/demos/reservas/icon-192.png">
+  <link rel="apple-touch-icon" href="/demos/reservas/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -266,7 +266,7 @@
     $("t-mine").onclick = () => { tab = "mine"; render(); };
 
     // PWA: instalable y disponible sin conexión
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/demos/reservas/sw.js", { scope: "/demos/reservas/" }).catch(() => {});
     let deferred;
     addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); deferred = e; $("install").hidden = false; });
     $("install").onclick = async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("install").hidden = true; };
