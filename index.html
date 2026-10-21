@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wilk Works · Software y TI</title>
-  <meta name="description" content="Wilk Works: desarrollo de software a medida, apps, cloud y soporte TI para empresas.">
+  <title>Wilk Works · Páginas web, tiendas online y software a medida en Perú</title>
+  <meta name="description" content="Páginas web, tiendas online con Yape y Plin, sistemas con facturación SUNAT, cloud y soporte TI para empresas en Perú. Mira demos en vivo y cotiza por WhatsApp.">
   <meta name="theme-color" content="#0b0a14">
   <meta property="og:title" content="Wilk Works · Software y TI">
   <meta property="og:description" content="Desarrollo de software a medida, apps, cloud y soporte TI.">
@@ -23,6 +23,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"ProfessionalService","name":"Wilk Works","url":"https://wilk-works.vercel.app/","logo":"https://wilk-works.vercel.app/brand/icon-512.png","image":"https://wilk-works.vercel.app/brand/og.jpg","telephone":"+51976293223","address":{"@type":"PostalAddress","addressLocality":"Lima","addressCountry":"PE"},"areaServed":["PE","Latinoamérica"],"description":"Páginas web, tiendas online, sistemas a medida, cloud y soporte TI para empresas."}
+  </script>
 </head>
 <body>
   <canvas id="fogfx" aria-hidden="true"></canvas>
@@ -35,9 +38,10 @@
       <a href="#" class="logo"><img class="logo-mark" src="brand/logo-mark.svg" alt="" width="46" height="30"><span data-brand>Wilk Works</span></a>
       <nav aria-label="Principal">
         <a href="#servicios">Servicios</a>
-        <a href="#proceso">Proceso</a>
+        <a href="#rubros">Rubros</a>
         <a href="#proyectos">Proyectos</a>
-        <a href="#perfiles">Perfiles</a>
+        <a href="#planes">Planes</a>
+        <a href="#faq">Preguntas</a>
         <a href="#contacto" class="btn btn-sm">Contáctanos</a>
       </nav>
     </div>
@@ -51,8 +55,9 @@
         <p class="lead" id="intro"></p>
         <div class="hero-cta">
           <a class="btn btn-glow" id="hero-whatsapp" target="_blank" rel="noopener">Escríbenos por WhatsApp <span aria-hidden="true">→</span></a>
-          <a class="btn btn-ghost" href="#servicios">Ver servicios</a>
+          <a class="btn btn-ghost" href="#proyectos">Ver demos en vivo</a>
         </div>
+        <ul class="badges" id="badges" aria-label="Lo que incluimos"></ul>
       </div>
 
       <div class="mind" aria-hidden="true">
@@ -71,8 +76,15 @@
       <div class="bento" id="services"></div>
     </section>
 
+    <section id="rubros" class="wrap section">
+      <p class="kicker">// 02 · rubros</p>
+      <h2>Soluciones para tu tipo de negocio</h2>
+      <p class="section-sub">Cada rubro tiene sus propios dolores de cabeza. Estos son algunos que ya resolvimos.</p>
+      <div class="grid grid-3" id="industries"></div>
+    </section>
+
     <section id="proceso" class="wrap section">
-      <p class="kicker">// 02 · proceso</p>
+      <p class="kicker">// 03 · proceso</p>
       <h2>Cómo trabajamos</h2>
       <div class="terminal">
         <div class="term-bar"><i></i><i></i><i></i><span>wilkworks — zsh</span></div>
@@ -82,13 +94,20 @@
     </section>
 
     <section id="proyectos" class="wrap section">
-      <p class="kicker">// 03 · proyectos</p>
+      <p class="kicker">// 04 · proyectos</p>
       <h2>Trabajos recientes</h2>
       <div class="grid grid-2" id="projects"></div>
     </section>
 
+    <section id="planes" class="wrap section">
+      <p class="kicker">// 05 · planes</p>
+      <h2>Precios claros, sin letra pequeña</h2>
+      <p class="section-sub">Sin mensualidades obligatorias. Elige un punto de partida y lo ajustamos a tu negocio.</p>
+      <div class="plans" id="plans"></div>
+    </section>
+
     <section id="perfiles" class="wrap section">
-      <p class="kicker">// 04 · perfiles</p>
+      <p class="kicker">// 06 · perfiles</p>
       <h2>Perfiles verificables</h2>
       <p class="section-sub">Nuestro historial, a la vista en plataformas públicas.</p>
       <div class="profiles" id="profiles"></div>
@@ -98,10 +117,29 @@
       </div>
     </section>
 
+    <section id="faq" class="wrap section">
+      <p class="kicker">// 07 · preguntas</p>
+      <h2>Preguntas frecuentes</h2>
+      <div class="faq" id="faq-list"></div>
+    </section>
+
+    <section class="wrap section">
+      <div class="cta-band">
+        <div>
+          <h2>¿Listo para que la tecnología trabaje para ti?</h2>
+          <p>Escríbenos y en minutos te mostramos ejemplos de tu rubro y una cotización sin compromiso.</p>
+        </div>
+        <div class="hero-cta">
+          <a class="btn btn-glow" id="cta-whatsapp" target="_blank" rel="noopener">Hablar por WhatsApp <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#proyectos">Ver demos</a>
+        </div>
+      </div>
+    </section>
+
     <section id="contacto" class="wrap section">
       <div class="contact card">
         <div>
-          <p class="kicker">// 05 · contacto</p>
+          <p class="kicker">// 08 · contacto</p>
           <h2>Hablemos de tu proyecto</h2>
           <p class="section-sub">Cuéntanos qué necesitas y te respondemos en menos de 24 horas.</p>
           <ul class="contact-list">

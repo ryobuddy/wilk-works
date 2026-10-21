@@ -98,6 +98,24 @@
       .join("");
   }
 
+  // Sellos, rubros, planes y preguntas frecuentes
+  $("badges").innerHTML = (S.badges || []).map((b) => `<li>${esc(b)}</li>`).join("");
+  $("industries").innerHTML = (S.industries || [])
+    .map((r) => `<a class="card spot industry" href="${esc(r.demo)}" target="_blank" rel="noopener"><span class="ind-ic" aria-hidden="true">${r.icon}</span><h3>${esc(r.title)}</h3><p>${esc(r.text)}</p><span class="live"><i></i>Ver demo ↗</span></a>`)
+    .join("");
+  $("plans").innerHTML = (S.plans || [])
+    .map((p) => `<article class="card plan${p.featured ? " featured" : ""}">
+        <span class="plan-tag">${esc(p.tag)}</span>
+        <h3>${esc(p.name)}</h3>
+        <p>${esc(p.text)}</p>
+        <div class="price">${p.price ? `<small>S/</small>${esc(p.price)}<span>/ ${esc(p.unit)}</span>` : `A cotizar<span>/ ${esc(p.unit)}</span>`}</div>
+        <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+        <a class="btn ${p.featured ? "btn-glow" : "btn-ghost"}" target="_blank" rel="noopener" href="${wa(`Hola Wilk Works, me interesa el plan "${p.name}". ¿Me pueden cotizar?`)}">Cotizar ${esc(p.name.toLowerCase())}</a>
+      </article>`)
+    .join("");
+  $("faq-list").innerHTML = (S.faq || []).map((f) => `<details class="card"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("");
+  $("cta-whatsapp").href = wa(S.contact.whatsappMessage);
+
   const n = S.process.length;
   $("process").innerHTML = S.process
     .map((p, i) => `<li class="card"><span class="seq">seq.${pad(n - i)}</span><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></li>`)
