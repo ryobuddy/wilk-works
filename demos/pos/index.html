@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ferretería El Perno · Punto de venta (demo)</title>
+  <meta name="description" content="Demo de punto de venta con código de barras, boleta y factura, vuelto, Yape y cierre de caja. Hecho por Wilk Works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" defer></script>
+  <style>
+    :root { --bg: #f2f4f7; --card: #fff; --ink: #14202e; --muted: #64748b; --line: #e2e8f0; --brand: #f97316; --brand-2: #ea580c; --dark: #0f172a; --ok: #16a34a; --err: #dc2626; --yape: #6c2c91; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { font: 15px/1.45 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; }
+    button, input, select { font: inherit; }
+    .demo-bar { background: var(--dark); color: #cbd5e1; font-size: 13px; text-align: center; padding: 8px 16px; }
+    .demo-bar a { color: #fdba74; }
+    .top { display: flex; align-items: center; gap: 14px; padding: 10px 18px; background: var(--card); border-bottom: 1px solid var(--line); }
+    .logo { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .logo i { width: 30px; height: 30px; border-radius: 8px; background: var(--brand); display: grid; place-items: center; color: #fff; font-style: normal; }
+    .top .info { margin-left: auto; display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 13px; }
+    .tbtn { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-weight: 600; font-size: 13px; }
+    .tbtn:hover { border-color: var(--brand); }
+    .app { flex: 1; display: grid; grid-template-columns: 1fr 400px; min-height: 0; }
+    .left { padding: 16px 18px; overflow: auto; }
+    .scan { display: flex; gap: 10px; margin-bottom: 12px; }
+    .scan input { flex: 1; padding: 13px 14px 13px 42px; border-radius: 12px; border: 2px solid var(--line); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M3 5v14M7 5v14M11 5v14M14 5v14M18 5v14M21 5v14'/%3E%3C/svg%3E") 13px center no-repeat; font-size: 16px; }
+    .scan input:focus { outline: none; border-color: var(--brand); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .chip { padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-weight: 500; font-size: 14px; }
+    .chip.on { background: var(--dark); color: #fff; border-color: var(--dark); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .p { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: transform .12s, border-color .15s; }
+    .p:hover { border-color: var(--brand); }
+    .p:active { transform: scale(.97); }
+    .p .ic { font-size: 30px; height: 46px; display: grid; place-items: center; border-radius: 10px; background: var(--bg); margin-bottom: 6px; }
+    .p b { font-size: 14px; }
+    .p small { color: var(--muted); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+    .p .pr { font-weight: 700; color: var(--brand-2); margin-top: auto; }
+    .p .st { font-size: 11px; color: var(--muted); }
+    .p.low .st { color: var(--err); font-weight: 600; }
+    .right { background: var(--card); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+    .right h3 { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    .right h3 button { border: 0; background: none; color: var(--err); cursor: pointer; font-weight: 600; font-size: 13px; }
+    .lines { flex: 1; overflow: auto; padding: 4px 18px; }
+    .line { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+    .line small { display: block; color: var(--muted); font-size: 12px; }
+    .qty { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; }
+    .qty button { width: 28px; height: 28px; border: 0; background: none; cursor: pointer; font-size: 16px; }
+    .qty span { min-width: 26px; text-align: center; font-weight: 600; }
+    .line .t { font-weight: 700; min-width: 72px; text-align: right; font-variant-numeric: tabular-nums; }
+    .empty { text-align: center; color: var(--muted); padding: 50px 10px; }
+    .totals { padding: 14px 18px; border-top: 1px solid var(--line); display: grid; gap: 6px; font-variant-numeric: tabular-nums; }
+    .totals div { display: flex; justify-content: space-between; color: var(--muted); }
+    .totals .big { color: var(--ink); font-size: 26px; font-weight: 700; }
+    .pay { margin: 0 18px 18px; padding: 16px; border: 0; border-radius: 14px; background: var(--brand); color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
+    .pay:hover { background: var(--brand-2); }
+    .pay:disabled { opacity: .4; cursor: not-allowed; }
+    dialog { margin: auto; border: 0; border-radius: 18px; padding: 22px; width: min(460px, 94vw); color: var(--ink); }
+    dialog::backdrop { background: rgba(15, 23, 42, .55); }
+    dialog h3 { margin-bottom: 14px; font-size: 20px; }
+    .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+    .seg.two { grid-template-columns: 1fr 1fr; }
+    .seg button { padding: 12px 8px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); cursor: pointer; font-weight: 600; }
+    .seg button.on { border-color: var(--brand); background: #fff7ed; }
+    .seg button.on.yape { border-color: var(--yape); background: #f5ecfa; }
+    label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--muted); }
+    label input { padding: 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); font-size: 16px; }
+    .quick { display: flex; gap: 6px; flex-wrap: wrap; margin: -4px 0 12px; }
+    .quick button { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-weight: 600; font-size: 13px; }
+    .change { display: flex; justify-content: space-between; padding: 12px 14px; border-radius: 12px; background: var(--bg); font-weight: 700; font-size: 18px; margin-bottom: 14px; }
+    .change.ok { background: #f0fdf4; color: var(--ok); }
+    .change.bad { background: #fef2f2; color: var(--err); }
+    .err { color: var(--err); font-size: 12px; font-weight: 500; }
+    .row { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn { padding: 12px 18px; border-radius: 12px; border: 0; background: var(--brand); color: #fff; font-weight: 700; cursor: pointer; }
+    .btn.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .yape-qr { display: grid; place-items: center; gap: 8px; padding: 14px; border-radius: 12px; background: #f5ecfa; color: var(--yape); font-weight: 600; margin-bottom: 14px; text-align: center; font-size: 14px; }
+    /* Ticket de 80 mm */
+    .ticket { width: 300px; margin: 0 auto 14px; padding: 16px 14px; background: #fff; border: 1px dashed #cbd5e1; font: 12px/1.45 "JetBrains Mono", monospace; color: #111; }
+    .ticket .c { text-align: center; }
+    .ticket hr { border: 0; border-top: 1px dashed #94a3b8; margin: 8px 0; }
+    .ticket table { width: 100%; border-collapse: collapse; }
+    .ticket td { padding: 2px 0; vertical-align: top; }
+    .ticket td:last-child { text-align: right; }
+    .ticket .tot td { font-weight: 700; font-size: 14px; }
+    .ticket svg { display: block; margin: 6px auto 0; max-width: 100%; }
+    .close-day table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .close-day td { padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .close-day td:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .toast { position: fixed; left: 50%; top: 70px; transform: translate(-50%, -120px); background: var(--dark); color: #fff; padding: 10px 16px; border-radius: 10px; transition: transform .25s; z-index: 30; font-weight: 500; }
+    .toast.show { transform: translate(-50%, 0); }
+    .toast.bad { background: var(--err); }
+    @media print {
+      body * { visibility: hidden; }
+      #ticket, #ticket * { visibility: visible; }
+      #ticket { position: fixed; left: 0; top: 0; border: 0; }
+      dialog::backdrop { background: none; }
+    }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .right { border-left: 0; border-top: 1px solid var(--line); min-height: 60vh; }
+      .top .info span { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · comprobantes de prueba, sin validez ante SUNAT</div>
+  <header class="top">
+    <div class="logo"><i>⚒</i>Ferretería El Perno</div>
+    <div class="info"><span id="clock"></span><span>Caja 01 · Cajero: Demo</span><button class="tbtn" id="close-btn">Cierre de caja</button></div>
+  </header>
+  <div class="app">
+    <section class="left">
+      <form class="scan" id="scan-form">
+        <input id="scan" placeholder="Escanea un código o busca un producto (prueba: 7750001)" autocomplete="off" aria-label="Código o producto">
+      </form>
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+    <aside class="right">
+      <h3>Venta actual <button id="clear">Vaciar</button></h3>
+      <div class="lines" id="lines"></div>
+      <div class="totals" id="totals"></div>
+      <button class="pay" id="pay" disabled>Cobrar</button>
+    </aside>
+  </div>
+
+  <dialog id="pay-dlg">
+    <h3>Cobrar venta</h3>
+    <div class="seg two" id="doc-type"><button data-doc="B" class="on">Boleta</button><button data-doc="F">Factura</button></div>
+    <div id="doc-fields"></div>
+    <div class="seg" id="method"><button data-m="Efectivo" class="on">💵 Efectivo</button><button data-m="Yape/Plin" class="yape">📱 Yape/Plin</button><button data-m="Tarjeta">💳 Tarjeta</button></div>
+    <div id="method-fields"></div>
+    <div class="row"><button class="btn ghost" id="pay-cancel">Cancelar</button><button class="btn" id="pay-ok">Emitir comprobante</button></div>
+  </dialog>
+
+  <dialog id="ticket-dlg">
+    <div class="ticket" id="ticket"></div>
+    <div class="row"><button class="btn ghost" id="t-print">🖨 Imprimir</button><button class="btn" id="t-new">Nueva venta</button></div>
+  </dialog>
+
+  <dialog id="close-dlg" class="close-day">
+    <h3>Cierre de caja · hoy</h3>
+    <div id="close-body"></div>
+    <div class="row"><button class="btn ghost" id="close-reset">Reiniciar demo</button><button class="btn" id="close-ok">Listo</button></div>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const PRODUCTS = [
+      ["7750001", "Martillo de uña 16 oz", "Herramientas", 32.9, "🔨", 14], ["7750002", "Destornillador plano", "Herramientas", 9.5, "🪛", 30],
+      ["7750003", "Wincha 5 m", "Herramientas", 18, "📏", 22], ["7750004", "Alicate universal", "Herramientas", 24.9, "🔧", 3],
+      ["7750010", "Clavos 2\" (1 kg)", "Fijación", 8.5, "📌", 80], ["7750011", "Tornillos drywall x100", "Fijación", 12, "🔩", 45],
+      ["7750012", "Tarugos 1/4\" x50", "Fijación", 6.5, "🧷", 60], ["7750020", "Pintura látex blanco 4 L", "Pintura", 58, "🪣", 9],
+      ["7750021", "Brocha 3\"", "Pintura", 7.9, "🖌️", 25], ["7750022", "Rodillo 9\" con bandeja", "Pintura", 21.5, "🧻", 2],
+      ["7750030", "Foco LED 12 W", "Electricidad", 6.9, "💡", 120], ["7750031", "Cinta aislante", "Electricidad", 3.5, "🎞️", 70],
+      ["7750032", "Extensión 5 m", "Electricidad", 27.9, "🔌", 11], ["7750040", "Cemento 42.5 kg", "Construcción", 31.5, "🧱", 40],
+      ["7750041", "Arena fina (saco)", "Construcción", 9, "⛏️", 33], ["7750042", "Silicona transparente", "Construcción", 14.9, "🧴", 4],
+    ].map(([sku, name, cat, price, ic, stock]) => ({ sku, name, cat, price, ic, stock }));
+    const IGV = 0.18;
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => "S/ " + n.toFixed(2);
+    const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch { return d; } };
+    const store = load("perno-stock", null);
+    if (store) PRODUCTS.forEach((p) => (p.stock = store[p.sku] ?? p.stock));
+    let sales = load("perno-sales", []), cart = new Map(), cat = "Todos", doc = "B", method = "Efectivo", seq = load("perno-seq", { B: 1, F: 1 });
+    const save = () => { try { localStorage.setItem("perno-sales", JSON.stringify(sales)); localStorage.setItem("perno-seq", JSON.stringify(seq)); localStorage.setItem("perno-stock", JSON.stringify(Object.fromEntries(PRODUCTS.map((p) => [p.sku, p.stock])))); } catch {} };
+    let tt; const toast = (m, bad) => { const t = $("toast"); t.textContent = m; t.className = "toast show" + (bad ? " bad" : ""); clearTimeout(tt); tt = setTimeout(() => (t.className = "toast"), 1600); };
+
+    // Reloj de la caja
+    const tick = () => ($("clock").textContent = new Date().toLocaleString("es-PE", { weekday: "short", hour: "2-digit", minute: "2-digit" }));
+    tick(); setInterval(tick, 30000);
+
+    // Catálogo
+    const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
+    $("chips").innerHTML = cats.map((c) => `<button class="chip${c === cat ? " on" : ""}" data-cat="${c}">${c}</button>`).join("");
+    $("chips").onclick = (e) => { const b = e.target.closest(".chip"); if (!b) return; cat = b.dataset.cat; document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === b)); renderGrid(); };
+    function renderGrid() {
+      const q = $("scan").value.trim().toLowerCase();
+      $("grid").innerHTML = PRODUCTS.filter((p) => (cat === "Todos" || p.cat === cat) && (p.name.toLowerCase().includes(q) || p.sku.includes(q)))
+        .map((p) => `<button class="p${p.stock <= 5 ? " low" : ""}" data-sku="${p.sku}"><span class="ic">${p.ic}</span><b>${p.name}</b><small>${p.sku}</small><span class="pr">${money(p.price)}</span><span class="st">Stock: ${p.stock}</span></button>`).join("")
+        || `<p class="empty" style="grid-column:1/-1">Sin resultados. Prueba con "foco" o el código 7750030.</p>`;
+    }
+    $("scan").oninput = renderGrid;
+    // El lector de códigos de barra escribe el código y presiona Enter
+    $("scan-form").onsubmit = (e) => {
+      e.preventDefault();
+      const v = $("scan").value.trim(), p = PRODUCTS.find((x) => x.sku === v);
+      if (p) { add(p.sku); $("scan").value = ""; renderGrid(); }
+      else toast("Código no encontrado", true);
+    };
+    $("grid").onclick = (e) => { const b = e.target.closest("[data-sku]"); if (b) add(b.dataset.sku); };
+
+    // Venta
+    function add(sku, d = 1) {
+      const p = PRODUCTS.find((x) => x.sku === sku), q = (cart.get(sku) || 0) + d;
+      if (q > p.stock) return toast(`Solo hay ${p.stock} en stock`, true);
+      q <= 0 ? cart.delete(sku) : cart.set(sku, q);
+      if (d > 0) toast(`${p.ic} ${p.name}`);
+      renderCart();
+    }
+    const total = () => [...cart].reduce((s, [sku, q]) => s + PRODUCTS.find((p) => p.sku === sku).price * q, 0);
+    function renderCart() {
+      $("lines").innerHTML = cart.size
+        ? [...cart].map(([sku, q]) => { const p = PRODUCTS.find((x) => x.sku === sku); return `<div class="line"><div><b>${p.name}</b><small>${money(p.price)} c/u</small></div><span class="qty"><button data-d="-1" data-sku="${sku}" aria-label="Quitar uno">−</button><span>${q}</span><button data-d="1" data-sku="${sku}" aria-label="Agregar uno">+</button></span><span class="t">${money(p.price * q)}</span></div>`; }).join("")
+        : `<div class="empty">🧾<br>Escanea o toca un producto para empezar.</div>`;
+      const t = total(), base = t / (1 + IGV);
+      $("totals").innerHTML = `<div><span>Op. gravada</span><span>${money(base)}</span></div><div><span>IGV (18%)</span><span>${money(t - base)}</span></div><div class="big"><span>Total</span><span>${money(t)}</span></div>`;
+      $("pay").disabled = !cart.size;
+      $("pay").textContent = cart.size ? `Cobrar ${money(t)}` : "Cobrar";
+    }
+    $("lines").onclick = (e) => { const b = e.target.closest("[data-d]"); if (b) add(b.dataset.sku, +b.dataset.d); };
+    $("clear").onclick = () => { cart.clear(); renderCart(); };
+
+    // Cobro
+    function renderPay() {
+      document.querySelectorAll("#doc-type button").forEach((b) => b.classList.toggle("on", b.dataset.doc === doc));
+      document.querySelectorAll("#method button").forEach((b) => b.classList.toggle("on", b.dataset.m === method));
+      $("doc-fields").innerHTML = doc === "B"
+        ? `<label>DNI del cliente (opcional)<input id="d-id" inputmode="numeric" maxlength="8" placeholder="8 dígitos"><span class="err" id="d-err"></span></label>`
+        : `<label>RUC<input id="d-id" inputmode="numeric" maxlength="11" placeholder="11 dígitos, empieza con 10 o 20"><span class="err" id="d-err"></span></label><label>Razón social<input id="d-name" placeholder="Empresa S.A.C."></label>`;
+      const t = total();
+      if (method === "Efectivo") {
+        $("method-fields").innerHTML = `<label>Monto recibido<input id="cash" inputmode="decimal" placeholder="${t.toFixed(2)}"></label>
+          <div class="quick">${[t, 20, 50, 100, 200].filter((v, i, a) => a.indexOf(v) === i && v >= t).slice(0, 4).map((v) => `<button data-cash="${v.toFixed(2)}">${v === t ? "Exacto" : "S/ " + v}</button>`).join("")}</div>
+          <div class="change" id="change"><span>Vuelto</span><span>—</span></div>`;
+        const upd = () => { const c = parseFloat($("cash").value.replace(",", ".")) || 0, v = c - t, el = $("change"); el.className = "change " + (c ? (v >= 0 ? "ok" : "bad") : ""); el.lastElementChild.textContent = c ? (v >= 0 ? money(v) : "Falta " + money(-v)) : "—"; };
+        $("cash").oninput = upd;
+        $("method-fields").querySelector(".quick").onclick = (e) => { const b = e.target.closest("[data-cash]"); if (b) { $("cash").value = b.dataset.cash; upd(); } };
+      } else if (method === "Yape/Plin") {
+        $("method-fields").innerHTML = `<div class="yape-qr"><svg width="110" height="110" viewBox="0 0 110 110" aria-hidden="true"><rect width="110" height="110" rx="12" fill="#fff"/>${Array.from({ length: 64 }, (_, i) => ((i * 37) % 7 < 3 ? `<rect x="${10 + (i % 8) * 11}" y="${10 + Math.floor(i / 8) * 11}" width="10" height="10" fill="#6c2c91"/>` : "")).join("")}</svg>Cliente escanea y paga ${money(t)}<br><small style="font-weight:400">QR de ejemplo. Con la pasarela real el pago se confirma solo.</small></div>`;
+      } else {
+        $("method-fields").innerHTML = `<div class="yape-qr" style="background:#f1f5f9;color:var(--ink)">💳 Acerca la tarjeta al POS por ${money(t)}<br><small style="font-weight:400">Simulado. En producción se integra con el POS del banco.</small></div>`;
+      }
+    }
+    $("pay").onclick = () => { doc = "B"; method = "Efectivo"; renderPay(); $("pay-dlg").showModal(); setTimeout(() => $("cash")?.focus(), 50); };
+    $("doc-type").onclick = (e) => { const b = e.target.closest("[data-doc]"); if (b) { doc = b.dataset.doc; renderPay(); } };
+    $("method").onclick = (e) => { const b = e.target.closest("[data-m]"); if (b) { method = b.dataset.m; renderPay(); } };
+    $("pay-cancel").onclick = () => $("pay-dlg").close();
+
+    // Validación de RUC peruano (dígito verificador módulo 11)
+    function rucOk(r) {
+      if (!/^(10|15|17|20)\d{9}$/.test(r)) return false;
+      const w = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2], s = w.reduce((a, x, i) => a + x * +r[i], 0), d = 11 - (s % 11);
+      return (d === 10 ? 0 : d === 11 ? 1 : d) === +r[10];
+    }
+    $("pay-ok").onclick = () => {
+      const t = total(), id = ($("d-id")?.value || "").trim();
+      if (doc === "B" && id && !/^\d{8}$/.test(id)) return ($("d-err").textContent = "El DNI tiene 8 dígitos");
+      if (doc === "F" && !rucOk(id)) return ($("d-err").textContent = "RUC no válido (prueba con 20100070970)");
+      if (doc === "F" && !$("d-name").value.trim()) return ($("d-err").textContent = "Escribe la razón social");
+      let cash = 0;
+      if (method === "Efectivo") { cash = parseFloat(($("cash").value || "0").replace(",", ".")) || t; if (cash < t) return toast("El monto recibido no alcanza", true); }
+      const series = doc === "B" ? "B001" : "F001", num = String(seq[doc]++).padStart(8, "0");
+      const items = [...cart].map(([sku, q]) => { const p = PRODUCTS.find((x) => x.sku === sku); p.stock -= q; return { name: p.name, q, price: p.price }; });
+      const sale = { id: `${series}-${num}`, doc, method, total: t, cash, at: new Date().toISOString(), client: doc === "F" ? `${$("d-name").value.trim()} · RUC ${id}` : id ? `DNI ${id}` : "Cliente varios", items };
+      sales.push(sale); save();
+      $("pay-dlg").close();
+      showTicket(sale);
+    };
+
+    function showTicket(s) {
+      const base = s.total / (1 + IGV);
+      $("ticket").innerHTML = `<div class="c"><b>FERRETERÍA EL PERNO</b><br>RUC 20000000001 (ficticio)<br>Av. Ejemplo 456 · Lima</div><hr>
+        <div class="c"><b>${s.doc === "B" ? "BOLETA" : "FACTURA"} DE VENTA ELECTRÓNICA</b><br>${s.id}</div><hr>
+        Fecha: ${new Date(s.at).toLocaleString("es-PE")}<br>Cliente: ${s.client}<hr>
+        <table>${s.items.map((i) => `<tr><td>${i.q} x ${i.name}</td><td>${(i.q * i.price).toFixed(2)}</td></tr>`).join("")}</table><hr>
+        <table><tr><td>Op. gravada</td><td>${base.toFixed(2)}</td></tr><tr><td>IGV 18%</td><td>${(s.total - base).toFixed(2)}</td></tr><tr class="tot"><td>TOTAL S/</td><td>${s.total.toFixed(2)}</td></tr>
+        <tr><td>Pago: ${s.method}</td><td>${s.method === "Efectivo" ? s.cash.toFixed(2) : ""}</td></tr>${s.method === "Efectivo" ? `<tr><td>Vuelto</td><td>${(s.cash - s.total).toFixed(2)}</td></tr>` : ""}</table><hr>
+        <div class="c">Comprobante de PRUEBA sin validez tributaria.<br>Demo por Wilk Works</div><svg id="t-bar"></svg>`;
+      JsBarcode("#t-bar", s.id.replace("-", ""), { format: "CODE128", height: 36, width: 1.4, fontSize: 11, margin: 0, displayValue: true });
+      $("ticket-dlg").showModal();
+    }
+    $("t-print").onclick = () => window.print();
+    $("t-new").onclick = () => { $("ticket-dlg").close(); cart.clear(); renderCart(); renderGrid(); $("scan").focus(); };
+
+    // Cierre de caja
+    $("close-btn").onclick = () => {
+      const today = new Date().toDateString(), list = sales.filter((s) => new Date(s.at).toDateString() === today);
+      const by = (m) => list.filter((s) => s.method === m).reduce((a, s) => a + s.total, 0);
+      const tot = list.reduce((a, s) => a + s.total, 0);
+      $("close-body").innerHTML = `<table>
+        <tr><td>Ventas emitidas</td><td>${list.length}</td></tr>
+        <tr><td>Boletas / facturas</td><td>${list.filter((s) => s.doc === "B").length} / ${list.filter((s) => s.doc === "F").length}</td></tr>
+        <tr><td>💵 Efectivo</td><td>${money(by("Efectivo"))}</td></tr>
+        <tr><td>📱 Yape/Plin</td><td>${money(by("Yape/Plin"))}</td></tr>
+        <tr><td>💳 Tarjeta</td><td>${money(by("Tarjeta"))}</td></tr>
+        <tr><td><b>Total del día</b></td><td>${money(tot)}</td></tr></table>
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px">${list.length ? "Última venta: " + list[list.length - 1].id : "Aún no hay ventas hoy. Cobra una venta de prueba."}</p>`;
+      $("close-dlg").showModal();
+    };
+    $("close-ok").onclick = () => $("close-dlg").close();
+    $("close-reset").onclick = () => { if (!confirm("¿Borrar ventas y stock de prueba?")) return; ["perno-sales", "perno-seq", "perno-stock"].forEach((k) => localStorage.removeItem(k)); location.reload(); };
+
+    renderGrid(); renderCart();
+    $("scan").focus();
+  </script>
+</body>
+</html>

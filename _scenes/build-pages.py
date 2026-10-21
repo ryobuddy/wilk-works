@@ -144,9 +144,10 @@ PAGES = {
     "proyectos": dict(
         title="Proyectos y demos en vivo · Wilk Works",
         desc="Prueba nuestras demos funcionales: tienda online, gestor de inventario, app de reservas y panel de migración a la nube.",
-        body=page_head("proyectos", "Proyectos y demos en vivo", "No te pedimos que nos creas: abre cada demo y pruébala tú mismo.")
+        body=page_head("proyectos", "Proyectos y demos en vivo", "Siete demos funcionales. No te pedimos que nos creas: abre cada una y pruébala tú mismo.")
         + """
     <section class="wrap section section-tight">
+      <div class="filters" id="project-filters" role="toolbar" aria-label="Filtrar proyectos"></div>
       <div class="grid grid-2" id="projects"></div>
     </section>
 

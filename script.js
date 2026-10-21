@@ -116,8 +116,19 @@
         </div></article>`)
     .join(""));
 
+  // Catálogo con filtros por categoría (solo en la página de Proyectos)
+  const filt = $("project-filters");
+  if (filt) {
+    const cats = ["Todos", ...new Set(S.projects.map((p) => p.cat))];
+    filt.innerHTML = cats.map((c, i) => `<button class="fchip${i ? "" : " on"}" data-cat="${esc(c)}">${esc(c)} <small>${c === "Todos" ? S.projects.length : S.projects.filter((p) => p.cat === c).length}</small></button>`).join("");
+    filt.onclick = (e) => {
+      const b = e.target.closest("[data-cat]"); if (!b) return;
+      filt.querySelectorAll(".fchip").forEach((x) => x.classList.toggle("on", x === b));
+      document.querySelectorAll("#projects .project").forEach((card) => (card.hidden = b.dataset.cat !== "Todos" && card.dataset.cat !== b.dataset.cat));
+    };
+  }
   put("projects", take("projects", S.projects)
-    .map((p) => `<a class="card spot project" href="${esc(p.url)}"${p.url.startsWith("demos/") ? ' target="_blank" rel="noopener"' : ""}>
+    .map((p) => `<a class="card spot project" data-cat="${esc(p.cat || "")}" href="${esc(p.url)}"${p.url.startsWith("demos/") ? ' target="_blank" rel="noopener"' : ""}>
         <div class="shot">${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">` : MOCKS[p.mock] || ""}</div>
         <span class="tag">${esc(p.tag)}</span>
         <h3>${esc(p.title)}</h3>

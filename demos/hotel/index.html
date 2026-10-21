@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casa Qolla · Hotel boutique en Cusco (demo)</title>
+  <meta name="description" content="Demo de landing para hotel con motor de reservas directas y panel de ocupación. Hecho por Wilk Works.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root { --ink: #1d1712; --muted: #6f6257; --sand: #f6f0e7; --card: #fffdf9; --line: #e7dccd; --gold: #b8873b; --gold-2: #d9b26a; --deep: #2a1f18; --green: #3d6b52; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font: 16px/1.6 "Inter", system-ui, sans-serif; background: var(--sand); color: var(--ink); }
+    h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; line-height: 1.1; }
+    button, input, select { font: inherit; }
+    a { color: inherit; }
+    .wrap { width: min(1160px, 100% - 32px); margin-inline: auto; }
+    .demo-bar { background: var(--deep); color: #e9dcc8; font-size: 13px; text-align: center; padding: 8px 16px; }
+    .demo-bar a { color: var(--gold-2); }
+    header.top { position: absolute; left: 0; right: 0; top: 36px; z-index: 5; }
+    .head { display: flex; align-items: center; justify-content: space-between; height: 76px; color: #fff; }
+    .brand { font: 700 28px "Cormorant Garamond", serif; letter-spacing: .04em; }
+    .brand small { display: block; font: 500 11px "Inter"; letter-spacing: .3em; opacity: .8; margin-top: -4px; }
+    .head nav { display: flex; gap: 28px; font-size: 14px; }
+    .head nav a { text-decoration: none; opacity: .9; }
+    .head .admin { border: 1px solid rgba(255, 255, 255, .5); padding: 8px 14px; border-radius: 999px; background: none; color: #fff; cursor: pointer; font-size: 13px; }
+    /* Hero con paisaje andino dibujado en SVG */
+    .hero { position: relative; min-height: 640px; color: #fff; display: flex; align-items: center; overflow: hidden; }
+    .hero svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero .wrap { position: relative; z-index: 2; }
+    .hero .copy { padding-top: 70px; max-width: 620px; }
+    .hero h1 { font-size: clamp(44px, 6.5vw, 82px); text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
+    .hero p { font-size: 18px; opacity: .92; margin: 16px 0 0; max-width: 46ch; text-shadow: 0 1px 12px rgba(0, 0, 0, .4); }
+    /* Buscador de reservas */
+    .booking { position: relative; z-index: 3; margin-top: -70px; background: var(--card); border-radius: 18px; box-shadow: 0 30px 60px -30px rgba(42, 31, 24, .45); padding: 20px; display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 14px; align-items: end; }
+    .booking label { display: grid; gap: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .booking input, .booking select { padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-size: 15px; text-transform: none; letter-spacing: 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border: 0; border-radius: 12px; background: var(--gold); color: #fff; font-weight: 600; cursor: pointer; transition: background .2s, transform .15s; text-decoration: none; }
+    .btn:hover { background: #a1752f; transform: translateY(-1px); }
+    .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .section { padding: 80px 0 20px; }
+    .kicker { font-size: 12px; font-weight: 600; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); }
+    .section h2 { font-size: clamp(34px, 4.4vw, 52px); margin: 8px 0 12px; }
+    .section .sub { color: var(--muted); max-width: 60ch; }
+    .rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 34px; }
+    .room { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
+    .room:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -28px rgba(42, 31, 24, .5); }
+    .room .pic { aspect-ratio: 4 / 3; position: relative; }
+    .room .pic svg { width: 100%; height: 100%; display: block; }
+    .room .soldout { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(29, 23, 18, .6); color: #fff; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
+    .room .body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .room h3 { font-size: 28px; }
+    .room .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .room .meta span { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--sand); color: var(--muted); }
+    .room .row { display: flex; align-items: end; justify-content: space-between; margin-top: auto; padding-top: 12px; }
+    .price b { font: 700 28px "Cormorant Garamond", serif; }
+    .price small { color: var(--muted); }
+    .perks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 30px; }
+    .perk { padding: 22px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+    .perk b { display: block; font: 600 22px "Cormorant Garamond", serif; margin: 6px 0 4px; }
+    .perk p { color: var(--muted); font-size: 14px; }
+    .perk i { font-style: normal; font-size: 26px; }
+    footer { margin-top: 80px; background: var(--deep); color: #d8c9b5; padding: 40px 0; font-size: 14px; }
+    /* Reserva: panel lateral */
+    .scrim { position: fixed; inset: 0; background: rgba(29, 23, 18, .5); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 9; }
+    .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--card); z-index: 10; transform: translateX(100%); transition: transform .3s cubic-bezier(.2, .7, .2, 1); display: flex; flex-direction: column; }
+    .open .scrim { opacity: 1; pointer-events: auto; }
+    .open .drawer { transform: none; }
+    .drawer .dh { display: flex; justify-content: space-between; align-items: center; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .drawer .dh h3 { font-size: 28px; }
+    .x { border: 0; background: none; font-size: 28px; line-height: 1; color: var(--muted); cursor: pointer; }
+    .db { flex: 1; overflow: auto; padding: 18px 22px; }
+    .sum { display: grid; gap: 8px; padding: 16px; border-radius: 14px; background: var(--sand); margin-bottom: 16px; }
+    .sum div { display: flex; justify-content: space-between; gap: 10px; }
+    .sum span { color: var(--muted); }
+    .sum .total { font-weight: 700; font-size: 18px; border-top: 1px solid var(--line); padding-top: 8px; margin-top: 4px; }
+    .db label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    .db input, .db select { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .promo { display: flex; gap: 8px; }
+    .promo input { flex: 1; }
+    .ok-msg { color: var(--green); font-size: 13px; }
+    .err { color: #b3402d; font-size: 13px; }
+    .df { padding: 18px 22px; border-top: 1px solid var(--line); }
+    .df .btn { width: 100%; }
+    .done { text-align: center; padding: 30px 10px; }
+    .done .code { display: inline-block; margin: 12px 0; padding: 10px 18px; border-radius: 10px; background: var(--sand); font: 700 22px monospace; letter-spacing: .1em; }
+    /* Panel de ocupación (vista del hotel) */
+    .rack-wrap { display: none; }
+    .admin-mode .rack-wrap { display: block; }
+    .rack { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 24px; }
+    .rack table { border-collapse: separate; border-spacing: 3px; font-size: 12px; min-width: 760px; width: 100%; }
+    .rack th { color: var(--muted); font-weight: 500; padding: 4px; white-space: nowrap; }
+    .rack td { height: 30px; border-radius: 6px; background: #efe7da; }
+    .rack td.b { background: var(--gold); }
+    .rack td.mine { background: var(--green); }
+    .rack td.name { background: none; font-weight: 600; white-space: nowrap; padding-right: 8px; }
+    .legend { display: flex; gap: 16px; font-size: 13px; color: var(--muted); margin-top: 10px; }
+    .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+    .kpi small { color: var(--muted); }
+    .kpi b { display: block; font: 700 30px "Cormorant Garamond", serif; }
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--gold); border-color: var(--gold); }
+    .flatpickr-day.inRange { background: #f1e3c8; border-color: #f1e3c8; box-shadow: -5px 0 0 #f1e3c8, 5px 0 0 #f1e3c8; }
+    @media (max-width: 900px) {
+      .booking { grid-template-columns: 1fr 1fr; }
+      .booking .btn { grid-column: 1 / -1; }
+      .rooms, .perks { grid-template-columns: 1fr; }
+      .head nav { display: none; }
+      .kpis { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · hotel ficticio, reservas y pagos simulados</div>
+  <header class="top">
+    <div class="wrap head">
+      <div class="brand">Casa Qolla<small>HOTEL BOUTIQUE · CUSCO</small></div>
+      <nav><a href="#habitaciones">Habitaciones</a><a href="#experiencia">Experiencia</a><a href="#ubicacion">Ubicación</a></nav>
+      <button class="admin" id="admin">Vista del hotel</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <svg class="scene" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2140"/><stop offset=".45" stop-color="#a3546a"/><stop offset=".75" stop-color="#e7a35b"/><stop offset="1" stop-color="#f4cf8a"/></linearGradient>
+        <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e4b5c"/><stop offset="1" stop-color="#3a2a35"/></linearGradient>
+        <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3442"/><stop offset="1" stop-color="#241a22"/></linearGradient>
+        <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1d1712" stop-opacity=".7"/><stop offset=".6" stop-color="#1d1712" stop-opacity="0"/></linearGradient>
+      </defs>
+      <rect width="1440" height="640" fill="url(#sky)"/>
+      <circle cx="1060" cy="380" r="70" fill="#ffe2a8" opacity=".9"/>
+      <path d="M0 420 L180 300 L300 360 L470 220 L640 340 L760 280 L900 380 L1080 250 L1240 340 L1440 260 V640 H0 Z" fill="url(#m1)" opacity=".85"/>
+      <path d="M470 220 L500 245 L455 248 Z M1080 250 L1110 275 L1060 278 Z" fill="#f3e4d2" opacity=".8"/>
+      <path d="M0 500 L220 400 L380 470 L560 380 L760 480 L940 410 L1140 500 L1300 430 L1440 470 V640 H0 Z" fill="url(#m2)"/>
+      <path d="M0 560 Q360 520 720 560 T1440 550 V640 H0 Z" fill="#1d1712"/>
+      <rect width="1440" height="640" fill="url(#shade)"/>
+    </svg>
+    <div class="wrap"><div class="copy">
+      <p class="kicker" style="color:#f1d39b">A 5 minutos de la Plaza de Armas</p>
+      <h1>Despierta entre muros incas y montañas</h1>
+      <p>Doce habitaciones en una casona colonial restaurada. Reserva directo con nosotros y obtén el mejor precio garantizado.</p>
+    </div></div>
+  </section>
+
+  <div class="wrap">
+    <form class="booking" id="search">
+      <label>Llegada y salida<input id="dates" placeholder="Elige tus fechas" readonly required></label>
+      <label>Huéspedes<select id="guests"><option value="1">1 adulto</option><option value="2" selected>2 adultos</option><option value="3">3 adultos</option><option value="4">2 adultos + 2 niños</option></select></label>
+      <label>Moneda<select id="cur"><option value="PEN">Soles (S/)</option><option value="USD">Dólares (US$)</option></select></label>
+      <button class="btn" type="submit">Ver disponibilidad</button>
+    </form>
+  </div>
+
+  <section class="section wrap" id="habitaciones">
+    <p class="kicker">Habitaciones</p>
+    <h2>Elige dónde descansar</h2>
+    <p class="sub" id="rooms-sub">Selecciona tus fechas para ver precios totales y disponibilidad real.</p>
+    <div class="rooms" id="rooms"></div>
+  </section>
+
+  <section class="section wrap rack-wrap" id="rack-section">
+    <p class="kicker">Vista del hotel</p>
+    <h2>Ocupación de los próximos 14 días</h2>
+    <p class="sub">Así ve el personal las reservas: cada fila es una habitación y cada celda un día. Tus reservas de prueba aparecen en verde.</p>
+    <div class="kpis" id="kpis"></div>
+    <div class="rack" id="rack"></div>
+    <div class="legend"><span><i style="background:#efe7da"></i>Libre</span><span><i style="background:var(--gold)"></i>Ocupada</span><span><i style="background:var(--green)"></i>Tu reserva (demo)</span></div>
+  </section>
+
+  <section class="section wrap" id="experiencia">
+    <p class="kicker">Por qué reservar directo</p>
+    <h2>Mejor precio, sin intermediarios</h2>
+    <div class="perks">
+      <div class="perk"><i>🏷️</i><b>Precio directo</b><p>Hasta 15% menos que en las plataformas de reservas.</p></div>
+      <div class="perk"><i>☕</i><b>Desayuno andino</b><p>Incluido en todas las tarifas, con productos del Valle Sagrado.</p></div>
+      <div class="perk"><i>🚐</i><b>Recojo al llegar</b><p>Te esperamos en el aeropuerto con tu nombre.</p></div>
+      <div class="perk"><i>↩️</i><b>Cancelación flexible</b><p>Gratis hasta 48 horas antes de tu llegada.</p></div>
+    </div>
+  </section>
+
+  <footer id="ubicacion"><div class="wrap">Casa Qolla (hotel ficticio) · Calle Ejemplo 123, Cusco · Demo de landing y motor de reservas por Wilk Works</div></footer>
+
+  <div class="scrim" id="scrim"></div>
+  <aside class="drawer" aria-label="Tu reserva">
+    <div class="dh"><h3 id="d-title">Tu reserva</h3><button class="x" id="close" aria-label="Cerrar">×</button></div>
+    <div class="db" id="d-body"></div>
+    <div class="df" id="d-foot"></div>
+  </aside>
+
+  <script>
+    const ROOMS = [
+      { id: "est", name: "Estándar Patio", pen: 280, max: 2, units: ["101", "102", "103", "104"], tags: ["16 m²", "Cama queen", "Vista al patio"], hue: ["#c58b5a", "#8a5a3c"] },
+      { id: "sup", name: "Superior Balcón", pen: 390, max: 3, units: ["201", "202", "203", "204"], tags: ["24 m²", "Balcón colonial", "Bañera"], hue: ["#b26f6f", "#6b3f4a"] },
+      { id: "sui", name: "Suite Inca", pen: 620, max: 4, units: ["301", "302"], tags: ["40 m²", "Muro inca original", "Sala privada"], hue: ["#7a6aa8", "#3d2f5e"] },
+      { id: "fam", name: "Familiar Andina", pen: 520, max: 4, units: ["105", "205"], tags: ["34 m²", "2 dormitorios", "Ideal niños"], hue: ["#5f8a72", "#2e4a3c"] },
+    ];
+    const RATE = 3.75; // tipo de cambio referencial; tarifas con impuestos incluidos
+    const $ = (id) => document.getElementById(id);
+    const DAY = 86400000;
+    const startToday = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+    const load = () => { try { return JSON.parse(localStorage.getItem("qolla")) || []; } catch { return []; } };
+    let mine = load(), range = null, promo = 0;
+
+    // Ocupación de ejemplo estable: cada habitación tiene algunos días tomados
+    function busy(unit, day) {
+      let h = Math.imul(parseInt(unit, 10), 73856093) ^ Math.imul(Math.floor(day.getTime() / DAY), 19349663);
+      h = Math.imul(h ^ (h >>> 13), 1274126177);
+      return ((h ^ (h >>> 16)) >>> 0) % 100 < 30; // ~30% de ocupación
+    }
+    const takenByMe = (unit, day) => mine.some((r) => r.unit === unit && day >= new Date(r.in) && day < new Date(r.out));
+    const nightsOf = (r) => (r ? Math.round((r[1] - r[0]) / DAY) : 0);
+    const days = (r) => Array.from({ length: nightsOf(r) }, (_, i) => new Date(r[0].getTime() + i * DAY));
+    const freeUnit = (room, r) => room.units.find((u) => days(r).every((d) => !busy(u, d) && !takenByMe(u, d)));
+    const money = (pen) => ($("cur").value === "USD" ? "US$ " + (pen / RATE).toFixed(0) : "S/ " + pen.toLocaleString("es-PE"));
+
+    const pic = (r) => `<svg viewBox="0 0 400 300" aria-hidden="true"><defs><linearGradient id="g${r.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${r.hue[0]}"/><stop offset="1" stop-color="${r.hue[1]}"/></linearGradient></defs>
+      <rect width="400" height="300" fill="url(#g${r.id})"/><rect x="40" y="40" width="130" height="150" rx="65" fill="#ffe8c4" opacity=".25"/><path d="M40 190 H170" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
+      <rect x="200" y="170" width="170" height="60" rx="10" fill="#fff" opacity=".85"/><rect x="200" y="150" width="60" height="30" rx="8" fill="#fff" opacity=".95"/><rect x="310" y="150" width="60" height="30" rx="8" fill="#fff" opacity=".95"/>
+      <rect x="0" y="230" width="400" height="70" fill="#1d1712" opacity=".25"/><circle cx="340" cy="70" r="18" fill="#ffe2a8" opacity=".8"/></svg>`;
+
+    function renderRooms() {
+      const n = nightsOf(range), g = +$("guests").value;
+      $("rooms-sub").textContent = n ? `${n} ${n === 1 ? "noche" : "noches"} · ${range[0].toLocaleDateString("es-PE", { day: "numeric", month: "short" })} al ${range[1].toLocaleDateString("es-PE", { day: "numeric", month: "short" })} · precios con impuestos y desayuno incluidos` : "Selecciona tus fechas para ver precios totales y disponibilidad real.";
+      $("rooms").innerHTML = ROOMS.map((r) => {
+        const unit = n ? freeUnit(r, range) : true, fits = g <= r.max, ok = unit && fits;
+        return `<article class="room"><div class="pic">${pic(r)}${n && !unit ? '<div class="soldout">Sin disponibilidad</div>' : ""}${!fits ? '<div class="soldout">Máx. ' + r.max + " huéspedes</div>" : ""}</div>
+          <div class="body"><h3>${r.name}</h3><div class="meta">${r.tags.map((t) => `<span>${t}</span>`).join("")}<span>Hasta ${r.max} personas</span></div>
+          <div class="row"><div class="price"><b>${money(n ? r.pen * n : r.pen)}</b><br><small>${n ? `total por ${n} ${n === 1 ? "noche" : "noches"}` : "por noche"}</small></div>
+          <button class="btn" data-room="${r.id}" ${ok ? "" : "disabled"}>${n ? "Reservar" : "Elegir fechas"}</button></div></div></article>`;
+      }).join("");
+    }
+
+    const fp = flatpickr("#dates", {
+      mode: "range", locale: "es", minDate: "today", maxDate: new Date(Date.now() + 180 * DAY), dateFormat: "d M", showMonths: innerWidth > 760 ? 2 : 1,
+      onChange: (d) => { range = d.length === 2 ? d : null; if (range && nightsOf(range) < 1) range = null; renderRooms(); },
+    });
+    $("search").onsubmit = (e) => { e.preventDefault(); if (!range) return fp.open(); document.getElementById("habitaciones").scrollIntoView({ behavior: "smooth" }); };
+    $("guests").onchange = $("cur").onchange = () => { renderRooms(); renderRack(); };
+
+    $("rooms").onclick = (e) => {
+      const b = e.target.closest("[data-room]"); if (!b) return;
+      if (!range) { fp.open(); return; }
+      openBooking(ROOMS.find((r) => r.id === b.dataset.room));
+    };
+
+    function openBooking(room) {
+      const n = nightsOf(range), unit = freeUnit(room, range);
+      promo = 0;
+      const draw = () => {
+        const sub = room.pen * n, disc = Math.round(sub * promo), total = sub - disc;
+        $("d-title").textContent = "Tu reserva";
+        $("d-body").innerHTML = `<div class="sum">
+            <div><span>Habitación</span><b>${room.name}</b></div>
+            <div><span>Fechas</span><b>${range[0].toLocaleDateString("es-PE", { day: "numeric", month: "short" })} → ${range[1].toLocaleDateString("es-PE", { day: "numeric", month: "short" })}</b></div>
+            <div><span>${n} ${n === 1 ? "noche" : "noches"} × ${money(room.pen)}</span><b>${money(sub)}</b></div>
+            ${disc ? `<div><span>Código WILK10</span><b style="color:var(--green)">− ${money(disc)}</b></div>` : ""}
+            <div class="total"><span>Total</span><b>${money(total)}</b></div></div>
+          <label>Nombre completo<input id="g-name" autocomplete="name" required></label>
+          <label>Correo<input id="g-mail" type="email" autocomplete="email" required></label>
+          <label>Código promocional<div class="promo"><input id="g-promo" placeholder="Prueba: WILK10"><button class="btn ghost" id="apply" type="button">Aplicar</button></div><span id="p-msg"></span></label>
+          <label>Pago<select id="g-pay"><option>Tarjeta (simulado)</option><option>Pagar al llegar</option></select></label>`;
+        $("d-foot").innerHTML = `<button class="btn" id="confirm">Confirmar reserva · ${money(total)}</button>`;
+        $("apply").onclick = () => {
+          if ($("g-promo").value.trim().toUpperCase() === "WILK10") { promo = 0.1; const name = $("g-name").value, mail = $("g-mail").value; draw(); $("g-name").value = name; $("g-mail").value = mail; $("p-msg").className = "ok-msg"; $("p-msg").textContent = "10% de descuento aplicado"; }
+          else { $("p-msg").className = "err"; $("p-msg").textContent = "Código no válido"; }
+        };
+        $("confirm").onclick = () => {
+          const name = $("g-name").value.trim(), mail = $("g-mail").value.trim();
+          if (!name || !/^\S+@\S+\.\S+$/.test(mail)) { $("p-msg").className = "err"; $("p-msg").textContent = "Completa tu nombre y un correo válido"; return; }
+          const code = "CQ-" + Math.random().toString(36).slice(2, 7).toUpperCase();
+          mine.push({ code, unit, room: room.name, in: range[0].toISOString(), out: range[1].toISOString(), name, total });
+          try { localStorage.setItem("qolla", JSON.stringify(mine)); } catch {}
+          $("d-title").textContent = "¡Reserva confirmada!";
+          $("d-body").innerHTML = `<div class="done"><div style="font-size:54px">🏔️</div><h3 style="font-size:30px">Te esperamos, ${name.split(" ")[0]}</h3><div class="code">${code}</div><p style="color:var(--muted)">${room.name} · habitación ${unit}<br>${range[0].toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" })} · ${n} ${n === 1 ? "noche" : "noches"}<br>Total ${money(total)}</p><p style="color:var(--muted);font-size:13px;margin-top:14px">En un sistema real te llegaría la confirmación a ${mail}.</p></div>`;
+          $("d-foot").innerHTML = `<button class="btn ghost" id="close2">Cerrar</button>`;
+          $("close2").onclick = close;
+          confetti({ particleCount: 120, spread: 70, origin: { x: 0.85, y: 0.3 }, colors: ["#b8873b", "#d9b26a", "#3d6b52", "#a3546a"] });
+          renderRooms(); renderRack();
+        };
+      };
+      draw();
+      document.body.classList.add("open");
+    }
+    const close = () => document.body.classList.remove("open");
+    $("close").onclick = close; $("scrim").onclick = close;
+    addEventListener("keydown", (e) => e.key === "Escape" && close());
+
+    // Vista del hotel: ocupación de 14 días e indicadores
+    function renderRack() {
+      const ds = Array.from({ length: 14 }, (_, i) => new Date(startToday.getTime() + i * DAY));
+      const units = ROOMS.flatMap((r) => r.units.map((u) => ({ u, r })));
+      let occ = 0, revenue = 0;
+      const rows = units.map(({ u, r }) => `<tr><td class="name">${u} · ${r.name.split(" ")[0]}</td>${ds.map((d) => { const m = takenByMe(u, d), b = !m && busy(u, d); if (m || b) { occ++; revenue += r.pen; } return `<td class="${m ? "mine" : b ? "b" : ""}" title="${u} · ${d.toLocaleDateString("es-PE")}"></td>`; }).join("")}</tr>`).join("");
+      $("rack").innerHTML = `<table><thead><tr><th></th>${ds.map((d) => `<th>${d.toLocaleDateString("es-PE", { weekday: "short" })}<br>${d.getDate()}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
+      const pct = Math.round((occ / (units.length * ds.length)) * 100);
+      $("kpis").innerHTML = `<div class="kpi"><small>Ocupación 14 días</small><b>${pct}%</b></div><div class="kpi"><small>Ingresos proyectados</small><b>${money(revenue)}</b></div><div class="kpi"><small>Reservas directas (demo)</small><b>${mine.length}</b></div>`;
+    }
+    $("admin").onclick = () => {
+      const on = document.body.classList.toggle("admin-mode");
+      $("admin").textContent = on ? "Vista del huésped" : "Vista del hotel";
+      if (on) $("rack-section").scrollIntoView({ behavior: "smooth" });
+    };
+
+    renderRooms(); renderRack();
+  </script>
+</body>
+</html>

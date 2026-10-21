@@ -81,11 +81,15 @@ window.SITE = {
   // Proyectos demo (funcionan en /demos/). Reemplázalos o añade tus trabajos reales.
   // image: ruta a una captura real (ej. "img/tienda.png"). Si está vacía se dibuja una ilustración según mock: shop | inventory | mobile | cloud.
   projects: [
-    { title: "Tienda online Andina", tag: "E-commerce", text: "Catálogo, carrito y pagos con panel de pedidos.", stack: ["HTML", "JS", "Carrito"], url: "demos/tienda/", image: "img/tienda.webp", mock: "shop" },
-    { title: "Gestor de inventario", tag: "Sistema interno", text: "Control de stock multi-almacén con reportes en tiempo real.", stack: ["Chart.js", "Dashboard"], url: "demos/inventario/", image: "img/inventario.webp", mock: "inventory" },
-    { title: "App de reservas", tag: "Móvil", text: "Reservas y recordatorios por WhatsApp para un centro de salud.", stack: ["Mobile-first", "WhatsApp"], url: "demos/reservas/", image: "img/reservas.webp", mock: "mobile" },
-    { title: "Migración a la nube", tag: "Cloud", text: "Servidores físicos a AWS con 40% menos costo mensual.", stack: ["Cloud", "Chart.js"], url: "demos/cloud/", image: "img/cloud.webp", mock: "cloud" },
+    { title: "Tienda online Andina", tag: "E-commerce", cat: "E-commerce", text: "Catálogo con filtros, carrito, checkout y boleta en PDF.", stack: ["Carrito", "jsPDF"], url: "demos/tienda/", image: "img/tienda.webp", mock: "shop" },
+    { title: "Casa Qolla · Hotel boutique", tag: "Hotelería", cat: "Reservas", text: "Landing para hotel con motor de reservas directas, código promocional y panel de ocupación.", stack: ["Flatpickr", "Reservas"], url: "demos/hotel/", image: "img/hotel.webp", mock: "mobile" },
+    { title: "Punto de venta El Perno", tag: "Sistema POS", cat: "Sistemas", text: "Venta rápida con código de barras, boleta o factura, vuelto, Yape y cierre de caja.", stack: ["Código de barras", "IGV"], url: "demos/pos/", image: "img/pos.webp", mock: "inventory" },
+    { title: "Gestor de inventario", tag: "Sistema interno", cat: "Sistemas", text: "Stock multi-almacén, escáner, etiquetas y exportación a Excel y PDF.", stack: ["Chart.js", "Excel"], url: "demos/inventario/", image: "img/inventario.webp", mock: "inventory" },
+    { title: "Horizonte Inmobiliaria", tag: "Web corporativa", cat: "Web corporativa", text: "Catálogo de propiedades con filtros, ficha, cotizador hipotecario y captación de clientes.", stack: ["Cotizador", "Leads"], url: "demos/inmobiliaria/", image: "img/inmobiliaria.webp", mock: "shop" },
+    { title: "App de reservas Vitalis", tag: "Móvil", cat: "Reservas", text: "Citas en 3 pasos con calendario, QR y recordatorio por WhatsApp. Se instala en el celular.", stack: ["PWA", "WhatsApp"], url: "demos/reservas/", image: "img/reservas.webp", mock: "mobile" },
+    { title: "Migración a la nube", tag: "Cloud", cat: "Cloud", text: "Panel de migración con calculadora de ahorro, latencia real y reporte en PDF.", stack: ["Cloud", "Chart.js"], url: "demos/cloud/", image: "img/cloud.webp", mock: "cloud" },
   ],
+
 
   // Perfiles verificables. Solo se muestran los que tengan url: pega tu enlace y aparece.
   profiles: [
@@ -113,12 +117,16 @@ window.SITE = {
   // Soluciones por rubro: cada una enlaza a la demo que más se parece.
   industries: [
     { icon: "🛍️", title: "Tiendas y retail", text: "Catálogo en línea, carrito y cobros con Yape, Plin o tarjeta. Tus clientes compran aunque la tienda esté cerrada.", demo: "demos/tienda/" },
-    { icon: "🔩", title: "Ferreterías y distribuidoras", text: "Stock por almacén, lector de códigos de barra, alertas de reposición y reportes en Excel.", demo: "demos/inventario/" },
+    { icon: "🔩", title: "Ferreterías", text: "Venta rápida con lector de código de barras, boleta o factura y stock que se descuenta solo.", demo: "demos/pos/" },
+    { icon: "🍾", title: "Licorerías y bodegas", text: "Caja ágil para venta al por mayor y menor, vuelto automático y cierre de caja al final del día.", demo: "demos/pos/" },
+    { icon: "📦", title: "Distribuidoras y almacenes", text: "Stock por almacén, alertas de reposición, etiquetas con código de barras y reportes en Excel.", demo: "demos/inventario/" },
+    { icon: "🏨", title: "Hoteles y hospedajes", text: "Reservas directas desde tu web, sin pagar comisión a las plataformas, y control de ocupación.", demo: "demos/hotel/" },
+    { icon: "🏠", title: "Inmobiliarias y constructoras", text: "Catálogo de propiedades con filtros, cotizador de crédito y formularios que te traen clientes.", demo: "demos/inmobiliaria/" },
     { icon: "🩺", title: "Clínicas y consultorios", text: "Citas en línea, recordatorios por WhatsApp y agenda ordenada para cada especialista.", demo: "demos/reservas/" },
     { icon: "🐾", title: "Veterinarias", text: "Agenda de citas, historial de cada mascota y venta de alimentos y accesorios.", demo: "demos/reservas/" },
-    { icon: "🏨", title: "Hoteles y hospedajes", text: "Reservas directas desde tu web, sin pagar comisión a las plataformas, y control de habitaciones.", demo: "demos/reservas/" },
     { icon: "🏢", title: "Empresas con servidor propio", text: "Pasamos tus sistemas a la nube con copias de seguridad diarias y sin detener tu operación.", demo: "demos/cloud/" },
   ],
+
 
   // Planes. price vacío = se muestra "A cotizar". Ejemplo: price: "690", unit: "pago único"
   plans: [

@@ -445,3 +445,11 @@ img.logo-mark { width: auto; height: 30px; border-radius: 0; background: none; b
   .page-head { padding-top: 56px; }
   .foot-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Filtros del catálogo de proyectos ---------- */
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.fchip { padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255, 255, 255, .03); color: var(--muted); font: 600 14px var(--mono); cursor: pointer; transition: border-color .2s, color .2s, background .2s; }
+.fchip small { margin-left: 4px; opacity: .7; }
+.fchip:hover { color: var(--text); border-color: var(--violet-hi); }
+.fchip.on { background: var(--amber); color: #1a1408; border-color: var(--amber); }
+.project[hidden] { display: none; }
