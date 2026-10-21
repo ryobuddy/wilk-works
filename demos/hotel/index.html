@@ -12,6 +12,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
     :root { --ink: #1d1712; --muted: #6f6257; --sand: #f6f0e7; --card: #fffdf9; --line: #e7dccd; --gold: #b8873b; --gold-2: #d9b26a; --deep: #2a1f18; --green: #3d6b52; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +33,8 @@
     .head .admin { border: 1px solid rgba(255, 255, 255, .5); padding: 8px 14px; border-radius: 999px; background: none; color: #fff; cursor: pointer; font-size: 13px; }
     /* Hero con paisaje andino dibujado en SVG */
     .hero { position: relative; min-height: 640px; color: #fff; display: flex; align-items: center; overflow: hidden; }
-    .hero svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero .scene { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hero .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(29, 23, 18, .82), rgba(29, 23, 18, .35) 60%, rgba(29, 23, 18, .15)), linear-gradient(0deg, rgba(29, 23, 18, .55), transparent 40%); }
     .hero .wrap { position: relative; z-index: 2; }
     .hero .copy { padding-top: 70px; max-width: 620px; }
     .hero h1 { font-size: clamp(44px, 6.5vw, 82px); text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
@@ -52,7 +55,9 @@
     .room { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; transition: transform .25s, box-shadow .25s; }
     .room:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -28px rgba(42, 31, 24, .5); }
     .room .pic { aspect-ratio: 4 / 3; position: relative; }
-    .room .pic svg { width: 100%; height: 100%; display: block; }
+    .room .pic { overflow: hidden; }
+    .room .pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s; }
+    .room:hover .pic img { transform: scale(1.05); }
     .room .soldout { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(29, 23, 18, .6); color: #fff; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
     .room .body { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
     .room h3 { font-size: 28px; }
@@ -66,6 +71,10 @@
     .perk b { display: block; font: 600 22px "Cormorant Garamond", serif; margin: 6px 0 4px; }
     .perk p { color: var(--muted); font-size: 14px; }
     .perk i { font-style: normal; font-size: 26px; }
+    .story { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .story img { width: 100%; border-radius: 18px; display: block; box-shadow: 0 30px 60px -30px rgba(42, 31, 24, .5); }
+    .map { height: 380px; border-radius: 18px; border: 1px solid var(--line); margin-top: 24px; z-index: 0; }
+    @media (max-width: 900px) { .story { grid-template-columns: 1fr; } }
     footer { margin-top: 80px; background: var(--deep); color: #d8c9b5; padding: 40px 0; font-size: 14px; }
     /* Reserva: panel lateral */
     .scrim { position: fixed; inset: 0; background: rgba(29, 23, 18, .5); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 9; }
@@ -122,27 +131,14 @@
   <header class="top">
     <div class="wrap head">
       <div class="brand">Casa Qolla<small>HOTEL BOUTIQUE · CUSCO</small></div>
-      <nav><a href="#habitaciones">Habitaciones</a><a href="#experiencia">Experiencia</a><a href="#ubicacion">Ubicación</a></nav>
+      <nav><a href="#habitaciones">Habitaciones</a><a href="#experiencia">Experiencia</a><a href="#ubicacion-mapa">Ubicación</a></nav>
       <button class="admin" id="admin">Vista del hotel</button>
     </div>
   </header>
 
   <section class="hero">
-    <svg class="scene" viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2140"/><stop offset=".45" stop-color="#a3546a"/><stop offset=".75" stop-color="#e7a35b"/><stop offset="1" stop-color="#f4cf8a"/></linearGradient>
-        <linearGradient id="m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e4b5c"/><stop offset="1" stop-color="#3a2a35"/></linearGradient>
-        <linearGradient id="m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3442"/><stop offset="1" stop-color="#241a22"/></linearGradient>
-        <linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1d1712" stop-opacity=".7"/><stop offset=".6" stop-color="#1d1712" stop-opacity="0"/></linearGradient>
-      </defs>
-      <rect width="1440" height="640" fill="url(#sky)"/>
-      <circle cx="1060" cy="380" r="70" fill="#ffe2a8" opacity=".9"/>
-      <path d="M0 420 L180 300 L300 360 L470 220 L640 340 L760 280 L900 380 L1080 250 L1240 340 L1440 260 V640 H0 Z" fill="url(#m1)" opacity=".85"/>
-      <path d="M470 220 L500 245 L455 248 Z M1080 250 L1110 275 L1060 278 Z" fill="#f3e4d2" opacity=".8"/>
-      <path d="M0 500 L220 400 L380 470 L560 380 L760 480 L940 410 L1140 500 L1300 430 L1440 470 V640 H0 Z" fill="url(#m2)"/>
-      <path d="M0 560 Q360 520 720 560 T1440 550 V640 H0 Z" fill="#1d1712"/>
-      <rect width="1440" height="640" fill="url(#shade)"/>
-    </svg>
+    <img class="scene" src="img/hero.webp" alt="Plaza de Armas de Cusco con las montañas al fondo" width="1800" height="1012" fetchpriority="high">
+    <div class="shade" aria-hidden="true"></div>
     <div class="wrap"><div class="copy">
       <p class="kicker" style="color:#f1d39b">A 5 minutos de la Plaza de Armas</p>
       <h1>Despierta entre muros incas y montañas</h1>
@@ -186,6 +182,22 @@
     </div>
   </section>
 
+  <section class="section wrap story">
+    <img src="img/patio.webp" alt="Muro inca del Qoricancha en Cusco" loading="lazy" width="1000" height="750">
+    <div>
+      <p class="kicker">La casona</p>
+      <h2>Dormir junto a piedras de 500 años</h2>
+      <p class="sub">Casa Qolla está a pasos del Qoricancha, el antiguo templo del Sol. Los muros incas originales conviven con balcones coloniales de madera y un patio con fogata cada noche.</p>
+    </div>
+  </section>
+
+  <section class="section wrap" id="ubicacion-mapa">
+    <p class="kicker">Ubicación</p>
+    <h2>En el corazón de Cusco</h2>
+    <p class="sub">A 5 minutos a pie de la Plaza de Armas, 3 del Qoricancha y 20 minutos en auto del aeropuerto.</p>
+    <div id="map" class="map" role="region" aria-label="Mapa de ubicación del hotel"></div>
+  </section>
+
   <footer id="ubicacion"><div class="wrap">Casa Qolla (hotel ficticio) · Calle Ejemplo 123, Cusco · Demo de landing y motor de reservas por Wilk Works</div></footer>
 
   <div class="scrim" id="scrim"></div>
@@ -197,10 +209,10 @@
 
   <script>
     const ROOMS = [
-      { id: "est", name: "Estándar Patio", pen: 280, max: 2, units: ["101", "102", "103", "104"], tags: ["16 m²", "Cama queen", "Vista al patio"], hue: ["#c58b5a", "#8a5a3c"] },
-      { id: "sup", name: "Superior Balcón", pen: 390, max: 3, units: ["201", "202", "203", "204"], tags: ["24 m²", "Balcón colonial", "Bañera"], hue: ["#b26f6f", "#6b3f4a"] },
-      { id: "sui", name: "Suite Inca", pen: 620, max: 4, units: ["301", "302"], tags: ["40 m²", "Muro inca original", "Sala privada"], hue: ["#7a6aa8", "#3d2f5e"] },
-      { id: "fam", name: "Familiar Andina", pen: 520, max: 4, units: ["105", "205"], tags: ["34 m²", "2 dormitorios", "Ideal niños"], hue: ["#5f8a72", "#2e4a3c"] },
+      { id: "est", img: "img/estandar.webp", name: "Estándar Patio", pen: 280, max: 2, units: ["101", "102", "103", "104"], tags: ["16 m²", "Cama queen", "Vista al patio"], hue: ["#c58b5a", "#8a5a3c"] },
+      { id: "sup", img: "img/superior.webp", name: "Superior Balcón", pen: 390, max: 3, units: ["201", "202", "203", "204"], tags: ["24 m²", "Balcón colonial", "Bañera"], hue: ["#b26f6f", "#6b3f4a"] },
+      { id: "sui", img: "img/suite.webp", name: "Suite Inca", pen: 620, max: 4, units: ["301", "302"], tags: ["40 m²", "Muro inca original", "Sala privada"], hue: ["#7a6aa8", "#3d2f5e"] },
+      { id: "fam", img: "img/familiar.webp", name: "Familiar Andina", pen: 520, max: 4, units: ["105", "205"], tags: ["34 m²", "2 dormitorios", "Ideal niños"], hue: ["#5f8a72", "#2e4a3c"] },
     ];
     const RATE = 3.75; // tipo de cambio referencial; tarifas con impuestos incluidos
     const $ = (id) => document.getElementById(id);
@@ -221,10 +233,7 @@
     const freeUnit = (room, r) => room.units.find((u) => days(r).every((d) => !busy(u, d) && !takenByMe(u, d)));
     const money = (pen) => ($("cur").value === "USD" ? "US$ " + (pen / RATE).toFixed(0) : "S/ " + pen.toLocaleString("es-PE"));
 
-    const pic = (r) => `<svg viewBox="0 0 400 300" aria-hidden="true"><defs><linearGradient id="g${r.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${r.hue[0]}"/><stop offset="1" stop-color="${r.hue[1]}"/></linearGradient></defs>
-      <rect width="400" height="300" fill="url(#g${r.id})"/><rect x="40" y="40" width="130" height="150" rx="65" fill="#ffe8c4" opacity=".25"/><path d="M40 190 H170" stroke="#fff" stroke-opacity=".35" stroke-width="3"/>
-      <rect x="200" y="170" width="170" height="60" rx="10" fill="#fff" opacity=".85"/><rect x="200" y="150" width="60" height="30" rx="8" fill="#fff" opacity=".95"/><rect x="310" y="150" width="60" height="30" rx="8" fill="#fff" opacity=".95"/>
-      <rect x="0" y="230" width="400" height="70" fill="#1d1712" opacity=".25"/><circle cx="340" cy="70" r="18" fill="#ffe2a8" opacity=".8"/></svg>`;
+    const pic = (r) => `<img src="${r.img}" alt="Habitación ${r.name}" loading="lazy" width="900" height="675">`;
 
     function renderRooms() {
       const n = nightsOf(range), g = +$("guests").value;
@@ -309,7 +318,19 @@
       if (on) $("rack-section").scrollIntoView({ behavior: "smooth" });
     };
 
+    // Mapa real con Leaflet + OpenStreetMap
+    if (window.L) {
+      const hotel = [-13.5196, -71.9762], plaza = [-13.5167, -71.9787], qori = [-13.5203, -71.9752];
+      const map = L.map("map", { scrollWheelZoom: false }).setView(hotel, 16);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+      const gold = L.divIcon({ className: "", html: '<div style="width:22px;height:22px;border-radius:50%;background:#b8873b;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.35)"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
+      L.marker(hotel, { icon: gold }).addTo(map).bindPopup("<b>Casa Qolla</b><br>Hotel boutique (ficticio)").openPopup();
+      L.marker(plaza).addTo(map).bindPopup("Plaza de Armas");
+      L.marker(qori).addTo(map).bindPopup("Qoricancha");
+    }
+
     renderRooms(); renderRack();
   </script>
+  <script src="/demos/_shared/techpanel.js" data-app="hotel" defer></script>
 </body>
 </html>

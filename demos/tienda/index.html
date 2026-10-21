@@ -72,6 +72,12 @@
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; transition: transform .3s; z-index: 11; }
     .toast.show { transform: translate(-50%, 0); }
     .p { cursor: pointer; }
+    .p .img img, .pd-img img, .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+    .p:hover .img img { transform: scale(1.05); }
+    .p .img { overflow: hidden; }
+    .thumb { overflow: hidden; }
+    .hero-art { overflow: hidden; padding: 0; }
+    .hero-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .add:disabled { background: #cbbfb3; cursor: not-allowed; }
     .pay-note { font-size: 14px; color: var(--muted); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
     .err { color: #b3261e; font-size: 14px; min-height: 1em; }
@@ -109,7 +115,7 @@
         <p>Textiles de alpaca, café de altura y cerámica de comunidades artesanas. Envío gratis desde S/ 150.</p>
         <a class="btn" href="#catalogo">Ver catálogo →</a>
       </div>
-      <div class="hero-art" aria-hidden="true">🦙</div>
+      <div class="hero-art"><img src="img/hero.webp" alt="Tejido andino hecho a mano en telar" width="1100" height="825"></div>
     </section>
 
     <section id="catalogo">
@@ -144,14 +150,14 @@
     const CFG = window.TIENDA_CONFIG || {};
     const REAL = Boolean(CFG.supabaseUrl && CFG.supabaseAnonKey && CFG.culqiPublicKey);
     let PRODUCTS = [
-      { id: 1, name: "Chompa de alpaca", cat: "Textiles", price: 189, icon: "🧶", bg: "#f1d9c4", badge: "Nuevo", pop: 9 , desc: "Tejida a mano en Puno con fibra de alpaca 100%. Abriga sin pesar y no pica." },
-      { id: 2, name: "Café de altura 500 g", cat: "Café", price: 42, icon: "☕", bg: "#e6d3bf", badge: "Top", pop: 10 , desc: "Grano arábica de Villa Rica, tostado medio. Notas a chocolate y frutos rojos." },
-      { id: 3, name: "Chocolate 70% cacao", cat: "Café", price: 18, icon: "🍫", bg: "#ead1c1", pop: 7 , desc: "Cacao fino de aroma de Piura, endulzado con panela. Barra de 80 g." },
-      { id: 4, name: "Vasija de cerámica", cat: "Cerámica", price: 95, icon: "🏺", bg: "#efd7b8", pop: 5 , desc: "Cerámica de Chulucanas pintada a mano. Cada pieza es única." },
-      { id: 5, name: "Manta tejida", cat: "Textiles", price: 230, icon: "🧣", bg: "#dbe6d6", pop: 6 , desc: "Manta de lana de oveja con diseños de Cusco. 1.5 × 2 m." },
-      { id: 6, name: "Taza artesanal", cat: "Cerámica", price: 35, icon: "🍵", bg: "#e3dccb", badge: "Oferta", pop: 8 , desc: "Taza de gres esmaltada, apta para microondas. 350 ml." },
-      { id: 7, name: "Gorro chullo", cat: "Textiles", price: 55, icon: "🧢", bg: "#f0dccd", pop: 4 , desc: "Chullo tradicional con orejeras, tejido en Huancavelica." },
-      { id: 8, name: "Miel de eucalipto", cat: "Café", price: 28, icon: "🍯", bg: "#f2e1b9", pop: 3 , desc: "Miel pura de eucalipto de Cajamarca, sin procesar. Frasco de 500 g." },
+      { id: 1, img: "img/chompa.webp", name: "Chompa de alpaca", cat: "Textiles", price: 189, icon: "🧶", bg: "#f1d9c4", badge: "Nuevo", pop: 9 , desc: "Tejida a mano en Puno con fibra de alpaca 100%. Abriga sin pesar y no pica." },
+      { id: 2, img: "img/cafe.webp", name: "Café de altura 500 g", cat: "Café", price: 42, icon: "☕", bg: "#e6d3bf", badge: "Top", pop: 10 , desc: "Grano arábica de Villa Rica, tostado medio. Notas a chocolate y frutos rojos." },
+      { id: 3, img: "img/chocolate.webp", name: "Chocolate 70% cacao", cat: "Café", price: 18, icon: "🍫", bg: "#ead1c1", pop: 7 , desc: "Cacao fino de aroma de Piura, endulzado con panela. Barra de 80 g." },
+      { id: 4, img: "img/vasija.webp", name: "Vasija de cerámica", cat: "Cerámica", price: 95, icon: "🏺", bg: "#efd7b8", pop: 5 , desc: "Cerámica de Chulucanas pintada a mano. Cada pieza es única." },
+      { id: 5, img: "img/manta.webp", name: "Manta tejida", cat: "Textiles", price: 230, icon: "🧣", bg: "#dbe6d6", pop: 6 , desc: "Manta de lana de oveja con diseños de Cusco. 1.5 × 2 m." },
+      { id: 6, img: "img/taza.webp", name: "Taza artesanal", cat: "Cerámica", price: 35, icon: "🍵", bg: "#e3dccb", badge: "Oferta", pop: 8 , desc: "Taza de gres esmaltada, apta para microondas. 350 ml." },
+      { id: 7, img: "img/chullo.webp", name: "Gorro chullo", cat: "Textiles", price: 55, icon: "🧢", bg: "#f0dccd", pop: 4 , desc: "Chullo tradicional con orejeras, tejido en Huancavelica." },
+      { id: 8, img: "img/miel.webp", name: "Miel de eucalipto", cat: "Café", price: 28, icon: "🍯", bg: "#f2e1b9", pop: 3 , desc: "Miel pura de eucalipto de Cajamarca, sin procesar. Frasco de 500 g." },
     ];
     const $ = (id) => document.getElementById(id);
     const money = (n) => "S/ " + n.toFixed(2);
@@ -159,6 +165,7 @@
     const save = () => { try { localStorage.setItem("andina-cart", JSON.stringify(cart)); } catch {} };
     let cart = load(), cat = "Todos", view = "cart";
 
+    const pic = (p, cls = "") => p.img ? `<img class="${cls}" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">` : `<span aria-hidden="true">${p.icon}</span>`;
     const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     function buildChips() {
       const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
@@ -174,7 +181,7 @@
       let list = PRODUCTS.filter((p) => (cat === "Todos" || p.cat === cat) && p.name.toLowerCase().includes(q));
       list.sort((a, b) => (sort === "asc" ? a.price - b.price : sort === "desc" ? b.price - a.price : b.pop - a.pop));
       $("grid").innerHTML = list.length
-        ? list.map((p) => `<article class="p"><div class="img" style="background:${p.bg}">${p.badge ? `<span class="badge">${p.badge}</span>` : ""}<span aria-hidden="true">${p.icon}</span></div>
+        ? list.map((p) => `<article class="p"><div class="img" style="background:${p.bg}">${p.badge ? `<span class="badge">${esc(p.badge)}</span>` : ""}${pic(p)}</div>
             <div class="body"><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3><div class="row"><span class="price">${money(p.price)}</span><button class="add" data-id="${p.id}" ${p.stock === 0 ? "disabled" : ""}>${p.stock === 0 ? "Agotado" : "Agregar"}</button></div></div></article>`).join("")
         : `<p class="empty">No encontramos productos con esa búsqueda.</p>`;
     }
@@ -188,7 +195,7 @@
       const p = PRODUCTS.find((x) => x.id === id), d = $("pd");
       let q = 1;
       d.innerHTML = `<button class="x" aria-label="Cerrar" data-close>×</button>
-        <div class="pd-img" style="background:${p.bg}">${p.icon}</div>
+        <div class="pd-img" style="background:${p.bg}">${pic(p)}</div>
         <div class="pd-body"><small>${p.cat}</small><h2>${p.name}</h2><p>${p.desc}</p>
         <div class="price" style="font-size:24px;margin:14px 0">${money(p.price)}</div>
         <div class="pd-row"><span class="qty"><button data-q="-1" aria-label="Menos">−</button><span id="pq">1</span><button data-q="1" aria-label="Más">+</button></span>
@@ -244,7 +251,7 @@
       $("drawer-title").textContent = "Tu carrito";
       const rows = Object.entries(cart).map(([id, q]) => {
         const p = PRODUCTS.find((x) => x.id === +id);
-        return `<div class="item"><div class="thumb" style="background:${p.bg}">${p.icon}</div><div><b>${p.name}</b><br><span class="qty"><button data-d="-1" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button data-d="1" data-id="${p.id}" aria-label="Agregar uno">+</button></span></div><b>${money(p.price * q)}</b></div>`;
+        return `<div class="item"><div class="thumb" style="background:${p.bg}">${pic(p)}</div><div><b>${p.name}</b><br><span class="qty"><button data-d="-1" data-id="${p.id}" aria-label="Quitar uno">−</button><span>${q}</span><button data-d="1" data-id="${p.id}" aria-label="Agregar uno">+</button></span></div><b>${money(p.price * q)}</b></div>`;
       }).join("");
       body.innerHTML = rows
         ? `<div class="items">${rows}</div><div class="foot"><div class="sum"><span>Subtotal</span><span>${money(t.sub)}</span></div><div class="sum"><span>Envío</span><span>${t.ship ? money(t.ship) : "Gratis"}</span></div>
@@ -312,11 +319,11 @@
 
     // ---------- Productos desde Supabase (solo lectura pública) ----------
     async function loadProducts() {
-      const r = await fetch(`${CFG.supabaseUrl}/rest/v1/products?select=id,name,category,price,stock,icon,bg,badge,popularity,description&active=eq.true&order=popularity.desc`, {
+      const r = await fetch(`${CFG.supabaseUrl}/rest/v1/products?select=id,name,category,price,stock,icon,bg,badge,popularity,description,image&active=eq.true&order=popularity.desc`, {
         headers: { apikey: CFG.supabaseAnonKey, Authorization: `Bearer ${CFG.supabaseAnonKey}` },
       });
       if (!r.ok) throw new Error("No se pudieron cargar los productos");
-      PRODUCTS = (await r.json()).map((p) => ({ id: p.id, name: p.name, cat: p.category, price: Number(p.price), stock: p.stock, icon: p.icon || "🛍️", bg: p.bg || "#efe5d8", badge: p.badge, pop: p.popularity, desc: p.description || "" }));
+      PRODUCTS = (await r.json()).map((p) => ({ id: p.id, name: p.name, cat: p.category, price: Number(p.price), stock: p.stock, icon: p.icon || "🛍️", bg: p.bg || "#efe5d8", badge: p.badge, pop: p.popularity, desc: p.description || "", img: p.image || null }));
       Object.keys(cart).forEach((id) => { if (!PRODUCTS.some((p) => p.id === +id)) delete cart[id]; });
       save(); buildChips(); renderGrid(); renderCart();
     }
@@ -356,5 +363,6 @@
       loadProducts().catch(() => ($("grid").innerHTML = `<p class="empty">No pudimos cargar el catálogo. Recarga la página en unos segundos.</p>`));
     }
   </script>
+  <script src="/demos/_shared/techpanel.js" data-app="tienda" defer></script>
 </body>
 </html>

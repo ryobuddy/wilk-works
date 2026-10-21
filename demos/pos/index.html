@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" defer></script>
   <style>
     :root { --bg: #f2f4f7; --card: #fff; --ink: #14202e; --muted: #64748b; --line: #e2e8f0; --brand: #f97316; --brand-2: #ea580c; --dark: #0f172a; --ok: #16a34a; --err: #dc2626; --yape: #6c2c91; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -94,7 +95,13 @@
     .toast { position: fixed; left: 50%; top: 70px; transform: translate(-50%, -120px); background: var(--dark); color: #fff; padding: 10px 16px; border-radius: 10px; transition: transform .25s; z-index: 30; font-weight: 500; }
     .toast.show { transform: translate(-50%, 0); }
     .toast.bad { background: var(--err); }
+    .codes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; max-height: 60vh; overflow: auto; }
+    .codes div { border: 1px dashed var(--line); border-radius: 10px; padding: 8px; text-align: center; font-size: 12px; }
+    .codes svg { max-width: 100%; height: auto; }
+    body.print-codes * { visibility: hidden; }
     @media print {
+      body.print-codes #codes, body.print-codes #codes * { visibility: visible; }
+      body.print-codes #codes { position: fixed; inset: 0; max-height: none; overflow: visible; }
       body * { visibility: hidden; }
       #ticket, #ticket * { visibility: visible; }
       #ticket { position: fixed; left: 0; top: 0; border: 0; }
@@ -117,6 +124,8 @@
     <section class="left">
       <form class="scan" id="scan-form">
         <input id="scan" placeholder="Escanea un código o busca un producto (prueba: 7750001)" autocomplete="off" aria-label="Código o producto">
+        <button type="button" class="tbtn" id="cam-btn" title="Escanear con la cámara">📷 Cámara</button>
+        <button type="button" class="tbtn" id="codes-btn" title="Ver códigos de barras de prueba">🏷 Códigos</button>
       </form>
       <div class="chips" id="chips"></div>
       <div class="grid" id="grid"></div>
@@ -147,6 +156,20 @@
     <h3>Cierre de caja · hoy</h3>
     <div id="close-body"></div>
     <div class="row"><button class="btn ghost" id="close-reset">Reiniciar demo</button><button class="btn" id="close-ok">Listo</button></div>
+  </dialog>
+
+  <dialog id="cam-dlg">
+    <h3>Escanear con la cámara</h3>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:10px">Apunta al código de barras de un producto. Puedes usar los de "🏷 Códigos" en otra pantalla o impresos.</p>
+    <div id="reader" style="border-radius:12px;overflow:hidden;background:#000;min-height:220px"></div>
+    <p id="cam-msg" style="color:var(--muted);font-size:13px;margin:10px 0"></p>
+    <div class="row"><button class="btn ghost" id="cam-close">Cerrar</button></div>
+  </dialog>
+
+  <dialog id="codes-dlg" style="width:min(760px,95vw)">
+    <h3>Códigos de barras de prueba</h3>
+    <div class="codes" id="codes"></div>
+    <div class="row"><button class="btn ghost" id="codes-close">Cerrar</button><button class="btn" id="codes-print">🖨 Imprimir</button></div>
   </dialog>
 
   <div class="toast" id="toast"></div>
@@ -297,8 +320,42 @@
     $("close-ok").onclick = () => $("close-dlg").close();
     $("close-reset").onclick = () => { if (!confirm("¿Borrar ventas y stock de prueba?")) return; ["perno-sales", "perno-seq", "perno-stock"].forEach((k) => localStorage.removeItem(k)); location.reload(); };
 
+    // Escáner con la cámara del celular o la laptop (html5-qrcode lee EAN, CODE128 y QR)
+    let scanner, lastCode = "", lastAt = 0;
+    $("cam-btn").onclick = async () => {
+      $("cam-msg").textContent = "Iniciando cámara…";
+      $("cam-dlg").showModal();
+      try {
+        scanner = new Html5Qrcode("reader");
+        await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 280, height: 120 } }, (text) => {
+          const now = Date.now();
+          if (text === lastCode && now - lastAt < 2000) return; // evita leer el mismo código dos veces seguidas
+          lastCode = text; lastAt = now;
+          const p = PRODUCTS.find((x) => x.sku === text.trim());
+          if (p) { add(p.sku); $("cam-msg").textContent = `✓ ${p.name} agregado. Sigue escaneando o cierra.`; if (navigator.vibrate) navigator.vibrate(60); }
+          else $("cam-msg").textContent = `Código ${text} no está en el catálogo.`;
+        });
+        $("cam-msg").textContent = "Buscando un código…";
+      } catch {
+        $("cam-msg").textContent = "No se pudo usar la cámara. Revisa el permiso del navegador (necesita HTTPS o localhost).";
+      }
+    };
+    const stopCam = async () => { try { await scanner?.stop(); scanner?.clear(); } catch {} $("cam-dlg").close(); $("scan").focus(); };
+    $("cam-close").onclick = stopCam;
+    $("cam-dlg").addEventListener("cancel", stopCam);
+
+    // Hoja de códigos de prueba (JsBarcode)
+    $("codes-btn").onclick = () => {
+      $("codes").innerHTML = PRODUCTS.map((p, i) => `<div><b>${p.name}</b><svg id="bc-${i}"></svg></div>`).join("");
+      PRODUCTS.forEach((p, i) => JsBarcode(`#bc-${i}`, p.sku, { format: "CODE128", height: 50, fontSize: 14, margin: 4 }));
+      $("codes-dlg").showModal();
+    };
+    $("codes-close").onclick = () => $("codes-dlg").close();
+    $("codes-print").onclick = () => { document.body.classList.add("print-codes"); window.print(); document.body.classList.remove("print-codes"); };
+
     renderGrid(); renderCart();
     $("scan").focus();
   </script>
+  <script src="/demos/_shared/techpanel.js" data-app="pos" defer></script>
 </body>
 </html>
