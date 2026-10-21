@@ -7,36 +7,46 @@
   <meta name="description" content="Demo de sistema de inventario multi-almacén: gráficos, alertas, escáner, etiquetas y exportación a Excel/PDF. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" defer></script>
   <style>
-    :root { --bg: #0f1420; --panel: #161d2e; --line: #243049; --text: #e7ecf5; --muted: #93a0b8; --accent: #3dd6a3; --blue: #5b8cff; --warn: #f5b942; --danger: #ff6b6b; }
+    :root { --bg: #0e1116; --panel: #161b22; --line: #2a313c; --text: #e6edf3; --muted: #9aa5b1; --accent: #2dd4bf; --blue: #818cf8; --warn: #f5b942; --danger: #ff6b6b; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 15px/1.5 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body { font: 15px/1.5 "IBM Plex Sans", system-ui, sans-serif; background: var(--bg); color: var(--text); }
     button, input, select { font: inherit; }
     .demo-bar { background: #0a0e17; color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
     .demo-bar a { color: var(--accent); }
     .app { display: grid; grid-template-columns: 230px 1fr; min-height: calc(100vh - 36px); }
     aside { background: var(--panel); border-right: 1px solid var(--line); padding: 22px 16px; display: flex; flex-direction: column; }
     .logo { font-weight: 700; font-size: 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
-    .logo i { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--blue)); }
+    .logo .mark { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: #0e1116; background: linear-gradient(135deg, var(--accent), var(--blue)); }
     nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; color: var(--muted); text-decoration: none; margin-bottom: 4px; }
-    nav a.on, nav a:hover { background: rgba(61, 214, 163, .1); color: var(--text); }
+    nav a.on, nav a:hover { background: rgba(45, 212, 191, .1); color: var(--text); }
     .reset { margin-top: auto; background: none; border: 1px dashed var(--line); color: var(--muted); border-radius: 10px; padding: 9px; cursor: pointer; }
     main { padding: 24px 28px 48px; overflow: hidden; }
     .top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 22px; }
     h1 { font-size: 24px; }
     .muted { color: var(--muted); }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn { padding: 10px 14px; border-radius: 10px; border: 0; background: var(--accent); color: #062419; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .btn { padding: 10px 14px; border-radius: 10px; border: 0; background: var(--accent); color: #04201c; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
     .btn.ghost:hover { border-color: var(--accent); }
     select, input { background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+    svg.lucide { width: 16px; height: 16px; vertical-align: -3px; flex: none; }
+    nav a svg.lucide { width: 18px; height: 18px; }
+    .logo .mark svg.lucide { width: 18px; height: 18px; }
+    .btn, .reset { display: inline-flex; align-items: center; gap: 6px; }
+    .adj button { display: inline-grid; place-items: center; }
+    .adj button svg.lucide { width: 14px; height: 14px; }
+    h1, h3 { letter-spacing: -0.01em; }
+    td.num, .mono, .kpi b { font-family: "IBM Plex Mono", monospace; }
     .view { display: none; }
     .view.on { display: block; }
     .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
@@ -52,9 +62,9 @@
     table { width: 100%; border-collapse: collapse; }
     th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
     th { color: var(--muted); font-weight: 500; font-size: 13px; }
-    td.num, .mono { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+    td.num, .mono { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
     .pill { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; }
-    .ok { background: rgba(61, 214, 163, .12); color: var(--accent); }
+    .ok { background: rgba(45, 212, 191, .12); color: var(--accent); }
     .low { background: rgba(245, 185, 66, .14); color: var(--warn); }
     .out { background: rgba(255, 107, 107, .14); color: var(--danger); }
     .adj { display: inline-flex; gap: 4px; }
@@ -62,7 +72,7 @@
     .adj button:hover { border-color: var(--accent); }
     .adj .del:hover { border-color: var(--danger); }
     tr.flash td { animation: flash 1s; }
-    @keyframes flash { from { background: rgba(61, 214, 163, .22); } }
+    @keyframes flash { from { background: rgba(45, 212, 191, .22); } }
     .scroll { overflow-x: auto; }
     .in { color: var(--accent); } .outv { color: var(--danger); }
     dialog { margin: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); color: var(--text); padding: 22px; width: min(440px, 92vw); }
@@ -89,20 +99,20 @@
   <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · datos ficticios, se guardan solo en tu navegador</div>
   <div class="app">
     <aside>
-      <div class="logo"><i></i>Stockly</div>
+      <div class="logo"><span class="mark"><i data-lucide="boxes"></i></span>Stockly</div>
       <nav id="nav">
-        <a href="#panel" data-view="panel">▦ Panel</a>
-        <a href="#productos" data-view="productos">▤ Productos</a>
-        <a href="#movimientos" data-view="movimientos">⇄ Movimientos</a>
+        <a href="#panel" data-view="panel"><i data-lucide="layout-dashboard"></i> Panel</a>
+        <a href="#productos" data-view="productos"><i data-lucide="package"></i> Productos</a>
+        <a href="#movimientos" data-view="movimientos"><i data-lucide="arrow-left-right"></i> Movimientos</a>
       </nav>
-      <button class="reset" id="reset">↺ Restaurar datos de ejemplo</button>
+      <button class="reset" id="reset"><i data-lucide="rotate-ccw"></i> Restaurar datos de ejemplo</button>
     </aside>
     <main>
       <div class="top">
         <div><h1 id="h1">Panel de inventario</h1><p class="muted">Control de stock multi-almacén en tiempo real</p></div>
         <div class="actions">
           <select id="wh" aria-label="Almacén"><option value="all">Todos los almacenes</option><option>Lima</option><option>Arequipa</option><option>Trujillo</option></select>
-          <button class="btn ghost" id="scan">📷 Escanear</button>
+          <button class="btn ghost" id="scan"><i data-lucide="scan-barcode"></i> Escanear</button>
           <button class="btn" id="new">+ Nuevo producto</button>
         </div>
       </div>
@@ -121,10 +131,10 @@
             <h3>Productos</h3>
             <div class="actions">
               <input id="q" type="search" placeholder="Buscar SKU o nombre…" aria-label="Buscar">
-              <button class="btn ghost" id="xlsx">⬇ Excel</button>
-              <button class="btn ghost" id="pdf">⬇ PDF</button>
-              <label class="btn ghost" style="cursor:pointer">⬆ Importar<input id="imp" type="file" accept=".xlsx,.xls,.csv" hidden></label>
-              <button class="btn ghost" id="labels">🏷 Etiquetas</button>
+              <button class="btn ghost" id="xlsx"><i data-lucide="file-spreadsheet"></i> Excel</button>
+              <button class="btn ghost" id="pdf"><i data-lucide="file-text"></i> PDF</button>
+              <label class="btn ghost" style="cursor:pointer"><i data-lucide="upload"></i> Importar<input id="imp" type="file" accept=".xlsx,.xls,.csv" hidden></label>
+              <button class="btn ghost" id="labels"><i data-lucide="tags"></i> Etiquetas</button>
             </div>
           </div>
           <div class="scroll"><table>
@@ -203,15 +213,15 @@
       log.forEach((m) => { const i = days.findIndex((d) => d.toDateString() === new Date(m.at).toDateString()); if (i < 0) return; m.qty > 0 ? (ins[i] += m.qty) : (outs[i] -= m.qty); });
       return { ins, outs };
     }
-    Chart.defaults.color = "#93a0b8"; Chart.defaults.borderColor = "#243049"; Chart.defaults.font.family = "Inter";
+    Chart.defaults.color = "#9aa5b1"; Chart.defaults.borderColor = "#2a313c"; Chart.defaults.font.family = "IBM Plex Sans";
     const moves = new Chart($("c-moves"), {
       type: "bar",
-      data: { labels: days.map(label), datasets: [{ label: "Entradas", data: [], backgroundColor: "#3dd6a3", borderRadius: 6 }, { label: "Salidas", data: [], backgroundColor: "#5b8cff", borderRadius: 6 }] },
+      data: { labels: days.map(label), datasets: [{ label: "Entradas", data: [], backgroundColor: "#2dd4bf", borderRadius: 6 }, { label: "Salidas", data: [], backgroundColor: "#818cf8", borderRadius: 6 }] },
       options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { x: { grid: { display: false } } } },
     });
     const cats = new Chart($("c-cats"), {
       type: "doughnut",
-      data: { labels: [], datasets: [{ data: [], backgroundColor: ["#3dd6a3", "#5b8cff", "#f5b942", "#c38bff"], borderWidth: 0 }] },
+      data: { labels: [], datasets: [{ data: [], backgroundColor: ["#2dd4bf", "#818cf8", "#f5b942", "#f472b6"], borderWidth: 0 }] },
       options: { maintainAspectRatio: false, cutout: "68%", plugins: { legend: { position: "bottom" } } },
     });
 
@@ -227,7 +237,7 @@
       $("rows").innerHTML = list
         .filter((p) => (p.sku + p.name).toLowerCase().includes(q))
         .map((p) => { const [c, t] = status(p); return `<tr data-sku="${esc(p.sku)}" class="${p.sku === flashSku ? "flash" : ""}"><td class="num">${esc(p.sku)}</td><td>${esc(p.name)}</td><td>${esc(p.cat)}</td><td>${esc(p.wh)}</td><td class="num">${p.stock}</td><td class="num">${p.min}</td><td><span class="pill ${c}">${t}</span></td>
-          <td><span class="adj"><button data-d="-1" title="Salida de 1">−</button><button data-d="1" title="Entrada de 1">+</button><button data-d="10" title="Entrada de 10">+10</button><button data-a="edit" title="Editar">✎</button><button data-a="label" title="Etiqueta">🏷</button><button data-a="del" class="del" title="Eliminar">🗑</button></span></td></tr>`; })
+          <td><span class="adj"><button data-d="-1" title="Salida de 1">−</button><button data-d="1" title="Entrada de 1">+</button><button data-d="10" title="Entrada de 10">+10</button><button data-a="edit" title="Editar" aria-label="Editar"><i data-lucide="pencil"></i></button><button data-a="label" title="Etiqueta" aria-label="Etiqueta"><i data-lucide="tag"></i></button><button data-a="del" class="del" title="Eliminar" aria-label="Eliminar"><i data-lucide="trash-2"></i></button></span></td></tr>`; })
         .join("") || `<tr><td colspan="8" class="muted">No hay productos con ese filtro.</td></tr>`;
       const byCat = {};
       list.forEach((p) => (byCat[p.cat] = (byCat[p.cat] || 0) + p.stock));
@@ -368,6 +378,6 @@
 
     route(); render();
   </script>
-  <script src="/demos/shared/techpanel.js" data-app="inventario" defer></script>
+  <script src="/demos/shared/techpanel.js" data-app="inventario" data-side="right" defer></script>
 </body>
 </html>

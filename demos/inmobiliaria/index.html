@@ -7,21 +7,23 @@
   <meta name="description" content="Demo de web corporativa inmobiliaria: catálogo con filtros, cotizador hipotecario y captación de clientes. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <style>
-    :root { --ink: #10221c; --muted: #5b6b65; --bg: #f5f7f4; --card: #fff; --line: #e1e7e2; --brand: #0f6b52; --brand-2: #0b5341; --accent: #e8b04a; --soft: #e6f1ec; }
+    :root { --ink: #22261d; --muted: #65695c; --bg: #f5f1ea; --card: #fffdf8; --line: #e4ddd0; --brand: #4f5d37; --brand-2: #3b4729; --accent: #c4673a; --soft: #ebe8dc; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 16px/1.6 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
-    h1, h2, h3 { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; line-height: 1.12; }
+    body { font: 16px/1.6 "Outfit", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; font-weight: 600; line-height: 1.12; }
     button, input, select { font: inherit; }
     .wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
     .demo-bar { background: var(--ink); color: #cfe3da; font-size: 13px; text-align: center; padding: 8px 16px; }
     .demo-bar a { color: var(--accent); }
     header { position: sticky; top: 0; z-index: 6; background: rgba(245, 247, 244, .92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
     .head { display: flex; align-items: center; gap: 28px; height: 70px; }
-    .logo { display: flex; align-items: center; gap: 10px; font: 400 24px "DM Serif Display", serif; }
+    .logo { display: flex; align-items: center; gap: 10px; font: 600 24px "Playfair Display", serif; }
     .logo svg { width: 34px; height: 34px; }
     .head nav { display: flex; gap: 24px; font-size: 15px; color: var(--muted); margin-left: auto; }
     .head nav a { text-decoration: none; color: inherit; }
@@ -31,10 +33,10 @@
     .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
     .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; padding: 56px 0 40px; }
     .hero h1 { font-size: clamp(40px, 5.4vw, 66px); }
-    .hero h1 em { font-style: italic; color: var(--brand); }
+    .hero h1 em { font-style: italic; color: var(--accent); }
     .hero p { color: var(--muted); font-size: 18px; margin: 16px 0 26px; max-width: 46ch; }
     .stats { display: flex; gap: 32px; margin-top: 28px; }
-    .stats b { display: block; font: 400 32px "DM Serif Display", serif; color: var(--brand); }
+    .stats b { display: block; font: 400 32px "Playfair Display", serif; color: var(--brand); }
     .stats span { color: var(--muted); font-size: 14px; }
     .hero-art { border-radius: 24px; overflow: hidden; box-shadow: 0 30px 60px -30px rgba(16, 34, 28, .45); }
     .hero-art img { display: block; width: 100%; height: auto; }
@@ -55,10 +57,10 @@
     .prop .pic { overflow: hidden; }
     .prop .pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s; }
     .prop:hover .pic img { transform: scale(1.05); }
-    .prop .badge { position: absolute; top: 12px; left: 12px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--ink); }
+    .prop .badge { position: absolute; top: 12px; left: 12px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--card); color: var(--accent); }
     .prop .body { padding: 16px 18px 18px; display: grid; gap: 6px; }
-    .prop .price { font: 400 26px "DM Serif Display", serif; }
-    .prop .price small { font: 500 13px "Inter"; color: var(--muted); }
+    .prop .price { font: 400 26px "Playfair Display", serif; }
+    .prop .price small { font: 500 13px "Outfit"; color: var(--muted); }
     .prop .where { color: var(--muted); font-size: 14px; }
     .prop .feat { display: flex; gap: 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; margin-top: 6px; }
     .viewtog { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
@@ -66,7 +68,7 @@
     .viewtog button.on { background: var(--brand); color: #fff; }
     .map { height: 520px; border-radius: 18px; border: 1px solid var(--line); z-index: 0; }
     .map[hidden], .list[hidden] { display: none; }
-    .pin { background: var(--brand); color: #fff; font: 700 12px Inter, sans-serif; padding: 5px 9px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); border: 2px solid #fff; transform: translate(-50%, -50%); display: inline-block; }
+    .pin { background: var(--brand); color: #fff; font: 600 12px Outfit, sans-serif; padding: 5px 9px; border-radius: 999px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); border: 2px solid #fff; transform: translate(-50%, -50%); display: inline-block; }
     .pop img { width: 200px; height: 120px; object-fit: cover; border-radius: 8px; display: block; margin-bottom: 6px; }
     .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px; background: var(--card); border-radius: 18px; border: 1px dashed var(--line); }
     /* Cotizador */
@@ -76,15 +78,20 @@
     .calc label b { color: var(--brand); font-variant-numeric: tabular-nums; }
     input[type=range] { width: 100%; accent-color: var(--brand); }
     .result { background: var(--soft); border-radius: 18px; padding: 24px; display: grid; gap: 10px; align-content: start; }
-    .result .big { font: 400 46px "DM Serif Display", serif; color: var(--brand-2); }
+    .result .big { font: 400 46px "Playfair Display", serif; color: var(--brand-2); }
     .result div { display: flex; justify-content: space-between; color: var(--muted); font-variant-numeric: tabular-nums; }
     .result div b { color: var(--ink); }
     .result small { color: var(--muted); font-size: 12px; }
     /* Por qué nosotros */
     .whys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
     .why { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
-    .why i { font-style: normal; font-size: 26px; }
-    .why b { display: block; font: 400 22px "DM Serif Display", serif; margin: 8px 0 4px; }
+    .why svg.lucide { width: 30px; height: 30px; color: var(--accent); stroke-width: 1.5; }
+    svg.lucide { width: 15px; height: 15px; vertical-align: -2px; }
+    .where svg.lucide { color: var(--accent); }
+    .feat span { display: inline-flex; align-items: center; gap: 5px; }
+    .sent { display: flex; gap: 8px; align-items: flex-start; }
+    .sent svg.lucide { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+    .why b { display: block; font: 400 22px "Playfair Display", serif; margin: 8px 0 4px; }
     .why p { color: var(--muted); font-size: 15px; }
     /* Ficha */
     dialog { margin: auto; border: 0; border-radius: 22px; padding: 0; width: min(880px, 95vw); max-height: 92vh; overflow: auto; color: var(--ink); }
@@ -119,7 +126,7 @@
 <body>
   <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · inmobiliaria y propiedades ficticias</div>
   <header><div class="wrap head">
-    <div class="logo"><svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#0f6b52"/><path d="M7 24 L17 9 L27 24" fill="none" stroke="#e8b04a" stroke-width="3" stroke-linejoin="round"/><path d="M5 26 H29" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>Horizonte</div>
+    <div class="logo"><svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#4f5d37"/><path d="M7 24 L17 9 L27 24" fill="none" stroke="#c4673a" stroke-width="3" stroke-linejoin="round"/><path d="M5 26 H29" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>Horizonte</div>
     <nav><a href="#propiedades">Propiedades</a><a href="#cotizador">Cotizador</a><a href="#nosotros">Nosotros</a></nav>
     <a class="btn" href="#propiedades">Ver departamentos</a>
   </div></header>
@@ -180,9 +187,9 @@
     <p class="kicker">Por qué Horizonte</p>
     <h2>Te acompañamos hasta tener las llaves</h2>
     <div class="whys">
-      <div class="why"><i>🏦</i><b>Asesoría con el banco</b><p>Preparamos tu expediente y comparamos tasas de varias entidades.</p></div>
-      <div class="why"><i>📄</i><b>Documentos en regla</b><p>Proyectos con licencia y partida independizada antes de la entrega.</p></div>
-      <div class="why"><i>🔑</i><b>Visitas cuando puedas</b><p>Agenda una visita presencial o un recorrido por videollamada.</p></div>
+      <div class="why"><i data-lucide="landmark"></i><b>Asesoría con el banco</b><p>Preparamos tu expediente y comparamos tasas de varias entidades.</p></div>
+      <div class="why"><i data-lucide="file-check-2"></i><b>Documentos en regla</b><p>Proyectos con licencia y partida independizada antes de la entrega.</p></div>
+      <div class="why"><i data-lucide="key-round"></i><b>Visitas cuando puedas</b><p>Agenda una visita presencial o un recorrido por videollamada.</p></div>
     </div>
   </section>
 
@@ -246,7 +253,7 @@
       renderMap();
       $("found").textContent = `${list.length} ${list.length === 1 ? "propiedad encontrada" : "propiedades encontradas"}`;
       $("list").innerHTML = list.length
-        ? list.map((p) => `<button class="prop" data-id="${p.id}"><div class="pic">${pic(p)}<span class="badge">${p.status}</span></div><div class="body"><div class="price">${money(p.price)} <small>· ${money(p.price / p.area)}/m²</small></div><h3 style="font-size:22px">${esc(p.name)}</h3><div class="where">📍 ${p.dist} · ${p.type}</div><div class="feat"><span>📐 ${p.area} m²</span>${p.beds ? `<span>🛏 ${p.beds}</span>` : ""}<span>🛁 ${p.baths}</span>${p.parking ? "<span>🚗 1</span>" : ""}</div></div></button>`).join("")
+        ? list.map((p) => `<button class="prop" data-id="${p.id}"><div class="pic">${pic(p)}<span class="badge">${p.status}</span></div><div class="body"><div class="price">${money(p.price)} <small>· ${money(p.price / p.area)}/m²</small></div><h3 style="font-size:22px">${esc(p.name)}</h3><div class="where"><i data-lucide="map-pin"></i> ${p.dist} · ${p.type}</div><div class="feat"><span><i data-lucide="maximize-2"></i> ${p.area} m²</span>${p.beds ? `<span><i data-lucide="bed-double"></i> ${p.beds}</span>` : ""}<span><i data-lucide="bath"></i> ${p.baths}</span>${p.parking ? `<span><i data-lucide="car"></i> 1</span>` : ""}</div></div></button>`).join("")
         : `<div class="empty">No hay propiedades con esos filtros. Prueba con otro distrito o un presupuesto mayor.</div>`;
     }
     $("search").onsubmit = (e) => { e.preventDefault(); render(); $("propiedades").scrollIntoView({ behavior: "smooth" }); };
@@ -257,7 +264,7 @@
     function openProp(id) {
       const p = PROPS.find((x) => x.id === id), d = $("dlg");
       d.innerHTML = `<button class="x" aria-label="Cerrar" data-close>×</button><div class="detail"><div class="pic"><img class="main" id="main-photo" src="${p.photos[0]}" alt="${esc(p.name)}"><div class="thumbs">${p.photos.map((f, k) => `<button data-photo="${k}" class="${k ? "" : "on"}" aria-label="Foto ${k + 1}"><img src="${f}" alt=""></button>`).join("")}</div></div><div class="info">
-        <span class="kicker">${p.status} · ${p.dist}</span><h3>${esc(p.name)}</h3><div class="price" style="font:400 30px 'DM Serif Display',serif">${money(p.price)}</div>
+        <span class="kicker">${p.status} · ${p.dist}</span><h3>${esc(p.name)}</h3><div class="price" style="font:400 30px 'Playfair Display',serif">${money(p.price)}</div>
         <div class="chips"><span>${p.type}</span><span>${p.area} m²</span>${p.beds ? `<span>${p.beds} dormitorios</span>` : ""}<span>${p.baths} baños</span><span>Piso ${p.floor}</span>${p.parking ? "<span>Estacionamiento</span>" : ""}</div>
         <p style="color:var(--muted)">Departamento con buena iluminación, cocina abierta y áreas comunes con terraza y coworking. A pocas cuadras de parques, supermercados y transporte.</p>
         <button class="btn ghost" data-quote>Calcular cuota para este inmueble</button>
@@ -273,7 +280,7 @@
         ev.preventDefault();
         const f = new FormData(ev.target), phone = String(f.get("phone")).replace(/\D/g, "");
         if (!/^9\d{8}$/.test(phone)) return ($("lead-err").textContent = "Escribe un celular de 9 dígitos que empiece con 9");
-        ev.target.outerHTML = `<div class="sent">✓ Gracias, ${esc(String(f.get("name")).split(" ")[0])}. En un sitio real, un asesor te escribiría al ${phone} para coordinar la visita a ${esc(p.name)}.</div>`;
+        ev.target.outerHTML = `<div class="sent"><i data-lucide="circle-check"></i> Gracias, ${esc(String(f.get("name")).split(" ")[0])}. En un sitio real, un asesor te escribiría al ${phone} para coordinar la visita a ${esc(p.name)}.</div>`;
       };
       d.showModal();
     }

@@ -7,12 +7,12 @@
   <meta name="description" content="Demo de tienda online con catálogo, filtros, carrito y checkout. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #faf6f0; --ink: #2b211b; --muted: #75655a; --card: #fff; --line: #eadfd3; --brand: #b4532a; --brand-2: #2f6b4f; --gold: #d9a23b; }
+    :root { --bg: #f7f1e8; --ink: #231b2e; --muted: #6b5f6e; --card: #fffdf9; --line: #e8dccb; --brand: #a3282d; --brand-2: #2e3a6e; --gold: #c98a2b; --soft: #efe4d3; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 16px/1.55 "Inter", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
-    h1, h2, h3 { font-family: "Fraunces", Georgia, serif; line-height: 1.15; }
+    body { font: 16px/1.6 "Karla", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+    h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-optical-sizing: auto; line-height: 1.12; letter-spacing: -0.01em; }
     button { font: inherit; cursor: pointer; }
     .wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
     .demo-bar { background: #1c1612; color: #f3e9dc; font-size: 13px; text-align: center; padding: 8px 16px; }
@@ -29,7 +29,7 @@
     .hero p { color: var(--muted); margin: 14px 0 24px; max-width: 46ch; font-size: 18px; }
     .hero-art { aspect-ratio: 4 / 3; border-radius: 24px; background: radial-gradient(circle at 30% 30%, #f2c58c, transparent 55%), radial-gradient(circle at 75% 70%, #9fc7a8, transparent 50%), #e9d6bf; display: grid; place-items: center; font-size: 110px; box-shadow: 0 30px 60px -30px rgba(43, 33, 27, .45); }
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 999px; border: 0; background: var(--brand); color: #fff; font-weight: 600; transition: transform .15s, background .2s; }
-    .btn:hover { transform: translateY(-1px); background: #9b4421; }
+    .btn:hover { transform: translateY(-1px); background: #861f24; }
     .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 24px; }
     .chip { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); font-weight: 500; }
@@ -72,6 +72,18 @@
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; transition: transform .3s; z-index: 11; }
     .toast.show { transform: translate(-50%, 0); }
     .p { cursor: pointer; }
+    svg.lucide { width: 1.15em; height: 1.15em; vertical-align: -0.2em; flex: none; }
+    .cart-btn { display: inline-flex; align-items: center; gap: 8px; }
+    .perks li { display: flex; align-items: center; gap: 10px; }
+    .perks svg.lucide { color: var(--brand); }
+    .done .big svg.lucide { width: 56px; height: 56px; color: var(--brand); stroke-width: 1.4; }
+    .pay-note { display: flex; gap: 8px; align-items: flex-start; }
+    .pay-note svg.lucide { color: var(--brand-2); margin-top: 2px; }
+    .ph { display: grid; place-items: center; width: 100%; height: 100%; color: var(--muted); }
+    .ph svg.lucide { width: 40%; height: 40%; stroke-width: 1.2; }
+    .chip.on { background: var(--brand-2); border-color: var(--brand-2); }
+    .p .badge { background: var(--brand-2); letter-spacing: .02em; }
+    .logo { letter-spacing: .02em; }
     .p .img img, .pd-img img, .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
     .p:hover .img img { transform: scale(1.05); }
     .p .img { overflow: hidden; }
@@ -104,7 +116,7 @@
     <div class="wrap head">
       <span class="logo">Andina</span>
       <input class="search" id="q" type="search" placeholder="Buscar productos…" aria-label="Buscar productos">
-      <button class="cart-btn" id="open-cart">Carrito <b id="count">0</b></button>
+      <button class="cart-btn" id="open-cart"><i data-lucide="shopping-bag" aria-hidden="true"></i> Carrito <b id="count">0</b></button>
     </div>
   </header>
 
@@ -142,6 +154,8 @@
 
   <dialog id="pd" class="pd"></dialog>
   <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -150,14 +164,14 @@
     const CFG = window.TIENDA_CONFIG || {};
     const REAL = Boolean(CFG.supabaseUrl && CFG.supabaseAnonKey && CFG.culqiPublicKey);
     let PRODUCTS = [
-      { id: 1, img: "img/chompa.webp", name: "Chompa de alpaca", cat: "Textiles", price: 189, icon: "🧶", bg: "#f1d9c4", badge: "Nuevo", pop: 9 , desc: "Tejida a mano en Puno con fibra de alpaca 100%. Abriga sin pesar y no pica." },
-      { id: 2, img: "img/cafe.webp", name: "Café de altura 500 g", cat: "Café", price: 42, icon: "☕", bg: "#e6d3bf", badge: "Top", pop: 10 , desc: "Grano arábica de Villa Rica, tostado medio. Notas a chocolate y frutos rojos." },
-      { id: 3, img: "img/chocolate.webp", name: "Chocolate 70% cacao", cat: "Café", price: 18, icon: "🍫", bg: "#ead1c1", pop: 7 , desc: "Cacao fino de aroma de Piura, endulzado con panela. Barra de 80 g." },
-      { id: 4, img: "img/vasija.webp", name: "Vasija de cerámica", cat: "Cerámica", price: 95, icon: "🏺", bg: "#efd7b8", pop: 5 , desc: "Cerámica de Chulucanas pintada a mano. Cada pieza es única." },
-      { id: 5, img: "img/manta.webp", name: "Manta tejida", cat: "Textiles", price: 230, icon: "🧣", bg: "#dbe6d6", pop: 6 , desc: "Manta de lana de oveja con diseños de Cusco. 1.5 × 2 m." },
-      { id: 6, img: "img/taza.webp", name: "Taza artesanal", cat: "Cerámica", price: 35, icon: "🍵", bg: "#e3dccb", badge: "Oferta", pop: 8 , desc: "Taza de gres esmaltada, apta para microondas. 350 ml." },
-      { id: 7, img: "img/chullo.webp", name: "Gorro chullo", cat: "Textiles", price: 55, icon: "🧢", bg: "#f0dccd", pop: 4 , desc: "Chullo tradicional con orejeras, tejido en Huancavelica." },
-      { id: 8, img: "img/miel.webp", name: "Miel de eucalipto", cat: "Café", price: 28, icon: "🍯", bg: "#f2e1b9", pop: 3 , desc: "Miel pura de eucalipto de Cajamarca, sin procesar. Frasco de 500 g." },
+      { id: 1, img: "img/chompa.webp", name: "Chompa de alpaca", cat: "Textiles", price: 189, bg: "#f1d9c4", badge: "Nuevo", pop: 9 , desc: "Tejida a mano en Puno con fibra de alpaca 100%. Abriga sin pesar y no pica." },
+      { id: 2, img: "img/cafe.webp", name: "Café de altura 500 g", cat: "Café", price: 42, bg: "#e6d3bf", badge: "Top", pop: 10 , desc: "Grano arábica de Villa Rica, tostado medio. Notas a chocolate y frutos rojos." },
+      { id: 3, img: "img/chocolate.webp", name: "Chocolate 70% cacao", cat: "Café", price: 18, bg: "#ead1c1", pop: 7 , desc: "Cacao fino de aroma de Piura, endulzado con panela. Barra de 80 g." },
+      { id: 4, img: "img/vasija.webp", name: "Vasija de cerámica", cat: "Cerámica", price: 95, bg: "#efd7b8", pop: 5 , desc: "Cerámica de Chulucanas pintada a mano. Cada pieza es única." },
+      { id: 5, img: "img/manta.webp", name: "Manta tejida", cat: "Textiles", price: 230, bg: "#dbe6d6", pop: 6 , desc: "Manta de lana de oveja con diseños de Cusco. 1.5 × 2 m." },
+      { id: 6, img: "img/taza.webp", name: "Taza artesanal", cat: "Cerámica", price: 35, bg: "#e3dccb", badge: "Oferta", pop: 8 , desc: "Taza de gres esmaltada, apta para microondas. 350 ml." },
+      { id: 7, img: "img/chullo.webp", name: "Gorro chullo", cat: "Textiles", price: 55, bg: "#f0dccd", pop: 4 , desc: "Chullo tradicional con orejeras, tejido en Huancavelica." },
+      { id: 8, img: "img/miel.webp", name: "Miel de eucalipto", cat: "Café", price: 28, bg: "#f2e1b9", pop: 3 , desc: "Miel pura de eucalipto de Cajamarca, sin procesar. Frasco de 500 g." },
     ];
     const $ = (id) => document.getElementById(id);
     const money = (n) => "S/ " + n.toFixed(2);
@@ -165,7 +179,8 @@
     const save = () => { try { localStorage.setItem("andina-cart", JSON.stringify(cart)); } catch {} };
     let cart = load(), cat = "Todos", view = "cart";
 
-    const pic = (p, cls = "") => p.img ? `<img class="${cls}" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">` : `<span aria-hidden="true">${p.icon}</span>`;
+    const ic = (n) => `<i data-lucide="${n}" aria-hidden="true"></i>`;
+    const pic = (p, cls = "") => p.img ? `<img class="${cls}" src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">` : `<span class="ph">${ic("package")}</span>`;
     const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     function buildChips() {
       const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
@@ -187,7 +202,7 @@
     }
     $("grid").onclick = (e) => {
       const b = e.target.closest(".add");
-      if (b) { add(+b.dataset.id, 1); const p = PRODUCTS.find((x) => x.id === +b.dataset.id); return toast(`${p.icon} ${p.name} agregado`); }
+      if (b) { add(+b.dataset.id, 1); const p = PRODUCTS.find((x) => x.id === +b.dataset.id); return toast(`${p.name} agregado al carrito`); }
       const card = e.target.closest(".p");
       if (card) openProduct(+card.querySelector(".add").dataset.id);
     };
@@ -200,12 +215,12 @@
         <div class="price" style="font-size:24px;margin:14px 0">${money(p.price)}</div>
         <div class="pd-row"><span class="qty"><button data-q="-1" aria-label="Menos">−</button><span id="pq">1</span><button data-q="1" aria-label="Más">+</button></span>
         <button class="btn" data-add>Agregar al carrito</button></div>
-        <ul class="perks"><li>🚚 Envío a todo Lima en 48 h</li><li>↩️ Cambios dentro de 7 días</li><li>🤝 Pago justo a la comunidad artesana</li></ul></div>`;
+        <ul class="perks"><li>${ic("truck")} Envío a todo Lima en 48 h</li><li>${ic("rotate-ccw")} Cambios dentro de 7 días</li><li>${ic("hand-heart")} Pago justo a la comunidad artesana</li></ul></div>`;
       d.onclick = (e) => {
         if (e.target === d || e.target.closest("[data-close]")) return d.close();
         const qb = e.target.closest("[data-q]");
         if (qb) { q = Math.max(1, q + +qb.dataset.q); $("pq").textContent = q; }
-        if (e.target.closest("[data-add]")) { add(p.id, q); d.close(); toast(`${p.icon} ${q} × ${p.name} agregado`); }
+        if (e.target.closest("[data-add]")) { add(p.id, q); d.close(); toast(`${q} × ${p.name} agregado al carrito`); }
       };
       d.showModal();
     }
@@ -232,7 +247,7 @@
           <label>Correo<input required name="email" type="email" autocomplete="email"></label>
           <label>Dirección<input required name="addr" autocomplete="street-address"></label>
           <label>Distrito<select name="dist"><option>Miraflores</option><option>San Isidro</option><option>Surco</option><option>Otro</option></select></label>
-          ${REAL ? `<p class="pay-note">🔒 Pagarás con tarjeta o Yape en la ventana segura de Culqi. Tus datos de tarjeta no pasan por esta tienda.</p>` : `<label>Pago<select name="pay"><option>Tarjeta (simulado)</option><option>Yape / Plin (simulado)</option><option>Contra entrega</option></select></label>`}
+          ${REAL ? `<p class="pay-note">${ic("lock")} Pagarás con tarjeta o Yape en la ventana segura de Culqi. Tus datos de tarjeta no pasan por esta tienda.</p>` : `<label>Pago<select name="pay"><option>Tarjeta (simulado)</option><option>Yape / Plin (simulado)</option><option>Contra entrega</option></select></label>`}
           <p class="err" id="co-err"></p>
           <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div>
           <button class="btn" type="submit" id="co-btn">${REAL ? "Pagar " + money(t.total) : "Confirmar pedido"}</button>
@@ -257,14 +272,14 @@
         ? `<div class="items">${rows}</div><div class="foot"><div class="sum"><span>Subtotal</span><span>${money(t.sub)}</span></div><div class="sum"><span>Envío</span><span>${t.ship ? money(t.ship) : "Gratis"}</span></div>
            ${t.sub < 150 ? `<small style="color:var(--brand-2)">Te faltan ${money(150 - t.sub)} para envío gratis</small>` : ""}
            <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div><button class="btn" id="go">Ir a pagar →</button></div>`
-        : `<div class="done"><div class="big">🛒</div><p style="color:var(--muted)">Tu carrito está vacío.</p></div>`;
+        : `<div class="done"><div class="big">${ic("shopping-basket")}</div><p style="color:var(--muted)">Tu carrito está vacío.</p></div>`;
       body.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => add(+b.dataset.id, +b.dataset.d)));
       if ($("go")) $("go").onclick = () => { view = "checkout"; renderCart(); };
     }
     function showDone(snapshot, district) {
-      confetti({ particleCount: 140, spread: 75, origin: { x: 0.85, y: 0.35 }, colors: ["#b4532a", "#d9a23b", "#2f6b4f", "#f1d9c4"] });
+      confetti({ particleCount: 140, spread: 75, origin: { x: 0.85, y: 0.35 }, colors: ["#a3282d", "#c98a2b", "#2e3a6e", "#efe4d3"] });
       $("drawer-title").textContent = "¡Pedido confirmado!";
-      $("drawer-body").innerHTML = `<div class="done"><div class="big">📦</div><h3>Gracias, ${esc(snapshot.name.split(" ")[0])}</h3><p style="color:var(--muted);margin:10px 0 20px">Tu pedido <b>${esc(snapshot.order)}</b> llegará a ${esc(district)} en 2–3 días hábiles.</p><button class="btn" id="pdf">Descargar comprobante (PDF)</button><br><br><button class="btn ghost" id="again">Seguir comprando</button></div>`;
+      $("drawer-body").innerHTML = `<div class="done"><div class="big">${ic("package-check")}</div><h3>Gracias, ${esc(snapshot.name.split(" ")[0])}</h3><p style="color:var(--muted);margin:10px 0 20px">Tu pedido <b>${esc(snapshot.order)}</b> llegará a ${esc(district)} en 2–3 días hábiles.</p><button class="btn" id="pdf">Descargar comprobante (PDF)</button><br><br><button class="btn ghost" id="again">Seguir comprando</button></div>`;
       $("again").onclick = () => { view = "cart"; closeCart(); renderCart(); };
       $("pdf").onclick = () => receipt(snapshot);
     }
@@ -323,7 +338,7 @@
         headers: { apikey: CFG.supabaseAnonKey, Authorization: `Bearer ${CFG.supabaseAnonKey}` },
       });
       if (!r.ok) throw new Error("No se pudieron cargar los productos");
-      PRODUCTS = (await r.json()).map((p) => ({ id: p.id, name: p.name, cat: p.category, price: Number(p.price), stock: p.stock, icon: p.icon || "🛍️", bg: p.bg || "#efe5d8", badge: p.badge, pop: p.popularity, desc: p.description || "", img: p.image || null }));
+      PRODUCTS = (await r.json()).map((p) => ({ id: p.id, name: p.name, cat: p.category, price: Number(p.price), stock: p.stock, bg: p.bg || "#efe5d8", badge: p.badge, pop: p.popularity, desc: p.description || "", img: p.image || null }));
       Object.keys(cart).forEach((id) => { if (!PRODUCTS.some((p) => p.id === +id)) delete cart[id]; });
       save(); buildChips(); renderGrid(); renderCart();
     }
@@ -331,7 +346,7 @@
     // Boleta electrónica (de ejemplo) generada en el navegador con jsPDF
     function receipt(o) {
       const { jsPDF } = window.jspdf, doc = new jsPDF();
-      doc.setFillColor(180, 83, 42); doc.rect(0, 0, 210, 28, "F");
+      doc.setFillColor(163, 40, 45); doc.rect(0, 0, 210, 28, "F");
       doc.setTextColor(255); doc.setFontSize(20); doc.text("Andina", 14, 18);
       doc.setFontSize(10); doc.text("Boleta de venta (demo) " + o.order, 196, 18, { align: "right" });
       doc.setTextColor(43, 33, 27); doc.setFontSize(11);
@@ -341,7 +356,7 @@
         startY: 72, head: [["Producto", "Cant.", "P. unit.", "Subtotal"]],
         body: o.items.map(({ p, q }) => [p.name, q, money(p.price), money(p.price * q)]),
         foot: [["", "", "Envío", o.t.ship ? money(o.t.ship) : "Gratis"], ["", "", "Total", money(o.t.total)]],
-        headStyles: { fillColor: [43, 33, 27] }, footStyles: { fillColor: [250, 246, 240], textColor: [43, 33, 27], fontStyle: "bold" },
+        headStyles: { fillColor: [35, 27, 46] }, footStyles: { fillColor: [250, 246, 240], textColor: [43, 33, 27], fontStyle: "bold" },
         columnStyles: { 1: { halign: "center" }, 2: { halign: "right" }, 3: { halign: "right" } },
       });
       doc.setFontSize(9); doc.setTextColor(117, 101, 90);

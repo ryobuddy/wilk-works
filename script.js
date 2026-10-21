@@ -110,7 +110,7 @@
     .map((s) => `<article class="card spot arcana${s.wide ? " wide" : ""}">
         ${s.image ? `<div class="svc-img"><img src="${esc(s.image)}" alt="Ejemplo de ${esc(s.title.toLowerCase())}" loading="lazy"></div>` : ""}
         <div class="svc-body">
-          <h3><span class="icon" aria-hidden="true">${esc(s.icon)}</span>${esc(s.title)}</h3>
+          <h3><span class="icon" aria-hidden="true"><i data-lucide="${esc(s.icon)}"></i></span>${esc(s.title)}</h3>
           <p>${esc(s.text)}</p>
           <ul class="examples" aria-label="Ejemplos">${(s.examples || []).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>
         </div></article>`)
@@ -156,7 +156,7 @@
   }
 
   put("industries", take("industries", S.industries || [])
-    .map((r) => `<a class="card spot industry" href="${esc(r.demo)}" target="_blank" rel="noopener"><span class="ind-ic" aria-hidden="true">${r.icon}</span><h3>${esc(r.title)}</h3><p>${esc(r.text)}</p><span class="live"><i></i>Ver demo ↗</span></a>`)
+    .map((r) => `<a class="card spot industry" href="${esc(r.demo)}" target="_blank" rel="noopener"><span class="ind-ic" aria-hidden="true"><i data-lucide="${esc(r.icon)}"></i></span><h3>${esc(r.title)}</h3><p>${esc(r.text)}</p><span class="live"><i></i>Ver demo ↗</span></a>`)
     .join(""));
 
   put("plans", (S.plans || [])
@@ -190,6 +190,12 @@
     const company = f.get("company") ? ` de ${f.get("company")}` : "";
     window.open(wa(`Hola Wilk Works, soy ${f.get("name")}${company}. ${f.get("message")}`), "_blank", "noopener");
   });
+
+  // ---------- Íconos Lucide (SVG, licencia ISC) ----------
+  const lu = document.createElement("script");
+  lu.src = "https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js";
+  lu.onload = () => window.lucide.createIcons({ attrs: { "stroke-width": 1.75 } });
+  document.head.appendChild(lu);
 
   // ---------- Animaciones ----------
   // Texto rotativo

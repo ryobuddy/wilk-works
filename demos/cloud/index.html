@@ -7,13 +7,15 @@
   <meta name="description" content="Demo de panel de migración a la nube: arquitectura, costos y monitoreo. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <style>
-    :root { --bg: #070b14; --panel: #0e1525; --line: #1e2a44; --text: #e8eefc; --muted: #8e9bba; --orange: #ff9a3c; --cyan: #38d9f5; --green: #34d399; --red: #fb7185; }
+    :root { --bg: #050a18; --panel: #0b1328; --line: #1a2647; --text: #e6ecff; --muted: #8d9bc0; --orange: #fbbf24; --cyan: #22d3ee; --green: #a3e635; --red: #fb7185; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 15px/1.5 "Inter", system-ui, sans-serif; background: radial-gradient(ellipse at 70% -10%, rgba(56, 217, 245, .15), transparent 50%), var(--bg); color: var(--text); min-height: 100vh; }
+    body { font: 15px/1.55 "Sora", system-ui, sans-serif; background: radial-gradient(ellipse at 70% -10%, rgba(34, 211, 238, .15), transparent 50%), var(--bg); color: var(--text); min-height: 100vh; }
     button { font: inherit; cursor: pointer; }
     .demo-bar { background: #04070d; color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px; border-bottom: 1px solid var(--line); }
     .demo-bar a { color: var(--cyan); }
@@ -39,8 +41,8 @@
     .diagram { position: relative; height: 260px; }
     .diagram svg { width: 100%; height: 100%; }
     .node rect { fill: #121c31; stroke: #2b3a5c; }
-    .node text { fill: var(--text); font: 600 12px Inter; }
-    .node .sub { fill: var(--muted); font: 500 10px "JetBrains Mono"; }
+    .node text { fill: var(--text); font: 600 12px Sora; }
+    .node .sub { fill: var(--muted); font: 500 10px "IBM Plex Mono"; }
     .edge { fill: none; stroke: #2b3a5c; stroke-width: 2; }
     .live .edge { stroke: var(--cyan); stroke-dasharray: 6 8; animation: flow 1.2s linear infinite; }
     @keyframes flow { to { stroke-dashoffset: -28; } }
@@ -50,18 +52,23 @@
     .calc label { display: grid; gap: 6px; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
     .calc label span { display: flex; justify-content: space-between; color: var(--text); font-weight: 600; }
     input[type=range] { width: 100%; accent-color: var(--cyan); }
-    .saving { padding: 14px; border-radius: 12px; background: rgba(52, 211, 153, .08); border: 1px solid rgba(52, 211, 153, .25); }
+    .saving { padding: 14px; border-radius: 12px; background: rgba(163, 230, 53, .08); border: 1px solid rgba(163, 230, 53, .25); }
     .saving b { font-size: 26px; color: var(--green); }
     .chart-box { position: relative; height: 230px; }
+    svg.lucide { width: 15px; height: 15px; vertical-align: -2px; }
+    .tool { display: inline-flex; align-items: center; gap: 6px; }
+    .checklist i svg.lucide { width: 12px; height: 12px; stroke-width: 3; }
+    h1 { letter-spacing: -0.02em; }
+    .kpi b { font-family: "IBM Plex Mono", monospace; }
     .checklist li { list-style: none; display: flex; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); }
     .checklist li:last-child { border: 0; }
     .checklist i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); flex: none; display: grid; place-items: center; font-style: normal; font-size: 12px; }
-    .checklist li.done i { background: var(--green); border-color: var(--green); color: #04130c; }
+    .checklist li.done i { background: var(--green); border-color: var(--green); color: #142200; }
     .checklist li.now i { border-color: var(--cyan); animation: pulse 1.4s infinite; }
-    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(56, 217, 245, .15); } }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(34, 211, 238, .15); } }
     .bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; margin: 6px 0 14px; }
     .bar div { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--green)); transition: width .6s; }
-    .mono { font-family: "JetBrains Mono", monospace; }
+    .mono { font-family: "IBM Plex Mono", monospace; }
     @media (max-width: 960px) { .s8, .s4, .s6 { grid-column: span 12; } .s3 { grid-column: span 6; } }
   </style>
 </head>
@@ -73,8 +80,8 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <div class="toggle" role="tablist"><button id="b-onprem">Antes (on-premise)</button><button id="b-cloud" class="on">Después (cloud)</button></div>
         <div class="toggle"><button id="c-usd" class="on">USD</button><button id="c-pen">S/</button></div>
-        <button class="tool" id="share">🔗 Copiar enlace</button>
-        <button class="tool" id="report">⬇ Reporte PDF</button>
+        <button class="tool" id="share"><i data-lucide="link-2"></i> Copiar enlace</button>
+        <button class="tool" id="report"><i data-lucide="file-down"></i> Reporte PDF</button>
       </div>
     </div>
 
@@ -98,7 +105,7 @@
               <path class="edge" d="M140 130 H220"/><path class="edge" d="M340 130 C 380 130, 380 60, 420 60"/><path class="edge" d="M340 130 H420"/><path class="edge" d="M340 130 C 380 130, 380 200, 420 200"/>
               <path class="edge" d="M540 60 C 580 60, 580 130, 610 130"/><path class="edge" d="M540 130 H610"/><path class="edge" d="M540 200 C 580 200, 580 130, 610 130"/>
               <g class="node" transform="translate(20 100)"><rect width="120" height="60" rx="10"/><text x="16" y="28">Usuarios</text><text class="sub" x="16" y="46">CDN global</text></g>
-              <g class="node" transform="translate(220 100)"><rect width="120" height="60" rx="10" style="stroke:#38d9f5"/><text x="16" y="28">Load balancer</text><text class="sub" x="16" y="46">HTTPS · WAF</text></g>
+              <g class="node" transform="translate(220 100)"><rect width="120" height="60" rx="10" style="stroke:#22d3ee"/><text x="16" y="28">Load balancer</text><text class="sub" x="16" y="46">HTTPS · WAF</text></g>
               <g class="node" transform="translate(420 35)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 1</text><text class="sub" x="16" y="39">docker · az-a</text></g>
               <g class="node" transform="translate(420 105)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 2</text><text class="sub" x="16" y="39">docker · az-b</text></g>
               <g class="node" transform="translate(420 175)"><rect width="120" height="50" rx="10"/><text x="16" y="23">Contenedor 3</text><text class="sub" x="16" y="39">autoescalado</text></g>
@@ -131,7 +138,7 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
-    Chart.defaults.color = "#8e9bba"; Chart.defaults.borderColor = "#1e2a44"; Chart.defaults.font.family = "Inter";
+    Chart.defaults.color = "#8d9bc0"; Chart.defaults.borderColor = "#1a2647"; Chart.defaults.font.family = "Sora";
     let mode = "cloud";
 
     // Calculadora: modelo simple y transparente (costos referenciales)
@@ -149,7 +156,7 @@
       type: "line",
       data: { labels: ["Mes 1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], datasets: [
         { label: "On-premise", data: [], borderColor: "#fb7185", backgroundColor: "rgba(251,113,133,.08)", fill: true, tension: .35, pointRadius: 0 },
-        { label: "Cloud", data: [], borderColor: "#38d9f5", backgroundColor: "rgba(56,217,245,.1)", fill: true, tension: .35, pointRadius: 0 },
+        { label: "Cloud", data: [], borderColor: "#22d3ee", backgroundColor: "rgba(56,217,245,.1)", fill: true, tension: .35, pointRadius: 0 },
       ] },
       options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { ticks: { callback: (v) => usd(v) } } } },
     });
@@ -163,7 +170,7 @@
       costChart.update();
       const m = mode === "cloud";
       $("k-cost").textContent = usd(m ? c.cloud : c.onprem);
-      $("k-cost-d").innerHTML = m ? `<span class="up">▼ ${Math.round((1 - c.cloud / c.onprem) * 100)}% vs antes</span>` : `<span class="muted">base</span>`;
+      $("k-cost-d").innerHTML = m ? `<span class="up"><i data-lucide="trending-down"></i> ${Math.round((1 - c.cloud / c.onprem) * 100)}% vs antes</span>` : `<span class="muted">base</span>`;
       $("k-up").textContent = m ? "99.95%" : "97.2%";
       $("k-up-d").innerHTML = m ? `<span class="up">≈ 22 min caída/mes</span>` : `<span class="down">≈ 20 h caída/mes</span>`;
       $("k-dep").textContent = m ? "8 min" : "1 día";
@@ -213,7 +220,7 @@
     const STEPS = ["Inventario de servidores y datos", "Contenerización de la aplicación", "Base de datos replicada", "Pruebas de carga", "Cambio de DNS sin cortes", "Monitoreo y alertas 24/7"];
     let done = 0;
     function renderSteps() {
-      $("steps").innerHTML = STEPS.map((s, i) => `<li class="${i < done ? "done" : i === done ? "now" : ""}"><i>${i < done ? "✓" : ""}</i>${s}</li>`).join("");
+      $("steps").innerHTML = STEPS.map((s, i) => `<li class="${i < done ? "done" : i === done ? "now" : ""}"><i>${i < done ? '<i data-lucide="check"></i>' : ""}</i>${s}</li>`).join("");
       const p = Math.round((done / STEPS.length) * 100);
       $("pct").textContent = p + "%"; $("pbar").style.width = p + "%";
     }
@@ -224,7 +231,7 @@
     const N = 60, lat = [];
     const latChart = new Chart($("c-lat"), {
       type: "line",
-      data: { labels: Array(N).fill(""), datasets: [{ data: lat, borderColor: "#34d399", borderWidth: 2, tension: .3, pointRadius: 0, fill: true, backgroundColor: "rgba(52,211,153,.08)" }] },
+      data: { labels: Array(N).fill(""), datasets: [{ data: lat, borderColor: "#a3e635", borderWidth: 2, tension: .3, pointRadius: 0, fill: true, backgroundColor: "rgba(163,230,53,.08)" }] },
       options: { maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { min: 0, suggestedMax: 400 } } },
     });
     async function ping() {
@@ -240,7 +247,7 @@
       busy = false;
       if (v == null) return;
       lat.push(v);
-      latChart.data.datasets[0].borderColor = mode === "cloud" ? "#34d399" : "#fb7185";
+      latChart.data.datasets[0].borderColor = mode === "cloud" ? "#a3e635" : "#fb7185";
       latChart.update();
       while (lat.length > N) lat.shift();
       $("k-lat").textContent = Math.round([...lat].sort((a, b) => a - b)[Math.floor(lat.length * 0.95)] || 0) + " ms";

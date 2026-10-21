@@ -52,7 +52,10 @@
   .card small { color: #9b97b8; }
   .tag { display: inline-block; margin-top: 8px; font: 600 11px Inter; padding: 3px 8px; border-radius: 999px; }
   .t1 { background: rgba(52,211,153,.15); color: #34d399; } .t2 { background: rgba(245,197,66,.15); color: #f5c542; } .t3 { background: rgba(91,140,255,.18); color: #8fa9ff; }
+  .chip svg, .ic svg { width: 18px; height: 18px; color: #f5c542; flex: none; }
+  .ticket .ic svg { color: #b69bff; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
 </head>
 <body>
   <!-- Desarrollo web: laptop + celular con la misma tienda -->
@@ -69,8 +72,8 @@
   <div class="scene" id="app">
     <div class="phone" style="left:300px;top:60px;transform:rotate(-6deg)"><div class="screen" style="width:270px;height:560px"><iframe id="r1" src="/demos/reservas/" style="width:375px;height:778px;transform:scale(.72)"></iframe></div></div>
     <div class="phone" style="left:640px;top:80px;transform:rotate(5deg)"><div class="screen" style="width:270px;height:560px"><iframe id="r2" src="/demos/reservas/" style="width:375px;height:778px;transform:scale(.72)"></iframe></div></div>
-    <div class="chip" style="left:90px;top:300px">📅 Reserva en <b>3 toques</b></div>
-    <div class="chip" style="left:900px;top:470px">💬 Recordatorio por WhatsApp</div>
+    <div class="chip" style="left:90px;top:300px"><i data-lucide="calendar-check"></i> Reserva en <b>3 toques</b></div>
+    <div class="chip" style="left:900px;top:470px"><i data-lucide="message-circle"></i> Recordatorio por WhatsApp</div>
   </div>
 
   <!-- Sistemas: monitor con el inventario -->
@@ -79,7 +82,7 @@
       <div class="lid"><div class="screen" style="width:870px;height:500px"><iframe src="/demos/inventario/" style="width:1440px;height:828px;transform:scale(.604)"></iframe></div></div>
       <div class="stand"></div>
     </div>
-    <div class="chip" style="left:70px;top:470px">⚠️ Alerta: <b>2 productos</b> con stock bajo</div>
+    <div class="chip" style="left:70px;top:470px"><i data-lucide="triangle-alert"></i> Alerta: <b>2 productos</b> con stock bajo</div>
     <div class="chip" style="left:880px;top:90px"><span class="dot"></span>3 almacenes sincronizados</div>
   </div>
 
@@ -89,17 +92,17 @@
       <div class="bar"><i></i><i></i><i></i></div>
       <div style="width:980px;height:540px;overflow:hidden"><iframe src="/demos/cloud/" style="width:1360px;height:750px;transform:scale(.72)"></iframe></div>
     </div>
-    <div class="chip" style="left:860px;top:560px">☁️ Backup diario <b>automático</b></div>
+    <div class="chip" style="left:860px;top:560px"><i data-lucide="cloud-upload"></i> Backup diario <b>automático</b></div>
   </div>
 
   <!-- Soporte TI: mesa de ayuda -->
   <div class="scene" id="ti">
     <div class="panel" style="left:70px;top:70px;width:620px">
       <h4>Mesa de ayuda · hoy <span class="muted">4 tickets</span></h4>
-      <div class="ticket"><span class="ic">🖨️</span><div><b>La impresora del 2.º piso no imprime</b><small>Contabilidad · resuelto en remoto</small></div><span class="st ok">Resuelto · 18 min</span></div>
-      <div class="ticket"><span class="ic">✉️</span><div><b>Correos de ventas rebotan</b><small>Registros del dominio mal configurados</small></div><span class="st run">En curso</span></div>
-      <div class="ticket"><span class="ic">📶</span><div><b>Wi-Fi se cae en la sala de reuniones</b><small>Visita técnica: cambio de access point</small></div><span class="st plan">Mañana 9:00</span></div>
-      <div class="ticket"><span class="ic">💻</span><div><b>Laptop nueva para Recepción</b><small>Instalación de programas y correo</small></div><span class="st ok">Entregada</span></div>
+      <div class="ticket"><span class="ic"><i data-lucide="printer"></i></span><div><b>La impresora del 2.º piso no imprime</b><small>Contabilidad · resuelto en remoto</small></div><span class="st ok">Resuelto · 18 min</span></div>
+      <div class="ticket"><span class="ic"><i data-lucide="mail-warning"></i></span><div><b>Correos de ventas rebotan</b><small>Registros del dominio mal configurados</small></div><span class="st run">En curso</span></div>
+      <div class="ticket"><span class="ic"><i data-lucide="wifi"></i></span><div><b>Wi-Fi se cae en la sala de reuniones</b><small>Visita técnica: cambio de access point</small></div><span class="st plan">Mañana 9:00</span></div>
+      <div class="ticket"><span class="ic"><i data-lucide="laptop"></i></span><div><b>Laptop nueva para Recepción</b><small>Instalación de programas y correo</small></div><span class="st ok">Entregada</span></div>
     </div>
     <div class="panel" style="left:730px;top:70px;width:400px">
       <h4>Tiempo de respuesta</h4>
@@ -134,12 +137,26 @@
 <script>
   const id = new URLSearchParams(location.search).get("s") || "web";
   document.getElementById(id).classList.add("on");
+  lucide.createIcons({ attrs: { "stroke-width": 1.75 } });
+  // En las capturas no se muestra el botón flotante "Cómo está hecho" de las demos
+  document.querySelectorAll("iframe").forEach((f) => f.addEventListener("load", () => {
+    const hide = () => [...f.contentDocument.body.children].forEach((e) => e.shadowRoot && (e.style.display = "none"));
+    hide(); setTimeout(hide, 500); setTimeout(hide, 1500);
+  }));
   // En la escena de apps, el segundo celular muestra la cita ya confirmada
   if (id === "app") document.getElementById("r2").addEventListener("load", (e) => {
     const d = e.target.contentDocument, c = (s) => d.querySelector(s).click();
-    c('[data-svc="den"]'); c("#cta"); c('[data-day="1"]'); c(".slot:not([disabled])"); c("#cta");
+    c('[data-svc="den"]'); c("#cta");
+    d.querySelectorAll(".flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay)")[2].click();
+    c(".slot:not([disabled])"); c("#cta");
     d.getElementById("name").value = "Lucía"; d.getElementById("phone").value = "987654321";
     d.getElementById("phone").dispatchEvent(new Event("input")); c("#cta");
+    setTimeout(() => {
+      d.querySelector(".content").scrollTop = 0;
+      const cta = d.getElementById("cta"); if (cta) cta.style.display = "none";
+      d.querySelectorAll("#qr canvas").forEach((cv) => (cv.style.display = "block"));
+      d.querySelectorAll("#qr img").forEach((im) => (im.style.display = "none"));
+    }, 400);
   });
   if (id === "app") document.getElementById("r1").addEventListener("load", (e) => {
     e.target.contentDocument.querySelector('[data-svc="med"]').click();

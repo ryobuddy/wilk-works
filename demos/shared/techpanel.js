@@ -2,6 +2,7 @@
 // Uso: <script src="/demos/shared/techpanel.js" data-app="tienda" defer></script>
 (function () {
   const app = document.currentScript?.dataset.app;
+  const side = document.currentScript?.dataset.side === "right" ? "right" : "left"; // data-side="right" si a la izquierda tapa algo
   const REPO = "https://github.com/ryobuddy/wilk-works/tree/main/demos/";
   const L = (name, url, license) => ({ name, url, license });
   const LIBS = {
@@ -80,7 +81,7 @@
     <style>
       :host { all: initial; }
       * { box-sizing: border-box; font-family: Inter, system-ui, sans-serif; }
-      .fab { position: fixed; left: 16px; bottom: 16px; z-index: 2147483000; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 999px; background: #0b0a14; color: #f5c542; font: 600 13px "JetBrains Mono", ui-monospace, monospace; cursor: pointer; box-shadow: 0 10px 30px -8px rgba(0,0,0,.5); }
+      .fab { position: fixed; ${side}: 16px; bottom: 16px; z-index: 2147483000; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 0; border-radius: 999px; background: #0b0a14; color: #f5c542; font: 600 13px "JetBrains Mono", ui-monospace, monospace; cursor: pointer; box-shadow: 0 10px 30px -8px rgba(0,0,0,.5); }
       .fab:hover { transform: translateY(-1px); }
       .scrim { position: fixed; inset: 0; background: rgba(11,10,20,.55); z-index: 2147483001; opacity: 0; pointer-events: none; transition: opacity .2s; }
       .panel { position: fixed; top: 0; left: 0; bottom: 0; width: min(440px, 100%); z-index: 2147483002; background: #0f0e1b; color: #e9e7f5; transform: translateX(-100%); transition: transform .3s cubic-bezier(.2,.7,.2,1); overflow: auto; padding: 22px; font-size: 14px; line-height: 1.55; }

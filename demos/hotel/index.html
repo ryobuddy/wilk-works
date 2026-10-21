@@ -7,17 +7,19 @@
   <meta name="description" content="Demo de landing para hotel con motor de reservas directas y panel de ocupación. Hecho por Wilk Works.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <style>
-    :root { --ink: #1d1712; --muted: #6f6257; --sand: #f6f0e7; --card: #fffdf9; --line: #e7dccd; --gold: #b8873b; --gold-2: #d9b26a; --deep: #2a1f18; --green: #3d6b52; }
+    :root { --ink: #24151a; --muted: #6e5f62; --sand: #f3eee8; --card: #fffcf8; --line: #e4d9cf; --gold: #6e1f2e; --gold-2: #c6a15b; --deep: #2b1218; --green: #4a6b52; --brass: #b08d57; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 16px/1.6 "Inter", system-ui, sans-serif; background: var(--sand); color: var(--ink); }
+    body { font: 16px/1.65 "Jost", system-ui, sans-serif; background: var(--sand); color: var(--ink); }
     h1, h2, h3 { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600; line-height: 1.1; }
     button, input, select { font: inherit; }
     a { color: inherit; }
@@ -27,7 +29,7 @@
     header.top { position: absolute; left: 0; right: 0; top: 36px; z-index: 5; }
     .head { display: flex; align-items: center; justify-content: space-between; height: 76px; color: #fff; }
     .brand { font: 700 28px "Cormorant Garamond", serif; letter-spacing: .04em; }
-    .brand small { display: block; font: 500 11px "Inter"; letter-spacing: .3em; opacity: .8; margin-top: -4px; }
+    .brand small { display: block; font: 500 11px "Jost"; letter-spacing: .3em; opacity: .8; margin-top: -4px; }
     .head nav { display: flex; gap: 28px; font-size: 14px; }
     .head nav a { text-decoration: none; opacity: .9; }
     .head .admin { border: 1px solid rgba(255, 255, 255, .5); padding: 8px 14px; border-radius: 999px; background: none; color: #fff; cursor: pointer; font-size: 13px; }
@@ -44,11 +46,11 @@
     .booking label { display: grid; gap: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
     .booking input, .booking select { padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); font-size: 15px; text-transform: none; letter-spacing: 0; }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 24px; border: 0; border-radius: 12px; background: var(--gold); color: #fff; font-weight: 600; cursor: pointer; transition: background .2s, transform .15s; text-decoration: none; }
-    .btn:hover { background: #a1752f; transform: translateY(-1px); }
+    .btn:hover { background: #561724; transform: translateY(-1px); }
     .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
     .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
     .section { padding: 80px 0 20px; }
-    .kicker { font-size: 12px; font-weight: 600; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); }
+    .kicker { font-size: 12px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: var(--brass); }
     .section h2 { font-size: clamp(34px, 4.4vw, 52px); margin: 8px 0 12px; }
     .section .sub { color: var(--muted); max-width: 60ch; }
     .rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 34px; }
@@ -70,7 +72,10 @@
     .perk { padding: 22px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
     .perk b { display: block; font: 600 22px "Cormorant Garamond", serif; margin: 6px 0 4px; }
     .perk p { color: var(--muted); font-size: 14px; }
-    .perk i { font-style: normal; font-size: 26px; }
+    .perk svg.lucide { width: 30px; height: 30px; color: var(--gold); stroke-width: 1.5; }
+    .done svg.done-ic, .done svg.lucide { width: 56px; height: 56px; color: var(--gold); stroke-width: 1.3; }
+    .room h3 { font-style: italic; }
+    .booking { border-top: 3px solid var(--brass); }
     .story { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
     .story img { width: 100%; border-radius: 18px; display: block; box-shadow: 0 30px 60px -30px rgba(42, 31, 24, .5); }
     .map { height: 380px; border-radius: 18px; border: 1px solid var(--line); margin-top: 24px; z-index: 0; }
@@ -116,7 +121,9 @@
     .kpi small { color: var(--muted); }
     .kpi b { display: block; font: 700 30px "Cormorant Garamond", serif; }
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--gold); border-color: var(--gold); }
-    .flatpickr-day.inRange { background: #f1e3c8; border-color: #f1e3c8; box-shadow: -5px 0 0 #f1e3c8, 5px 0 0 #f1e3c8; }
+    .flatpickr-day.inRange { background: #f0dfe2; border-color: #f0dfe2; box-shadow: -5px 0 0 #f0dfe2, 5px 0 0 #f0dfe2; }
+    .booking label, .booking input, .booking select { min-width: 0; width: 100%; }
+    @media (max-width: 600px) { .booking { grid-template-columns: 1fr; margin-top: -40px; } }
     @media (max-width: 900px) {
       .booking { grid-template-columns: 1fr 1fr; }
       .booking .btn { grid-column: 1 / -1; }
@@ -175,10 +182,10 @@
     <p class="kicker">Por qué reservar directo</p>
     <h2>Mejor precio, sin intermediarios</h2>
     <div class="perks">
-      <div class="perk"><i>🏷️</i><b>Precio directo</b><p>Hasta 15% menos que en las plataformas de reservas.</p></div>
-      <div class="perk"><i>☕</i><b>Desayuno andino</b><p>Incluido en todas las tarifas, con productos del Valle Sagrado.</p></div>
-      <div class="perk"><i>🚐</i><b>Recojo al llegar</b><p>Te esperamos en el aeropuerto con tu nombre.</p></div>
-      <div class="perk"><i>↩️</i><b>Cancelación flexible</b><p>Gratis hasta 48 horas antes de tu llegada.</p></div>
+      <div class="perk"><i data-lucide="badge-percent"></i><b>Precio directo</b><p>Hasta 15% menos que en las plataformas de reservas.</p></div>
+      <div class="perk"><i data-lucide="coffee"></i><b>Desayuno andino</b><p>Incluido en todas las tarifas, con productos del Valle Sagrado.</p></div>
+      <div class="perk"><i data-lucide="plane-landing"></i><b>Recojo al llegar</b><p>Te esperamos en el aeropuerto con tu nombre.</p></div>
+      <div class="perk"><i data-lucide="calendar-check"></i><b>Cancelación flexible</b><p>Gratis hasta 48 horas antes de tu llegada.</p></div>
     </div>
   </section>
 
@@ -288,10 +295,10 @@
           mine.push({ code, unit, room: room.name, in: range[0].toISOString(), out: range[1].toISOString(), name, total });
           try { localStorage.setItem("qolla", JSON.stringify(mine)); } catch {}
           $("d-title").textContent = "¡Reserva confirmada!";
-          $("d-body").innerHTML = `<div class="done"><div style="font-size:54px">🏔️</div><h3 style="font-size:30px">Te esperamos, ${name.split(" ")[0]}</h3><div class="code">${code}</div><p style="color:var(--muted)">${room.name} · habitación ${unit}<br>${range[0].toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" })} · ${n} ${n === 1 ? "noche" : "noches"}<br>Total ${money(total)}</p><p style="color:var(--muted);font-size:13px;margin-top:14px">En un sistema real te llegaría la confirmación a ${mail}.</p></div>`;
+          $("d-body").innerHTML = `<div class="done"><i data-lucide="mountain-snow" class="done-ic"></i><h3 style="font-size:30px">Te esperamos, ${name.split(" ")[0]}</h3><div class="code">${code}</div><p style="color:var(--muted)">${room.name} · habitación ${unit}<br>${range[0].toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long" })} · ${n} ${n === 1 ? "noche" : "noches"}<br>Total ${money(total)}</p><p style="color:var(--muted);font-size:13px;margin-top:14px">En un sistema real te llegaría la confirmación a ${mail}.</p></div>`;
           $("d-foot").innerHTML = `<button class="btn ghost" id="close2">Cerrar</button>`;
           $("close2").onclick = close;
-          confetti({ particleCount: 120, spread: 70, origin: { x: 0.85, y: 0.3 }, colors: ["#b8873b", "#d9b26a", "#3d6b52", "#a3546a"] });
+          confetti({ particleCount: 120, spread: 70, origin: { x: 0.85, y: 0.3 }, colors: ["#6e1f2e", "#c6a15b", "#b08d57", "#f3eee8"] });
           renderRooms(); renderRack();
         };
       };
@@ -323,7 +330,7 @@
       const hotel = [-13.5196, -71.9762], plaza = [-13.5167, -71.9787], qori = [-13.5203, -71.9752];
       const map = L.map("map", { scrollWheelZoom: false }).setView(hotel, 16);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
-      const gold = L.divIcon({ className: "", html: '<div style="width:22px;height:22px;border-radius:50%;background:#b8873b;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.35)"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
+      const gold = L.divIcon({ className: "", html: '<div style="width:22px;height:22px;border-radius:50%;background:#6e1f2e;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.35)"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
       L.marker(hotel, { icon: gold }).addTo(map).bindPopup("<b>Casa Qolla</b><br>Hotel boutique (ficticio)").openPopup();
       L.marker(plaza).addTo(map).bindPopup("Plaza de Armas");
       L.marker(qori).addTo(map).bindPopup("Qoricancha");

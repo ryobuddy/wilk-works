@@ -5,25 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Vitalis · App de reservas (demo)</title>
   <meta name="description" content="Demo de app de reservas instalable: calendario, recordatorios por WhatsApp, QR y calendario. Hecho por Wilk Works.">
-  <meta name="theme-color" content="#1f7aec">
+  <meta name="theme-color" content="#0e8a7e">
   <link rel="manifest" href="/demos/reservas/manifest.webmanifest">
   <link rel="icon" href="/demos/reservas/icon-192.png">
   <link rel="apple-touch-icon" href="/demos/reservas/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/es.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <script src="/demos/shared/icons.js"></script>
   <style>
-    :root { --bg: #eef3f8; --ink: #11243a; --muted: #5f7086; --card: #fff; --line: #e1e8f0; --brand: #1f7aec; --brand-soft: #e6f0ff; --mint: #19b38a; --red: #e5484d; }
+    :root { --bg: #eef6f5; --ink: #12302f; --muted: #557170; --card: #fff; --line: #dceae8; --brand: #0e8a7e; --brand-soft: #e1f3f1; --mint: #0e8a7e; --red: #d94a3d; --coral: #ff7a63; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font: 15px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; background: radial-gradient(circle at 20% 10%, #dbe9ff, transparent 40%), radial-gradient(circle at 80% 90%, #d5f5ea, transparent 40%), var(--bg); color: var(--ink); min-height: 100vh; }
+    body { font: 15px/1.5 "Nunito", system-ui, sans-serif; background: radial-gradient(circle at 20% 10%, #d3efeb, transparent 40%), radial-gradient(circle at 80% 90%, #ffe3dc, transparent 40%), var(--bg); color: var(--ink); min-height: 100vh; }
     button { font: inherit; cursor: pointer; }
     a { color: inherit; }
     .demo-bar { background: var(--ink); color: #cfe0f5; font-size: 13px; text-align: center; padding: 8px 16px; }
-    .demo-bar a { color: #8fc0ff; }
+    .demo-bar a { color: #8fe0d6; }
     .stage { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 40px; padding: 32px 24px; min-height: calc(100vh - 36px); }
     .side { max-width: 330px; justify-self: end; }
     .side h1 { font-size: 34px; line-height: 1.15; margin-bottom: 12px; }
@@ -45,7 +47,8 @@
     .svc { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px; border-radius: 16px; border: 2px solid transparent; background: var(--card); margin-bottom: 10px; transition: border-color .2s, transform .15s; color: var(--ink); }
     .svc:active { transform: scale(.98); }
     .svc.on { border-color: var(--brand); }
-    .svc .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-soft); display: grid; place-items: center; font-size: 22px; flex: none; }
+    .svc .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; flex: none; }
+    .svc .ic svg.lucide { width: 22px; height: 22px; }
     .svc small { color: var(--muted); display: block; }
     .svc b.price { margin-left: auto; }
     .cal { display: flex; justify-content: center; margin-bottom: 12px; }
@@ -61,7 +64,7 @@
     .summary { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 14px; display: grid; gap: 6px; }
     .summary div { display: flex; justify-content: space-between; gap: 10px; }
     .summary span { color: var(--muted); }
-    .cta { position: absolute; left: 16px; right: 16px; bottom: 78px; padding: 15px; border-radius: 16px; border: 0; background: var(--brand); color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 10px 24px -10px rgba(31, 122, 236, .7); transition: opacity .2s; }
+    .cta { position: absolute; left: 16px; right: 16px; bottom: 78px; padding: 15px; border-radius: 16px; border: 0; background: var(--brand); color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 10px 24px -10px rgba(14, 138, 126, .7); transition: opacity .2s; }
     .cta:disabled { opacity: .4; box-shadow: none; cursor: not-allowed; }
     .cta.again { position: static; width: 100%; margin-top: 14px; }
     .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: grid; grid-template-columns: 1fr 1fr; background: var(--card); border-top: 1px solid var(--line); }
@@ -81,7 +84,17 @@
     .wa-prev small { display: block; text-align: right; color: #667781; font-size: 11px; }
     .appt { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
     .appt .head { display: flex; gap: 12px; align-items: center; }
-    .appt .ic { font-size: 24px; }
+    .appt .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); flex: none; }
+    svg.lucide { width: 18px; height: 18px; flex: none; }
+    .tabs button { display: grid; place-items: center; align-content: center; gap: 2px; }
+    .tabs svg.lucide { width: 22px; height: 22px; }
+    .act { gap: 8px; }
+    .ok .check svg.lucide { width: 38px; height: 38px; stroke-width: 2.5; }
+    .side h1 { font-weight: 800; letter-spacing: -0.01em; }
+    .side h1::first-line { color: var(--brand); }
+    .cta { font-weight: 800; }
+    .day.on, .slot.on { box-shadow: 0 6px 16px -8px rgba(14, 138, 126, .8); }
+    .steps i.on { background: var(--coral); }
     .appt small { color: var(--muted); display: block; }
     .appt .row { display: flex; gap: 8px; margin-top: 10px; }
     .appt .row button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: none; font-weight: 600; font-size: 13px; color: var(--ink); }
@@ -113,24 +126,24 @@
         <li>Añadir a Google Calendar o al calendario del celular</li>
         <li>Se instala en el celular como una app y funciona sin conexión</li>
       </ul>
-      <button class="act install" id="install" hidden>📲 Instalar la app</button>
+      <button class="act install" id="install" hidden><i data-lucide="download"></i> Instalar la app</button>
     </div>
     <div class="phone"><div class="screen">
       <div class="notch"></div>
-      <div class="bar"><small id="hello">Hola 👋</small><h2 id="title">Reserva tu cita</h2><div class="steps" id="steps"><i></i><i></i><i></i></div></div>
+      <div class="bar"><small id="hello">Hola</small><h2 id="title">Reserva tu cita</h2><div class="steps" id="steps"><i></i><i></i><i></i></div></div>
       <div class="content" id="content"></div>
       <button class="cta" id="cta" disabled>Continuar</button>
-      <nav class="tabs"><button id="t-book" class="on"><b>＋</b>Reservar</button><button id="t-mine"><b>☰</b>Mis citas</button></nav>
+      <nav class="tabs"><button id="t-book" class="on"><i data-lucide="calendar-plus"></i>Reservar</button><button id="t-mine"><i data-lucide="list-checks"></i>Mis citas</button></nav>
     </div></div>
     <div></div>
   </div>
 
   <script>
     const SERVICES = [
-      { id: "med", name: "Medicina general", min: 30, price: 60, ic: "🩺" },
-      { id: "den", name: "Odontología", min: 45, price: 90, ic: "🦷" },
-      { id: "nut", name: "Nutrición", min: 40, price: 70, ic: "🥗" },
-      { id: "psi", name: "Psicología", min: 50, price: 110, ic: "🧠" },
+      { id: "med", name: "Medicina general", min: 30, price: 60, ic: "stethoscope" },
+      { id: "den", name: "Odontología", min: 45, price: 90, ic: "smile" },
+      { id: "nut", name: "Nutrición", min: 40, price: 70, ic: "apple" },
+      { id: "psi", name: "Psicología", min: 50, price: 110, ic: "brain" },
     ];
     const SLOTS = ["08:00", "08:45", "09:30", "10:15", "11:00", "11:45", "15:00", "15:45", "16:30", "17:15", "18:00", "18:45"];
     const CLINIC = "Vitalis · Av. Ejemplo 123, Miraflores";
@@ -149,7 +162,7 @@
     function render() {
       $("t-book").classList.toggle("on", tab === "book");
       $("t-mine").classList.toggle("on", tab === "mine");
-      $("hello").textContent = st.name ? `Hola, ${st.name} 👋` : "Hola 👋";
+      $("hello").textContent = st.name ? `Hola, ${st.name}` : "Hola";
       const c = $("content"), cta = $("cta");
       if (tab === "mine") return renderMine(c, cta);
       document.querySelectorAll("#steps i").forEach((el, i) => el.classList.toggle("on", i <= st.step));
@@ -157,7 +170,7 @@
       cta.style.display = "block";
       if (st.step === 0) {
         $("title").textContent = "Reserva tu cita";
-        c.innerHTML = `<h3>1. Elige un servicio</h3>` + SERVICES.map((s) => `<button class="svc${st.svc === s.id ? " on" : ""}" data-svc="${s.id}"><span class="ic">${s.ic}</span><span><b>${s.name}</b><small>${s.min} min</small></span><b class="price">S/ ${s.price}</b></button>`).join("");
+        c.innerHTML = `<h3>1. Elige un servicio</h3>` + SERVICES.map((s) => `<button class="svc${st.svc === s.id ? " on" : ""}" data-svc="${s.id}"><span class="ic"><i data-lucide="${s.ic}"></i></span><span><b>${s.name}</b><small>${s.min} min</small></span><b class="price">S/ ${s.price}</b></button>`).join("");
         cta.disabled = !st.svc; cta.textContent = "Continuar";
       } else if (st.step === 1) {
         $("title").textContent = "Día y hora";
@@ -175,7 +188,7 @@
         const s = svcOf(st.svc);
         $("title").textContent = "Confirma tu cita";
         c.innerHTML = `<h3>3. Tus datos</h3>
-          <div class="summary"><div><span>Servicio</span><b>${s.ic} ${s.name}</b></div><div><span>Fecha</span><b>${fmt(st.date + "T12:00", { weekday: "long", day: "numeric", month: "long" })}</b></div><div><span>Hora</span><b>${st.slot}</b></div><div><span>Precio</span><b>S/ ${s.price}</b></div></div>
+          <div class="summary"><div><span>Servicio</span><b>${s.name}</b></div><div><span>Fecha</span><b>${fmt(st.date + "T12:00", { weekday: "long", day: "numeric", month: "long" })}</b></div><div><span>Hora</span><b>${st.slot}</b></div><div><span>Precio</span><b>S/ ${s.price}</b></div></div>
           <label>Nombre<input id="name" value="${esc(st.name)}" placeholder="Tu nombre" autocomplete="given-name"></label>
           <label>WhatsApp<input id="phone" value="${esc(st.phone)}" inputmode="tel" placeholder="987 654 321" autocomplete="tel"><span class="err" id="perr"></span></label>
           <p><button class="link" data-back>← Cambiar horario</button></p>`;
@@ -212,16 +225,16 @@
     function renderDone(c, a) {
       const s = svcOf(a.svc), l = calLinks(a), when = `${fmt(startOf(a), { weekday: "long", day: "numeric", month: "long" })} · ${a.slot}`;
       $("title").textContent = "¡Listo!";
-      c.innerHTML = `<div class="ok"><div class="check">✓</div><h3 style="font-size:19px">Cita confirmada</h3><p style="color:var(--muted)">${s.ic} ${s.name}<br>${when}</p></div>
+      c.innerHTML = `<div class="ok"><div class="check"><i data-lucide="check"></i></div><h3 style="font-size:19px">Cita confirmada</h3><p style="color:var(--muted)">${s.name}<br>${when}</p></div>
         <div class="qr"><div id="qr"></div><small>${a.code}</small></div>
         <div class="acts">
-          <a class="act wa" href="${l.wa}" target="_blank" rel="noopener">💬 Enviarme el recordatorio por WhatsApp</a>
-          <a class="act" href="${l.gcal}" target="_blank" rel="noopener">📅 Añadir a Google Calendar</a>
-          <a class="act" href="${l.ics}" download="cita-${a.code}.ics">⬇ Descargar para el calendario del celular</a>
+          <a class="act wa" href="${l.wa}" target="_blank" rel="noopener"><i data-lucide="message-circle"></i> Enviarme el recordatorio por WhatsApp</a>
+          <a class="act" href="${l.gcal}" target="_blank" rel="noopener"><i data-lucide="calendar"></i> Añadir a Google Calendar</a>
+          <a class="act" href="${l.ics}" download="cita-${a.code}.ics"><i data-lucide="calendar-arrow-down"></i> Descargar para el calendario del celular</a>
         </div>
-        <div class="wa-prev"><div class="msg">${esc(l.msg)} ⏰ Te recordaremos 24 h antes.<small>vista previa ✓✓</small></div></div>
+        <div class="wa-prev"><div class="msg">${esc(l.msg)} Te recordaremos 24 h antes.<small>vista previa</small></div></div>
         <button class="cta again" data-again>Reservar otra cita</button>`;
-      new QRCode($("qr"), { text: `VITALIS|${a.code}|${a.date} ${a.slot}|${s.name}|${a.name}`, width: 150, height: 150, colorDark: "#11243a", colorLight: "#ffffff" });
+      new QRCode($("qr"), { text: `VITALIS|${a.code}|${a.date} ${a.slot}|${s.name}|${a.name}`, width: 150, height: 150, colorDark: "#12302f", colorLight: "#ffffff" });
     }
 
     function renderMine(c, cta) {
@@ -230,7 +243,7 @@
       cta.style.display = "none";
       const now = new Date(), list = appts.filter((a) => !a.cancelled).sort((x, y) => startOf(x) - startOf(y));
       c.innerHTML = list.length
-        ? list.map((a) => { const s = svcOf(a.svc), past = startOf(a) < now; return `<div class="appt${past ? " past" : ""}"><div class="head"><span class="ic">${s.ic}</span><div><b>${s.name}</b><small>${fmt(startOf(a), { weekday: "short", day: "numeric", month: "short" })} · ${a.slot} · ${a.code}</small></div></div>
+        ? list.map((a) => { const s = svcOf(a.svc), past = startOf(a) < now; return `<div class="appt${past ? " past" : ""}"><div class="head"><span class="ic"><i data-lucide="${s.ic}"></i></span><div><b>${s.name}</b><small>${fmt(startOf(a), { weekday: "short", day: "numeric", month: "short" })} · ${a.slot} · ${a.code}</small></div></div>
             ${past ? "" : `<div class="row"><button data-view="${a.code}">Ver QR</button><button class="cancel" data-cancel="${a.code}">Cancelar</button></div>`}</div>`; }).join("")
         : `<div class="empty">Todavía no tienes citas.<br><br><button class="link" data-go>Reservar ahora →</button></div>`;
     }

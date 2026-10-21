@@ -1,5 +1,5 @@
 // Contenido del sitio. Edita aquí; script.js lo pinta en la página.
-// Iconos: "si:<slug>" = simple-icons (https://simpleicons.org), o null para usar la inicial.
+// Iconos: "si:<slug>" = simple-icons (logos de marcas); en servicios y rubros, nombres de Lucide (https://lucide.dev/icons).
 window.SITE = {
   brand: "Wilk Works",
   available: "Disponibles para nuevos proyectos",
@@ -46,32 +46,32 @@ window.SITE = {
   // Servicios: image = escena de referencia en img/, wide = ocupa dos columnas.
   services: [
     {
-      icon: "</>", title: "Desarrollo web", image: "img/svc-web.webp", wide: true,
+      icon: "code-xml", title: "Desarrollo web", image: "img/svc-web.webp", wide: true,
       text: "Tu web es lo primero que ve un cliente antes de escribirte. La hacemos para que cargue rápido en el celular, se entienda de un vistazo y que tú mismo puedas cambiar precios o fotos sin llamarnos.",
       examples: ["Landing pages", "Tiendas online", "Portales de clientes"],
     },
     {
-      icon: "▣", title: "Apps móviles", image: "img/svc-app.webp",
+      icon: "smartphone", title: "Apps móviles", image: "img/svc-app.webp",
       text: "Si tus clientes reservan, piden o pagan por teléfono, una app les ahorra la llamada y a ti el cuaderno. Android e iOS, conectadas a lo que ya usas.",
       examples: ["Reservas", "Delivery", "Fidelización"],
     },
     {
-      icon: "⚙", title: "Sistemas a medida", image: "img/svc-sys.webp",
+      icon: "boxes", title: "Sistemas a medida", image: "img/svc-sys.webp",
       text: "Para cuando el Excel ya no alcanza. Armamos el sistema según cómo trabaja tu equipo, no al revés, y no pagas módulos que nunca vas a abrir.",
       examples: ["Inventario", "Ventas", "Facturación"],
     },
     {
-      icon: "☁", title: "Cloud y DevOps", image: "img/svc-cloud.webp", wide: true,
+      icon: "cloud", title: "Cloud y DevOps", image: "img/svc-cloud.webp", wide: true,
       text: "Pasamos tus servidores a la nube sin detener la operación. Copias de seguridad todos los días, actualizaciones sin sustos y un aviso antes de que algo falle, no después.",
       examples: ["AWS / Azure", "CI/CD", "Backups", "Monitoreo"],
     },
     {
-      icon: "⛨", title: "Soporte TI", image: "img/svc-ti.webp",
+      icon: "life-buoy", title: "Soporte TI", image: "img/svc-ti.webp",
       text: "La impresora que no imprime, el correo que rebota, el wifi que se cae a media reunión. Lo resolvemos en remoto o vamos a tu oficina.",
       examples: ["Redes", "Correo corporativo", "Mesa de ayuda"],
     },
     {
-      icon: "◆", title: "Consultoría", image: "img/svc-plan.webp",
+      icon: "compass", title: "Consultoría", image: "img/svc-plan.webp",
       text: "Antes de gastar en tecnología, conversemos. Revisamos qué tienes, qué te falta y qué puede esperar. Te llevas un plan por escrito con prioridades y costos.",
       examples: ["Diagnóstico", "Hoja de ruta", "Presupuesto"],
     },
@@ -116,15 +116,15 @@ window.SITE = {
 
   // Soluciones por rubro: cada una enlaza a la demo que más se parece.
   industries: [
-    { icon: "🛍️", title: "Tiendas y retail", text: "Catálogo en línea, carrito y cobros con Yape, Plin o tarjeta. Tus clientes compran aunque la tienda esté cerrada.", demo: "demos/tienda/" },
-    { icon: "🔩", title: "Ferreterías", text: "Venta rápida con lector de código de barras, boleta o factura y stock que se descuenta solo.", demo: "demos/pos/" },
-    { icon: "🍾", title: "Licorerías y bodegas", text: "Caja ágil para venta al por mayor y menor, vuelto automático y cierre de caja al final del día.", demo: "demos/pos/" },
-    { icon: "📦", title: "Distribuidoras y almacenes", text: "Stock por almacén, alertas de reposición, etiquetas con código de barras y reportes en Excel.", demo: "demos/inventario/" },
-    { icon: "🏨", title: "Hoteles y hospedajes", text: "Reservas directas desde tu web, sin pagar comisión a las plataformas, y control de ocupación.", demo: "demos/hotel/" },
-    { icon: "🏠", title: "Inmobiliarias y constructoras", text: "Catálogo de propiedades con filtros, cotizador de crédito y formularios que te traen clientes.", demo: "demos/inmobiliaria/" },
-    { icon: "🩺", title: "Clínicas y consultorios", text: "Citas en línea, recordatorios por WhatsApp y agenda ordenada para cada especialista.", demo: "demos/reservas/" },
-    { icon: "🐾", title: "Veterinarias", text: "Agenda de citas, historial de cada mascota y venta de alimentos y accesorios.", demo: "demos/reservas/" },
-    { icon: "🏢", title: "Empresas con servidor propio", text: "Pasamos tus sistemas a la nube con copias de seguridad diarias y sin detener tu operación.", demo: "demos/cloud/" },
+    { icon: "shopping-bag", title: "Tiendas y retail", text: "Catálogo en línea, carrito y cobros con Yape, Plin o tarjeta. Tus clientes compran aunque la tienda esté cerrada.", demo: "demos/tienda/" },
+    { icon: "hammer", title: "Ferreterías", text: "Venta rápida con lector de código de barras, boleta o factura y stock que se descuenta solo.", demo: "demos/pos/" },
+    { icon: "wine", title: "Licorerías y bodegas", text: "Caja ágil para venta al por mayor y menor, vuelto automático y cierre de caja al final del día.", demo: "demos/pos/" },
+    { icon: "package", title: "Distribuidoras y almacenes", text: "Stock por almacén, alertas de reposición, etiquetas con código de barras y reportes en Excel.", demo: "demos/inventario/" },
+    { icon: "bed-double", title: "Hoteles y hospedajes", text: "Reservas directas desde tu web, sin pagar comisión a las plataformas, y control de ocupación.", demo: "demos/hotel/" },
+    { icon: "building-2", title: "Inmobiliarias y constructoras", text: "Catálogo de propiedades con filtros, cotizador de crédito y formularios que te traen clientes.", demo: "demos/inmobiliaria/" },
+    { icon: "stethoscope", title: "Clínicas y consultorios", text: "Citas en línea, recordatorios por WhatsApp y agenda ordenada para cada especialista.", demo: "demos/reservas/" },
+    { icon: "paw-print", title: "Veterinarias", text: "Agenda de citas, historial de cada mascota y venta de alimentos y accesorios.", demo: "demos/reservas/" },
+    { icon: "server", title: "Empresas con servidor propio", text: "Pasamos tus sistemas a la nube con copias de seguridad diarias y sin detener tu operación.", demo: "demos/cloud/" },
   ],
 
 

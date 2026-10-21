@@ -348,7 +348,7 @@ img.logo-mark { width: auto; height: 30px; border-radius: 0; background: none; b
 /* ---------- Sellos bajo la portada ---------- */
 .badges { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 28px; }
 .badges li { display: flex; align-items: center; gap: 8px; font: 500 13px var(--mono); color: var(--muted); }
-.badges li::before { content: "✓"; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; color: #0b0a14; background: var(--amber); }
+.badges li::before { content: ""; width: 18px; height: 18px; border-radius: 50%; flex: none; background: var(--amber) center / 11px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b0a14' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E"); }
 
 /* ---------- Rubros ---------- */
 .industry { display: flex; flex-direction: column; gap: 6px; }
@@ -453,3 +453,8 @@ img.logo-mark { width: auto; height: 30px; border-radius: 0; background: none; b
 .fchip:hover { color: var(--text); border-color: var(--violet-hi); }
 .fchip.on { background: var(--amber); color: #1a1408; border-color: var(--amber); }
 .project[hidden] { display: none; }
+
+/* Íconos Lucide */
+.icon svg { width: 20px; height: 20px; color: var(--amber); }
+.ind-ic svg { width: 26px; height: 26px; color: var(--violet-hi); }
+.industry:hover .ind-ic svg { color: var(--amber); }
