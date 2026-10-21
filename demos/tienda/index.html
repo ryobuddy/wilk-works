@@ -72,6 +72,9 @@
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 120px); background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 12px; transition: transform .3s; z-index: 11; }
     .toast.show { transform: translate(-50%, 0); }
     .p { cursor: pointer; }
+    .add:disabled { background: #cbbfb3; cursor: not-allowed; }
+    .pay-note { font-size: 14px; color: var(--muted); background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+    .err { color: #b3261e; font-size: 14px; min-height: 1em; }
     .pd { margin: auto; border: 0; border-radius: 22px; width: min(760px, 94vw); padding: 0; overflow: hidden; display: grid; grid-template-columns: 1fr 1.1fr; color: var(--ink); }
     .pd:not([open]) { display: none; }
     .pd::backdrop { background: rgba(28, 22, 18, .5); }
@@ -90,7 +93,7 @@
   </style>
 </head>
 <body>
-  <div class="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · productos y pagos ficticios</div>
+  <div class="demo-bar" id="demo-bar">Proyecto demo hecho por <a href="/">Wilk Works</a> · productos y pagos ficticios</div>
   <header>
     <div class="wrap head">
       <span class="logo">Andina</span>
@@ -132,11 +135,15 @@
   <div class="toast" id="toast"></div>
 
   <dialog id="pd" class="pd"></dialog>
+  <script src="config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script>
-    const PRODUCTS = [
+    // Modo real: productos de Supabase y pago con Culqi. Sin claves en config.js: modo demo.
+    const CFG = window.TIENDA_CONFIG || {};
+    const REAL = Boolean(CFG.supabaseUrl && CFG.supabaseAnonKey && CFG.culqiPublicKey);
+    let PRODUCTS = [
       { id: 1, name: "Chompa de alpaca", cat: "Textiles", price: 189, icon: "🧶", bg: "#f1d9c4", badge: "Nuevo", pop: 9 , desc: "Tejida a mano en Puno con fibra de alpaca 100%. Abriga sin pesar y no pica." },
       { id: 2, name: "Café de altura 500 g", cat: "Café", price: 42, icon: "☕", bg: "#e6d3bf", badge: "Top", pop: 10 , desc: "Grano arábica de Villa Rica, tostado medio. Notas a chocolate y frutos rojos." },
       { id: 3, name: "Chocolate 70% cacao", cat: "Café", price: 18, icon: "🍫", bg: "#ead1c1", pop: 7 , desc: "Cacao fino de aroma de Piura, endulzado con panela. Barra de 80 g." },
@@ -152,8 +159,12 @@
     const save = () => { try { localStorage.setItem("andina-cart", JSON.stringify(cart)); } catch {} };
     let cart = load(), cat = "Todos", view = "cart";
 
-    const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
-    $("chips").innerHTML = cats.map((c) => `<button class="chip${c === cat ? " on" : ""}" data-cat="${c}">${c}</button>`).join("");
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    function buildChips() {
+      const cats = ["Todos", ...new Set(PRODUCTS.map((p) => p.cat))];
+      $("chips").innerHTML = cats.map((c) => `<button class="chip${c === cat ? " on" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
+    }
+    buildChips();
     $("chips").onclick = (e) => { const b = e.target.closest(".chip"); if (!b) return; cat = b.dataset.cat; document.querySelectorAll(".chip").forEach((x) => x.classList.toggle("on", x === b)); renderGrid(); };
     $("q").oninput = renderGrid;
     $("sort").onchange = renderGrid;
@@ -164,7 +175,7 @@
       list.sort((a, b) => (sort === "asc" ? a.price - b.price : sort === "desc" ? b.price - a.price : b.pop - a.pop));
       $("grid").innerHTML = list.length
         ? list.map((p) => `<article class="p"><div class="img" style="background:${p.bg}">${p.badge ? `<span class="badge">${p.badge}</span>` : ""}<span aria-hidden="true">${p.icon}</span></div>
-            <div class="body"><small>${p.cat}</small><h3>${p.name}</h3><div class="row"><span class="price">${money(p.price)}</span><button class="add" data-id="${p.id}">Agregar</button></div></div></article>`).join("")
+            <div class="body"><small>${esc(p.cat)}</small><h3>${esc(p.name)}</h3><div class="row"><span class="price">${money(p.price)}</span><button class="add" data-id="${p.id}" ${p.stock === 0 ? "disabled" : ""}>${p.stock === 0 ? "Agotado" : "Agregar"}</button></div></div></article>`).join("")
         : `<p class="empty">No encontramos productos con esa búsqueda.</p>`;
     }
     $("grid").onclick = (e) => {
@@ -192,7 +203,11 @@
       d.showModal();
     }
 
-    function add(id, n) { cart[id] = (cart[id] || 0) + n; if (cart[id] <= 0) delete cart[id]; save(); renderCart(); }
+    function add(id, n) {
+      const p = PRODUCTS.find((x) => x.id === id), next = (cart[id] || 0) + n;
+      if (p && p.stock != null && next > p.stock) return toast(`Solo quedan ${p.stock} unidades`);
+      cart[id] = next; if (cart[id] <= 0) delete cart[id]; save(); renderCart();
+    }
     function totals() {
       const sub = Object.entries(cart).reduce((s, [id, q]) => s + PRODUCTS.find((p) => p.id === +id).price * q, 0);
       const ship = sub === 0 || sub >= 150 ? 0 : 15;
@@ -207,23 +222,22 @@
         $("drawer-title").textContent = "Datos de envío";
         body.innerHTML = `<form class="checkout" id="co">
           <label>Nombre completo<input required name="name" autocomplete="name"></label>
+          <label>Correo<input required name="email" type="email" autocomplete="email"></label>
           <label>Dirección<input required name="addr" autocomplete="street-address"></label>
           <label>Distrito<select name="dist"><option>Miraflores</option><option>San Isidro</option><option>Surco</option><option>Otro</option></select></label>
-          <label>Pago<select name="pay"><option>Tarjeta (simulado)</option><option>Yape / Plin (simulado)</option><option>Contra entrega</option></select></label>
+          ${REAL ? `<p class="pay-note">🔒 Pagarás con tarjeta o Yape en la ventana segura de Culqi. Tus datos de tarjeta no pasan por esta tienda.</p>` : `<label>Pago<select name="pay"><option>Tarjeta (simulado)</option><option>Yape / Plin (simulado)</option><option>Contra entrega</option></select></label>`}
+          <p class="err" id="co-err"></p>
           <div class="sum total"><span>Total</span><span>${money(t.total)}</span></div>
-          <button class="btn" type="submit">Confirmar pedido</button>
+          <button class="btn" type="submit" id="co-btn">${REAL ? "Pagar " + money(t.total) : "Confirmar pedido"}</button>
           <button class="btn ghost" type="button" id="back">Volver al carrito</button></form>`;
         $("back").onclick = () => { view = "cart"; renderCart(); };
         $("co").onsubmit = (e) => {
           e.preventDefault();
+          if (REAL) return payReal(e.target);
           const order = "AND-" + Math.floor(100000 + Math.random() * 900000);
           const snapshot = { order, items: Object.entries(cart).map(([id, q]) => ({ p: PRODUCTS.find((x) => x.id === +id), q })), t: totals(), name: e.target.name.value, addr: `${e.target.addr.value}, ${e.target.dist.value}`, pay: e.target.pay.value };
           cart = {}; save(); view = "done"; $("count").textContent = 0;
-          confetti({ particleCount: 140, spread: 75, origin: { x: 0.85, y: 0.35 }, colors: ["#b4532a", "#d9a23b", "#2f6b4f", "#f1d9c4"] });
-          $("drawer-title").textContent = "¡Pedido confirmado!";
-          body.innerHTML = `<div class="done"><div class="big">📦</div><h3>Gracias, ${e.target.name.value.split(" ")[0]}</h3><p style="color:var(--muted);margin:10px 0 20px">Tu pedido <b>${order}</b> llegará a ${e.target.dist.value} en 2–3 días hábiles.</p><button class="btn" id="pdf">Descargar boleta (PDF)</button><br><br><button class="btn ghost" id="again">Seguir comprando</button></div>`;
-          $("again").onclick = () => { view = "cart"; closeCart(); renderCart(); };
-          $("pdf").onclick = () => receipt(snapshot);
+          showDone(snapshot, e.target.dist.value);
         };
         return;
       }
@@ -240,6 +254,73 @@
       body.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => add(+b.dataset.id, +b.dataset.d)));
       if ($("go")) $("go").onclick = () => { view = "checkout"; renderCart(); };
     }
+    function showDone(snapshot, district) {
+      confetti({ particleCount: 140, spread: 75, origin: { x: 0.85, y: 0.35 }, colors: ["#b4532a", "#d9a23b", "#2f6b4f", "#f1d9c4"] });
+      $("drawer-title").textContent = "¡Pedido confirmado!";
+      $("drawer-body").innerHTML = `<div class="done"><div class="big">📦</div><h3>Gracias, ${esc(snapshot.name.split(" ")[0])}</h3><p style="color:var(--muted);margin:10px 0 20px">Tu pedido <b>${esc(snapshot.order)}</b> llegará a ${esc(district)} en 2–3 días hábiles.</p><button class="btn" id="pdf">Descargar comprobante (PDF)</button><br><br><button class="btn ghost" id="again">Seguir comprando</button></div>`;
+      $("again").onclick = () => { view = "cart"; closeCart(); renderCart(); };
+      $("pdf").onclick = () => receipt(snapshot);
+    }
+
+    // ---------- Pago real: Culqi Checkout Custom → /api/checkout ----------
+    function loadScript(src) {
+      return new Promise((ok, fail) => { const sc = document.createElement("script"); sc.src = src; sc.onload = ok; sc.onerror = fail; document.head.appendChild(sc); });
+    }
+    async function payReal(form) {
+      const err = $("co-err"), btn = $("co-btn"), t = totals();
+      err.textContent = "";
+      const data = { name: form.name.value.trim(), email: form.email.value.trim(), address: form.addr.value.trim(), district: form.dist.value };
+      btn.disabled = true; btn.textContent = "Abriendo pago seguro…";
+      try {
+        if (!window.CulqiCheckout) await loadScript("https://js.culqi.com/checkout-js");
+        const culqi = new CulqiCheckout(CFG.culqiPublicKey, {
+          settings: { title: "Andina", currency: "PEN", amount: Math.round(t.total * 100) },
+          client: { email: data.email },
+          options: { lang: "auto", installments: false, modal: true, paymentMethods: { tarjeta: true, yape: true } },
+          appearance: {},
+        });
+        culqi.culqi = async () => {
+          if (!culqi.token) {
+            btn.disabled = false; btn.textContent = "Pagar " + money(t.total);
+            if (culqi.error) err.textContent = culqi.error.user_message || culqi.error.merchant_message || "No se pudo procesar el pago.";
+            return;
+          }
+          const token = culqi.token.id;
+          culqi.close();
+          btn.textContent = "Confirmando pago…";
+          try {
+            const r = await fetch("/api/checkout", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token, email: data.email, customer: data, items: Object.entries(cart).map(([id, q]) => ({ id: +id, q })) }),
+            });
+            const out = await r.json();
+            if (!r.ok) throw new Error(out.error || "El pago no se pudo completar.");
+            const snapshot = { order: out.code, name: data.name, addr: `${data.address}, ${data.district}`, pay: "Culqi", items: out.items.map((i) => ({ p: { name: i.name, price: i.price }, q: i.q })), t: { ship: out.shipping, total: out.total } };
+            cart = {}; save(); view = "done"; $("count").textContent = 0;
+            showDone(snapshot, data.district);
+            loadProducts(); // stock actualizado
+          } catch (e2) {
+            err.textContent = e2.message; btn.disabled = false; btn.textContent = "Pagar " + money(t.total);
+          }
+        };
+        culqi.open();
+      } catch (e) {
+        err.textContent = "No se pudo abrir el pago. Revisa tu conexión e inténtalo otra vez.";
+        btn.disabled = false; btn.textContent = "Pagar " + money(t.total);
+      }
+    }
+
+    // ---------- Productos desde Supabase (solo lectura pública) ----------
+    async function loadProducts() {
+      const r = await fetch(`${CFG.supabaseUrl}/rest/v1/products?select=id,name,category,price,stock,icon,bg,badge,popularity,description&active=eq.true&order=popularity.desc`, {
+        headers: { apikey: CFG.supabaseAnonKey, Authorization: `Bearer ${CFG.supabaseAnonKey}` },
+      });
+      if (!r.ok) throw new Error("No se pudieron cargar los productos");
+      PRODUCTS = (await r.json()).map((p) => ({ id: p.id, name: p.name, cat: p.category, price: Number(p.price), stock: p.stock, icon: p.icon || "🛍️", bg: p.bg || "#efe5d8", badge: p.badge, pop: p.popularity, desc: p.description || "" }));
+      Object.keys(cart).forEach((id) => { if (!PRODUCTS.some((p) => p.id === +id)) delete cart[id]; });
+      save(); buildChips(); renderGrid(); renderCart();
+    }
+
     // Boleta electrónica (de ejemplo) generada en el navegador con jsPDF
     function receipt(o) {
       const { jsPDF } = window.jspdf, doc = new jsPDF();
@@ -257,7 +338,7 @@
         columnStyles: { 1: { halign: "center" }, 2: { halign: "right" }, 3: { halign: "right" } },
       });
       doc.setFontSize(9); doc.setTextColor(117, 101, 90);
-      doc.text("Documento de demostración generado por la tienda demo de Wilk Works. No tiene valor tributario.", 14, doc.lastAutoTable.finalY + 14);
+      doc.text(REAL ? "Constancia de pedido. El comprobante electrónico SUNAT se emite por separado." : "Documento de demostración generado por la tienda demo de Wilk Works. No tiene valor tributario.", 14, doc.lastAutoTable.finalY + 14);
       doc.save(`boleta-${o.order}.pdf`);
     }
     const openCart = () => document.body.classList.add("open");
@@ -266,6 +347,14 @@
     addEventListener("keydown", (e) => e.key === "Escape" && closeCart());
     let tt; function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 1800); }
     renderGrid(); renderCart();
+    if (REAL) {
+      if (CFG.culqiPublicKey.startsWith("pk_test")) $("demo-bar").innerHTML = 'Tienda en <b>modo de pruebas</b>: usa las tarjetas de prueba de Culqi, no se cobra dinero real · <a href="/">Wilk Works</a>';
+      else $("demo-bar").remove();
+      // Al iniciar en modo real se vacía la lista de demo hasta que lleguen los productos reales
+      PRODUCTS = []; renderGrid();
+      $("grid").innerHTML = `<p class="empty">Cargando productos…</p>`;
+      loadProducts().catch(() => ($("grid").innerHTML = `<p class="empty">No pudimos cargar el catálogo. Recarga la página en unos segundos.</p>`));
+    }
   </script>
 </body>
 </html>
