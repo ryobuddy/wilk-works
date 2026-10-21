@@ -1,5 +1,5 @@
 // Panel "Cómo está hecho": muestra stack, funciones, técnicas, código y créditos de cada demo.
-// Uso: <script src="/demos/_shared/techpanel.js" data-app="tienda" defer></script>
+// Uso: <script src="/demos/shared/techpanel.js" data-app="tienda" defer></script>
 (function () {
   const app = document.currentScript?.dataset.app;
   const REPO = "https://github.com/ryobuddy/wilk-works/tree/main/demos/";
