@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="153 95 954 954" role="img" aria-label="Wilk Works">
+  <title>Wilk Works</title>
+  <defs>
+    <linearGradient id="ww-outer" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#6a3cf0"/>
+      <stop offset="0.5" stop-color="#3a22b8"/>
+      <stop offset="1" stop-color="#2f6bff"/>
+    </linearGradient>
+    <linearGradient id="ww-inner" x1="0.7" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#a77dff"/>
+      <stop offset="0.45" stop-color="#6436e6"/>
+      <stop offset="1" stop-color="#22208a"/>
+    </linearGradient>
+    <linearGradient id="ww-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" stop-opacity=".55"/>
+      <stop offset="0.6" stop-color="#5b8cff" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#f5c542" stop-opacity=".7"/>
+    </linearGradient>
+    <filter id="ww-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <path id="ww-spark" d="M0 -16 C2 -4 4 -2 16 0 C4 2 2 4 0 16 C-2 4 -4 2 -16 0 C-4 -2 -2 -4 0 -16 Z" fill="#f7c35a"/>
+    <!-- Mitad izquierda de la W: cinta exterior y cinta interior -->
+    <g id="ww-half">
+      <path d="M318 448 Q402 452 432 500 L512 652 L494 764 L462 702 Z" fill="url(#ww-outer)" opacity=".92"/>
+      <path d="M604 458 L630 461 L562 690 L502 776 L462 700 Z" fill="url(#ww-inner)" opacity=".9"/>
+      <path d="M604 458 L462 700" stroke="#e2d6ff" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+      <path d="M318 448 L462 702" stroke="#7fb0ff" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>
+      <path d="M432 500 L512 652" stroke="#c4b1ff" stroke-width="2" stroke-linecap="round" opacity=".45"/>
+      <path d="M462 700 L494 764 M470 712 L502 776" stroke="#6fd0ff" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+    </g>
+  </defs>
+
+  <!-- Anillo y mira -->
+  <circle cx="626" cy="562" r="332" fill="none" stroke="url(#ww-ring)" stroke-width="1.6"/>
+  <g stroke="#f5c542" stroke-linecap="round">
+    <path d="M626 200 V362" stroke-width="2.5" opacity=".75"/>
+    <path d="M626 470 V720" stroke-width="2" opacity=".55"/>
+    <path d="M626 800 V928" stroke-width="2.5" opacity=".75"/>
+    <path d="M170 585 H380 M872 585 H1090" stroke-width="2.5" opacity=".6"/>
+  </g>
+  <g fill="#f5c542"><circle cx="626" cy="300" r="3"/><circle cx="626" cy="760" r="3"/><circle cx="626" cy="782" r="2.5"/></g>
+  <use href="#ww-spark" x="626" y="183"/>
+  <use href="#ww-spark" x="626" y="943"/>
+  <use href="#ww-spark" x="248" y="585" transform="translate(248 585) scale(.75) translate(-248 -585)"/>
+  <use href="#ww-spark" x="1005" y="585" transform="translate(1005 585) scale(.75) translate(-1005 -585)"/>
+
+  <!-- W de cintas -->
+  <g filter="url(#ww-glow)">
+    <use href="#ww-half"/>
+    <use href="#ww-half" transform="translate(1253 0) scale(-1 1)"/>
+  </g>
+
+  <!-- Nodos -->
+  <g fill="#0b0a14" stroke-width="8" filter="url(#ww-glow)">
+    <circle cx="313" cy="416" r="28" stroke="#8b5cf6"/>
+    <circle cx="940" cy="416" r="28" stroke="#5b8cff"/>
+    <circle cx="488" cy="794" r="28" stroke="#4f8cff"/>
+    <circle cx="765" cy="794" r="28" stroke="#4f8cff"/>
+    <circle cx="626" cy="416" r="38" stroke="#f7b649"/>
+  </g>
+  <use href="#ww-spark" x="626" y="420" transform="translate(626 420) scale(1.05) translate(-626 -420)" filter="url(#ww-glow)"/>
+</svg>

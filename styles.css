@@ -341,3 +341,6 @@ body::after {
 .arcana.wide .svc-img { aspect-ratio: 12 / 7; min-height: 0; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
 .arcana.wide .svc-body { align-self: auto; }
 @media (max-width: 1000px) and (min-width: 901px) { .bento { grid-template-columns: repeat(2, 1fr); } }
+
+/* Logo oficial (SVG) en la barra */
+img.logo-mark { width: auto; height: 30px; border-radius: 0; background: none; box-shadow: none; filter: drop-shadow(0 0 10px rgba(139, 92, 246, .45)); }

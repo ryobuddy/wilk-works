@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Conceptos de logo</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1600px; }
+  body { font: 15px Inter, sans-serif; background: #0b0a14; color: #e9e7f5; padding: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .opt { border: 1px solid rgba(169,139,255,.25); border-radius: 22px; overflow: hidden; background: #12101f; }
+  .head { padding: 18px 24px; display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(169,139,255,.15); }
+  .head b { font: 700 22px "Space Grotesk"; } .head span { color: #9b97b8; font-size: 14px; max-width: 70%; text-align: right; }
+  .row { display: grid; grid-template-columns: 1.4fr 1fr; }
+  .dark, .light { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 44px 20px; }
+  .light { background: #f4f2fb; color: #1a1630; }
+  .word { font: 700 40px "Space Grotesk"; letter-spacing: -0.02em; }
+  .word small { display: block; font: 500 12px "JetBrains Mono"; letter-spacing: .2em; color: #9b97b8; margin-top: 2px; }
+  .light .word small { color: #6b6690; }
+  .sizes { display: flex; gap: 18px; align-items: end; padding: 16px 24px; border-top: 1px solid rgba(169,139,255,.15); color: #9b97b8; font-size: 12px; }
+  .sizes div { display: grid; gap: 6px; justify-items: center; }
+  .app { width: 64px; height: 64px; border-radius: 16px; background: #0b0a14; display: grid; place-items: center; border: 1px solid rgba(169,139,255,.3); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b69bff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+    <linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fa9ff"/><stop offset="1" stop-color="#5b8cff"/></linearGradient>
+    <linearGradient id="gw" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b69bff"/><stop offset="1" stop-color="#5b8cff"/></linearGradient>
+
+    <!-- A · Enlace: dos V entrelazadas forman la W (un vínculo entre dos cosas) -->
+    <symbol id="logo-a" viewBox="0 0 64 64">
+      <path d="M6 14 L20 50 L34 14" fill="none" stroke="url(#gv)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M30 14 L44 50 L58 14" fill="none" stroke="url(#gb)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M28.6 29.6 L34 14" fill="none" stroke="url(#gv)" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="32" cy="8" r="3.6" fill="#f5c542"/>
+    </symbol>
+
+    <!-- B · Conjuro: la W entre corchetes de código, con el cursor encendido -->
+    <symbol id="logo-b" viewBox="0 0 64 64">
+      <path d="M14 18 L4 32 L14 46" fill="none" stroke="#7a68c4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M50 18 L60 32 L50 46" fill="none" stroke="#7a68c4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M18 20 L25 44 L32 28 L39 44 L46 20" fill="none" stroke="url(#gw)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="29" y="49" width="6" height="8" rx="1" fill="#f5c542"/>
+    </symbol>
+
+    <!-- C · Órbita: la W dentro de un anillo, con un punto que la recorre (lo conocido dentro de lo oculto) -->
+    <symbol id="logo-c" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="27" fill="none" stroke="url(#gw)" stroke-width="3.5" stroke-dasharray="132 38" transform="rotate(-60 32 32)" stroke-linecap="round"/>
+      <path d="M16 23 L23.5 42 L32 28 L40.5 42 L48 23" fill="none" stroke="#e9e7f5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="51.5" cy="13.5" r="4" fill="#f5c542"/>
+    </symbol>
+
+    <!-- D · Runa: W hecha de nodos conectados, como un grafo o un circuito -->
+    <symbol id="logo-d" viewBox="0 0 64 64">
+      <path d="M8 16 L20 48 L32 26 L44 48 L56 16" fill="none" stroke="url(#gw)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="16" r="5" fill="#0b0a14" stroke="#b69bff" stroke-width="3"/>
+      <circle cx="20" cy="48" r="5" fill="#0b0a14" stroke="#a48bff" stroke-width="3"/>
+      <circle cx="32" cy="26" r="6" fill="#f5c542"/>
+      <circle cx="44" cy="48" r="5" fill="#0b0a14" stroke="#7d9bff" stroke-width="3"/>
+      <circle cx="56" cy="16" r="5" fill="#0b0a14" stroke="#5b8cff" stroke-width="3"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="grid">
+  <div class="opt">
+    <div class="head"><b>A · Enlace</b><span>Dos V entrelazadas forman la W: dos cosas unidas por un vínculo. El punto amarillo es la chispa.</span></div>
+    <div class="row">
+      <div class="dark"><svg width="88" height="88"><use href="#logo-a"/></svg><div class="word">Wilk Works<small>SOFTWARE · TI</small></div></div>
+      <div class="light"><svg width="88" height="88"><use href="#logo-a"/></svg></div>
+    </div>
+    <div class="sizes"><div><div class="app"><svg width="40" height="40"><use href="#logo-a"/></svg></div>App</div><div><svg width="32" height="32"><use href="#logo-a"/></svg>32 px</div><div><svg width="16" height="16"><use href="#logo-a"/></svg>16 px</div></div>
+  </div>
+
+  <div class="opt">
+    <div class="head"><b>B · Conjuro</b><span>La W entre corchetes de código y el cursor encendido: escribir algo es lo que lo hace existir.</span></div>
+    <div class="row">
+      <div class="dark"><svg width="88" height="88"><use href="#logo-b"/></svg><div class="word">Wilk Works<small>SOFTWARE · TI</small></div></div>
+      <div class="light"><svg width="88" height="88"><use href="#logo-b"/></svg></div>
+    </div>
+    <div class="sizes"><div><div class="app"><svg width="40" height="40"><use href="#logo-b"/></svg></div>App</div><div><svg width="32" height="32"><use href="#logo-b"/></svg>32 px</div><div><svg width="16" height="16"><use href="#logo-b"/></svg>16 px</div></div>
+  </div>
+
+  <div class="opt">
+    <div class="head"><b>C · Órbita</b><span>La W dentro de un anillo abierto con un punto que gira: lo conocido rodeado de lo que aún no se ve.</span></div>
+    <div class="row">
+      <div class="dark"><svg width="88" height="88"><use href="#logo-c"/></svg><div class="word">Wilk Works<small>SOFTWARE · TI</small></div></div>
+      <div class="light" style="color:#1a1630"><svg width="88" height="88" style="--ink:#1a1630"><use href="#logo-c"/></svg></div>
+    </div>
+    <div class="sizes"><div><div class="app"><svg width="40" height="40"><use href="#logo-c"/></svg></div>App</div><div><svg width="32" height="32"><use href="#logo-c"/></svg>32 px</div><div><svg width="16" height="16"><use href="#logo-c"/></svg>16 px</div></div>
+  </div>
+
+  <div class="opt">
+    <div class="head"><b>D · Runa</b><span>Una W hecha de nodos conectados, como un grafo: cada punto es una pieza y el código las une.</span></div>
+    <div class="row">
+      <div class="dark"><svg width="88" height="88"><use href="#logo-d"/></svg><div class="word">Wilk Works<small>SOFTWARE · TI</small></div></div>
+      <div class="light"><svg width="88" height="88"><use href="#logo-d"/></svg></div>
+    </div>
+    <div class="sizes"><div><div class="app"><svg width="40" height="40"><use href="#logo-d"/></svg></div>App</div><div><svg width="32" height="32"><use href="#logo-d"/></svg>32 px</div><div><svg width="16" height="16"><use href="#logo-d"/></svg>16 px</div></div>
+  </div>
+</div>
+</body>
+</html>
