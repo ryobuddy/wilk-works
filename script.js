@@ -40,70 +40,115 @@
   };
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // ---------- Contenido ----------
-  document.querySelectorAll("[data-brand]").forEach((el) => (el.textContent = S.brand));
-  $("available").textContent = S.available;
-  $("headline").textContent = S.headline;
-  $("intro").textContent = S.intro;
-  $("hero-whatsapp").href = $("wa-float").href = wa(S.contact.whatsappMessage);
+  // ---------- Encabezado, pie y fondo compartidos por todas las páginas ----------
+  const PAGE = document.body.dataset.page || "index";
+  const NAV = [["index", "Inicio"], ["servicios", "Servicios"], ["soluciones", "Soluciones"], ["proyectos", "Proyectos"], ["planes", "Planes"], ["nosotros", "Nosotros"]];
+  const link = (p) => (p === "index" ? "./" : `${p}.html`);
+  const phone = "+" + S.contact.whatsapp.replace(/^(\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4");
+  const logo = `<a href="./" class="logo"><img class="logo-mark" src="brand/logo-mark.svg" alt="" width="46" height="30"><span>${esc(S.brand)}</span></a>`;
+  document.body.insertAdjacentHTML("afterbegin", `
+    <canvas id="fogfx" aria-hidden="true"></canvas>
+    <div class="codefloat" id="codefloat" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <header class="nav" id="site-nav">
+      <div class="wrap nav-inner">
+        ${logo}
+        <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="main-nav" aria-label="Abrir menú"><span></span></button>
+        <nav id="main-nav" aria-label="Principal">
+          ${NAV.map(([p, t]) => `<a href="${link(p)}"${p === PAGE ? ' aria-current="page"' : ""}>${t}</a>`).join("")}
+          <a href="contacto.html" class="btn btn-sm"${PAGE === "contacto" ? ' aria-current="page"' : ""}>Contáctanos</a>
+        </nav>
+      </div>
+    </header>`);
+  document.querySelector("main").insertAdjacentHTML("afterend", `
+    <footer class="site-footer">
+      <div class="wrap foot-grid">
+        <div class="foot-brand">${logo}<p>Páginas web, tiendas online, sistemas a medida, cloud y soporte TI para empresas.</p><p class="foot-motto">El código es la magia de nuestro mundo.</p></div>
+        <div><h4>Servicios</h4><ul>${S.services.map((s) => `<li><a href="servicios.html">${esc(s.title)}</a></li>`).join("")}</ul></div>
+        <div><h4>Empresa</h4><ul><li><a href="soluciones.html">Soluciones por rubro</a></li><li><a href="proyectos.html">Proyectos y demos</a></li><li><a href="planes.html">Planes</a></li><li><a href="planes.html#faq">Preguntas frecuentes</a></li><li><a href="nosotros.html">Nosotros</a></li><li><a href="privacidad.html">Privacidad</a></li></ul></div>
+        <div><h4>Contacto</h4><ul><li><a href="${wa(S.contact.whatsappMessage)}" target="_blank" rel="noopener">WhatsApp ${phone}</a></li><li><a href="mailto:${esc(S.contact.email)}">${esc(S.contact.email)}</a></li><li>${esc(S.contact.location)}</li></ul></div>
+      </div>
+      <div class="wrap foot-bottom"><span>© ${new Date().getFullYear()} ${esc(S.brand)}</span><a href="#">Volver arriba ↑</a></div>
+    </footer>
+    <a class="wa-float" href="${wa(S.contact.whatsappMessage)}" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><span class="si" style="--icon:url(${SI}whatsapp.svg)"></span></a>`);
 
-  const techItems = S.tech
-    .map((t) => `<span class="tech" style="--c:${t.color}">${icon(t.icon)}${esc(t.name)}</span>`)
-    .join("");
-  $("tech").innerHTML = techItems + `<span aria-hidden="true" class="dup">${techItems}</span>`;
+  // Menú en celular
+  const menuBtn = $("menu-btn"), nav = $("site-nav");
+  menuBtn.onclick = () => { const open = nav.classList.toggle("open"); menuBtn.setAttribute("aria-expanded", open); menuBtn.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú"); };
+  $("main-nav").addEventListener("click", (e) => e.target.closest("a") && nav.classList.remove("open"));
 
-  $("services").innerHTML = S.services
-    .map(
-      (s) => `<article class="card spot arcana${s.wide ? " wide" : ""}">
+  // Banda final de llamada a la acción ([data-cta] en cada página)
+  document.querySelectorAll("[data-cta]").forEach((el) => (el.outerHTML = `
+    <div class="cta-band">
+      <div>
+        <h2>¿Listo para que la tecnología trabaje para ti?</h2>
+        <p>Escríbenos y en minutos te mostramos ejemplos de tu rubro y una cotización sin compromiso.</p>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-glow" href="${wa(S.contact.whatsappMessage)}" target="_blank" rel="noopener">Hablar por WhatsApp <span aria-hidden="true">→</span></a>
+        <a class="btn btn-ghost" href="proyectos.html">Ver demos</a>
+      </div>
+    </div>`));
+
+  // ---------- Contenido: cada bloque se pinta solo si la página lo tiene ----------
+  const put = (id, html) => { const el = $(id); if (el) el.innerHTML = html; return el; };
+  const take = (id, list) => { const el = $(id); return el && el.dataset.limit ? list.slice(0, +el.dataset.limit) : list; };
+
+  if ($("headline")) {
+    $("available").textContent = S.available;
+    $("headline").textContent = S.headline;
+    $("intro").textContent = S.intro;
+    $("hero-whatsapp").href = wa(S.contact.whatsappMessage);
+  }
+  put("badges", (S.badges || []).map((b) => `<li>${esc(b)}</li>`).join(""));
+
+  const techItems = S.tech.map((t) => `<span class="tech" style="--c:${t.color}">${icon(t.icon)}${esc(t.name)}</span>`).join("");
+  put("tech", techItems + `<span aria-hidden="true" class="dup">${techItems}</span>`);
+
+  put("services", take("services", S.services)
+    .map((s) => `<article class="card spot arcana${s.wide ? " wide" : ""}">
         ${s.image ? `<div class="svc-img"><img src="${esc(s.image)}" alt="Ejemplo de ${esc(s.title.toLowerCase())}" loading="lazy"></div>` : ""}
         <div class="svc-body">
           <h3><span class="icon" aria-hidden="true">${esc(s.icon)}</span>${esc(s.title)}</h3>
           <p>${esc(s.text)}</p>
           <ul class="examples" aria-label="Ejemplos">${(s.examples || []).map((e) => `<li>${esc(e)}</li>`).join("")}</ul>
-        </div></article>`
-    )
-    .join("");
+        </div></article>`)
+    .join(""));
 
-  $("projects").innerHTML = S.projects
-    .map(
-      (p) => `<a class="card spot project" href="${esc(p.url)}"${p.url.startsWith("demos/") ? ' target="_blank" rel="noopener"' : ""}>
+  put("projects", take("projects", S.projects)
+    .map((p) => `<a class="card spot project" href="${esc(p.url)}"${p.url.startsWith("demos/") ? ' target="_blank" rel="noopener"' : ""}>
         <div class="shot">${p.image ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" loading="lazy">` : MOCKS[p.mock] || ""}</div>
         <span class="tag">${esc(p.tag)}</span>
         <h3>${esc(p.title)}</h3>
         <p>${esc(p.text)}</p>
         <ul class="stack">${p.stack.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
         ${p.url.startsWith("demos/") ? `<span class="live"><i></i>Ver demo en vivo ↗</span>` : ""}
-      </a>`
-    )
-    .join("");
+      </a>`)
+    .join(""));
 
-  $("profiles").innerHTML = S.profiles
+  put("profiles", S.profiles
     .filter((p) => p.url)
-    .map(
-      (p) => `<a class="card spot profile" href="${esc(p.url)}" target="_blank" rel="noopener">
+    .map((p) => `<a class="card spot profile" href="${esc(p.url)}" target="_blank" rel="noopener">
         <span class="p-icon">${p.icon && p.icon.startsWith("si:") ? icon(p.icon.slice(3)) : esc(p.name[0])}</span>
         <span><b>${esc(p.name)}</b><small>${esc(p.note)}</small></span>
         <span class="arrow" aria-hidden="true">↗</span>
-      </a>`
-    )
-    .join("");
+      </a>`)
+    .join(""));
 
-  if (S.certifications.length) {
+  if (S.certifications.length && $("certs")) {
     $("certs-wrap").hidden = false;
-    $("certs").innerHTML = S.certifications
-      .map(
-        (c) => `<a class="card spot cert" href="${esc(c.url || "#")}" target="_blank" rel="noopener">
-          <span class="tag">${esc(c.issuer)} · ${esc(c.year)}</span><h3>${esc(c.title)}</h3><span class="muted">Verificar ↗</span></a>`
-      )
-      .join("");
+    put("certs", S.certifications
+      .map((c) => `<a class="card spot cert" href="${esc(c.url || "#")}" target="_blank" rel="noopener">
+          <span class="tag">${esc(c.issuer)} · ${esc(c.year)}</span><h3>${esc(c.title)}</h3><span class="muted">Verificar ↗</span></a>`)
+      .join(""));
   }
 
-  // Sellos, rubros, planes y preguntas frecuentes
-  $("badges").innerHTML = (S.badges || []).map((b) => `<li>${esc(b)}</li>`).join("");
-  $("industries").innerHTML = (S.industries || [])
+  put("industries", take("industries", S.industries || [])
     .map((r) => `<a class="card spot industry" href="${esc(r.demo)}" target="_blank" rel="noopener"><span class="ind-ic" aria-hidden="true">${r.icon}</span><h3>${esc(r.title)}</h3><p>${esc(r.text)}</p><span class="live"><i></i>Ver demo ↗</span></a>`)
-    .join("");
-  $("plans").innerHTML = (S.plans || [])
+    .join(""));
+
+  put("plans", (S.plans || [])
     .map((p) => `<article class="card plan${p.featured ? " featured" : ""}">
         <span class="plan-tag">${esc(p.tag)}</span>
         <h3>${esc(p.name)}</h3>
@@ -112,24 +157,23 @@
         <ul>${p.features.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
         <a class="btn ${p.featured ? "btn-glow" : "btn-ghost"}" target="_blank" rel="noopener" href="${wa(`Hola Wilk Works, me interesa el plan "${p.name}". ¿Me pueden cotizar?`)}">Cotizar ${esc(p.name.toLowerCase())}</a>
       </article>`)
-    .join("");
-  $("faq-list").innerHTML = (S.faq || []).map((f) => `<details class="card"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("");
-  $("cta-whatsapp").href = wa(S.contact.whatsappMessage);
+    .join(""));
+
+  put("faq-list", (S.faq || []).map((f) => `<details class="card"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join(""));
+
+  put("values", (S.values || []).map((v) => `<article class="card"><h3>${esc(v.title)}</h3><p>${esc(v.text)}</p></article>`).join(""));
 
   const n = S.process.length;
-  $("process").innerHTML = S.process
-    .map((p, i) => `<li class="card"><span class="seq">seq.${pad(n - i)}</span><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></li>`)
-    .join("");
+  put("process", S.process.map((p, i) => `<li class="card"><span class="seq">seq.${pad(n - i)}</span><h3>${esc(p.title)}</h3><p>${esc(p.text)}</p></li>`).join(""));
 
-  const cw = $("c-whatsapp");
-  cw.href = wa(S.contact.whatsappMessage);
-  cw.textContent = "+" + S.contact.whatsapp.replace(/^(\d{2})(\d{3})(\d{3})(\d{3})$/, "$1 $2 $3 $4");
-  $("c-email").href = "mailto:" + S.contact.email;
-  $("c-email").textContent = S.contact.email;
-  $("c-location").textContent = S.contact.location;
-  $("year").textContent = new Date().getFullYear();
-
-  $("contact-form").addEventListener("submit", (e) => {
+  if ($("c-whatsapp")) {
+    $("c-whatsapp").href = wa(S.contact.whatsappMessage);
+    $("c-whatsapp").textContent = phone;
+    $("c-email").href = "mailto:" + S.contact.email;
+    $("c-email").textContent = S.contact.email;
+    $("c-location").textContent = S.contact.location;
+  }
+  $("contact-form")?.addEventListener("submit", (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
     const company = f.get("company") ? ` de ${f.get("company")}` : "";
@@ -139,7 +183,7 @@
   // ---------- Animaciones ----------
   // Texto rotativo
   const rot = $("rotating");
-  if (reduced) rot.textContent = S.rotating[0];
+  if (!rot) {} else if (reduced) rot.textContent = S.rotating[0];
   else {
     let w = 0, c = 0, del = false;
     (function tick() {
@@ -156,6 +200,7 @@
   const term = $("term");
   const renderLine = ([p, t]) => `<span class="p">${esc(p)}</span>${esc(t)}\n`;
   function typeRitual() {
+    if (!term) return;
     if (reduced) return (term.innerHTML = S.ritual.map(renderLine).join(""));
     let li = 0, ch = 0, done = "";
     (function type() {
@@ -204,6 +249,7 @@
   //   0 source  → líneas de código
   //   1 render  → la forma (dos anillos enlazados, raymarching) en caracteres ASCII
   //   2 manifest → la misma forma como imagen suave
+  if ($("mind")) {
   const cv = $("mind"), ctx = cv.getContext("2d");
   const img = document.createElement("canvas"), ictx = img.getContext("2d");
   const label = $("mind-stage");
@@ -380,6 +426,7 @@
     my = (e.clientY / innerHeight) * 2 - 1;
   });
   document.fonts.ready.then(() => (size(), requestAnimationFrame(frame)));
+  }
 
   // ---------- Fondo: niebla gris en WebGL (fbm con deformación de dominio) ----------
   const fx = $("fogfx"), gl = fx.getContext("webgl", { antialias: false, premultipliedAlpha: false });

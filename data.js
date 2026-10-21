@@ -149,6 +149,14 @@ window.SITE = {
     { q: "¿Qué pasa si algo falla después de publicar?", a: "Tienes un periodo de garantía para corregir errores sin costo, y nos escribes directo por WhatsApp." },
   ],
 
+  // Principios (página Nosotros)
+  values: [
+    { title: "Claridad antes que código", text: "Primero entendemos y describimos bien el problema. Un problema bien nombrado ya está a medio resolver." },
+    { title: "Lo que se ve y lo que sostiene", text: "Cuidamos tanto la pantalla que ve tu cliente como lo que no se ve: seguridad, respaldos y rendimiento." },
+    { title: "Todo a tu nombre", text: "El dominio, el código y los datos son tuyos desde el primer día. No dependes de nosotros para seguir operando." },
+    { title: "Avances que puedes tocar", text: "Entregas cortas, demos en vivo y fechas por escrito. Siempre sabes en qué punto está tu proyecto." },
+  ],
+
   // Líneas de la terminal. "$ " = comando, "> " = paso, "→ " = resultado.
   ritual: [
     ["$ ", "wilk init --proyecto=tu-empresa"],
